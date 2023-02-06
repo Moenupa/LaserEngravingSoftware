@@ -131,14 +131,14 @@ public class Zi_ti2 extends JDialog {
    }
 
    public static int getFontStyleByCnName(String fontStyle) {
-      if (fontStyle.equals(mainJFrame.str_chang_gui)) {
+      if (fontStyle.equals(mainJFrame.str_routine)) {
          return 0;
-      } else if (fontStyle.equals(mainJFrame.str_xie_ti)) {
+      } else if (fontStyle.equals(mainJFrame.str_italic)) {
          return 2;
-      } else if (fontStyle.equals(mainJFrame.str_cu_ti)) {
+      } else if (fontStyle.equals(mainJFrame.str_bold)) {
          return 1;
       } else {
-         return fontStyle.equals(mainJFrame.str_cu_xie) ? 3 : -1;
+         return fontStyle.equals(mainJFrame.str_bold_italic) ? 3 : -1;
       }
    }
 
@@ -176,11 +176,11 @@ public class Zi_ti2 extends JDialog {
    }
 
    private void formWindowOpened(WindowEvent evt) {
-      this.jLabel1.setText(mainJFrame.str_zi_ti);
-      this.jLabel2.setText(mainJFrame.str_zi_xing);
-      this.jLabel3.setText(mainJFrame.str_chi_cun + "10");
-      this.jCheckBox1.setText(mainJFrame.str_shu);
-      this.jCheckBox2.setText(mainJFrame.str_shi_liang);
+      this.jLabel1.setText(mainJFrame.str_font);
+      this.jLabel2.setText(mainJFrame.str_typeface);
+      this.jLabel3.setText(mainJFrame.str_size + "10");
+      this.jCheckBox1.setText(mainJFrame.str_vertical);
+      this.jCheckBox2.setText(mainJFrame.str_vector);
       this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       String[] fontNames = ge.getAvailableFontFamilyNames();
@@ -191,7 +191,7 @@ public class Zi_ti2 extends JDialog {
       }
 
       this.zi_ti_Box.setModel(new DefaultComboBoxModel(fontNames2));
-      String[] fontStyles = new String[]{mainJFrame.str_chang_gui, mainJFrame.str_xie_ti, mainJFrame.str_cu_ti, mainJFrame.str_cu_xie};
+      String[] fontStyles = new String[]{mainJFrame.str_routine, mainJFrame.str_italic, mainJFrame.str_bold, mainJFrame.str_bold_italic};
       this.zi_xing_Box.setModel(new DefaultComboBoxModel(fontStyles));
       if (ziti == null) {
          daxiao = 120;

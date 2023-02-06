@@ -78,9 +78,9 @@ public class Gu_jian extends JFrame {
 
    private void formWindowOpened(WindowEvent evt) {
       SerialPort com = null;
-      mainJFrame.com2 = new Com((SerialPort)com);
-      this.jLabel1.setText(mainJFrame.str_xing_hao);
-      this.jButton1.setText(mainJFrame.str_kai_shi_geng_xin);
+      mainJFrame.handler = new Com((SerialPort)com);
+      this.jLabel1.setText(mainJFrame.str_model);
+      this.jButton1.setText(mainJFrame.str_update);
       this.setBounds(500, 300, this.getWidth(), this.getHeight());
       this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
    }
@@ -117,7 +117,7 @@ public class Gu_jian extends JFrame {
    }
 
    void fu_wei() {
-      mainJFrame.com2.fa_song(new byte[]{-2, 0, 4, 0}, 1);
+      mainJFrame.handler.send(new byte[]{-2, 0, 4, 0}, 1);
 
       try {
          Thread.sleep(600L);
@@ -184,7 +184,7 @@ public class Gu_jian extends JFrame {
 
    void sheng() {
       byte[] byData = null;
-      mainJFrame.com2.fa_song(new byte[]{2, 0, 5, 0, 115}, 1);
+      mainJFrame.handler.send(new byte[]{2, 0, 5, 0, 115}, 1);
 
       try {
          Thread.sleep(6000L);
@@ -230,7 +230,7 @@ public class Gu_jian extends JFrame {
                } catch (InterruptedException var8) {
                   Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String)null, var8);
                }
-            } while(!mainJFrame.com2.fa_song(listTobyte1(bao), 1));
+            } while(!mainJFrame.handler.send(listTobyte1(bao), 1));
 
             bao.clear();
             Dimension d = this.jProgressBar1.getSize();
@@ -249,9 +249,9 @@ public class Gu_jian extends JFrame {
                if (Gu_jian.this.downloadNet(di_zhi)) {
                   Gu_jian.this.fu_wei();
                   Gu_jian.this.sheng();
-                  mainJFrame.com2.fa_song(new byte[]{4, 0, 4, 0}, 1);
+                  mainJFrame.handler.send(new byte[]{4, 0, 4, 0}, 1);
                } else {
-                  JOptionPane.showMessageDialog((Component)null, mainJFrame.str_xia_zai_shi_bai);
+                  JOptionPane.showMessageDialog((Component)null, mainJFrame.str_download_fail);
                }
             } catch (MalformedURLException var2) {
                Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String)null, var2);

@@ -493,7 +493,7 @@ public class Wang2 {
 
                   if (Wang2.this.fanhui.length == 4) {
                      if (Wang2.this.fanhui[0] == -1 && Wang2.this.fanhui[1] == -1 && Wang2.this.fanhui[2] == 0) {
-                        if (Wang2.this.win != null && !Wang2.this.win.com_dakai && Wang2.this.lian_jie) {
+                        if (Wang2.this.win != null && !Wang2.this.win.com_isOpened && Wang2.this.lian_jie) {
                         }
                      } else if (Wang2.this.fanhui[0] == -1 && Wang2.this.fanhui[1] == -1 && Wang2.this.fanhui[2] == -1 && Wang2.this.fanhui[3] == -1) {
                         Wang2.this.jdt.setValue(0);

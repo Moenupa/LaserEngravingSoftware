@@ -474,14 +474,14 @@ public class Wang {
 
                      if (Wang.this.jie_shou_len2 > 3) {
                         Wang.this.jie_shou_len2 = 0;
-                        if (Wang.this.jie_shou2[0] == -1 && Wang.this.jie_shou2[1] == -1 && Wang.this.jie_shou2[2] == 0 && Wang.this.win != null && (Wang.this.win.com_dakai || Wang.this.lian_jie)) {
+                        if (Wang.this.jie_shou2[0] == -1 && Wang.this.jie_shou2[1] == -1 && Wang.this.jie_shou2[2] == 0 && Wang.this.win != null && (Wang.this.win.com_isOpened || Wang.this.lian_jie)) {
                            mainJFrame var10000 = Wang.this.win;
                            mainJFrame.kai_shi2 = true;
                            Wang.this.jdt.setValue(Wang.this.jie_shou2[3]);
                            Wang.this.jdt.setVisible(true);
                            mainJFrame.kai_shi = true;
                            var10000 = Wang.this.win;
-                           mainJFrame.chaoshi = 0;
+                           mainJFrame.timeout = 0;
                         }
                      } else {
                         Wang.this.fan_hui_ma = f;

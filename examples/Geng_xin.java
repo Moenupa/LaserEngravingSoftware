@@ -86,8 +86,8 @@ public class Geng_xin {
             String[] strArr = gx.split("\r\n");
             if (strArr.length > 1 && strArr[0].equals("1")) {
                try {
-                  if (Geng_xin.compareVersion(strArr[1].toUpperCase(), mainJFrame.ban_ben.toUpperCase()) > 0) {
-                     int n = JOptionPane.showConfirmDialog((Component)null, mainJFrame.str_geng_xin, "", 0);
+                  if (Geng_xin.compareVersion(strArr[1].toUpperCase(), mainJFrame.software_version.toUpperCase()) > 0) {
+                     int n = JOptionPane.showConfirmDialog((Component)null, mainJFrame.str_outdated, "", 0);
                      if (n == 0) {
                         try {
                            Properties props = System.getProperties();

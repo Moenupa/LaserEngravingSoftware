@@ -18,10 +18,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SerialPortUtil {
-   static Object suo = new Object();
+   static Object lock = new Object();
 
+   /**
+    * Get all serial ports
+    *
+    * @return a list of string
+    */
    public static List<String> getSerialPortList() {
-      List<String> systemPorts = new ArrayList();
+      List<String> systemPorts = new ArrayList<>();
       Enumeration portList = CommPortIdentifier.getPortIdentifiers();
 
       while(portList.hasMoreElements()) {
@@ -73,26 +78,23 @@ public class SerialPortUtil {
    }
 
    public static void sendData(SerialPort serialPort, byte[] data) {
-      synchronized(suo) {
+      synchronized(lock) {
          OutputStream os = null;
 
          try {
             os = serialPort.getOutputStream();
             os.write(data);
             os.flush();
-         } catch (IOException var15) {
-            var15.printStackTrace();
+         } catch (IOException e) {
+            e.printStackTrace();
          } finally {
             try {
-               if (os != null) {
+               if (os != null)
                   os.close();
-               }
-            } catch (IOException var14) {
-               var14.printStackTrace();
+            } catch (IOException e) {
+               e.printStackTrace();
             }
-
          }
-
       }
    }
 
@@ -107,31 +109,25 @@ public class SerialPortUtil {
             bytes = new byte[bufflenth];
             is.read(bytes);
          }
-      } catch (IOException var12) {
-         var12.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
       } finally {
          try {
-            if (is != null) {
+            if (is != null)
                is.close();
-            }
-         } catch (IOException var11) {
-            var11.printStackTrace();
+         } catch (IOException e) {
+            e.printStackTrace();
          }
-
       }
-
       return bytes;
    }
 
    public static String readLine(SerialPort serialPort) {
       InputStream is = null;
       StringBuilder sb = new StringBuilder();
-      Object var3 = null;
 
       try {
          is = serialPort.getInputStream();
-         char bt = false;
-         boolean var5 = false;
 
          char bt;
          do {
@@ -142,16 +138,16 @@ public class SerialPortUtil {
 
             sb.append(bt);
          } while(bt != '\r');
-      } catch (IOException var14) {
-         Logger.getLogger(SerialPortUtil.class.getName()).log(Level.SEVERE, (String)null, var14);
+      } catch (IOException e) {
+         Logger.getLogger("SerialPortUtil").log(Level.SEVERE, null, e);
       } finally {
          try {
             if (is != null) {
                is.close();
             }
-         } catch (IOException var13) {
+         } catch (IOException e) {
+            Logger.getLogger("SerialPortUtil").log(Level.SEVERE, null, e);
          }
-
       }
 
       return sb.toString();
