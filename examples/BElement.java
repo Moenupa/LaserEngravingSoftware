@@ -8,7 +8,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D.Float;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -17,14 +16,28 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Tu_yuan implements Serializable {
+public class BElement implements Serializable {
+    // public static final int lei_xing_tupian = 1;
+    // public static final int lei_xing_lujing = 0;
+    public static int tian_chong_md = 5;
+    public static Rectangle zui_zhong_wjx = new Rectangle();
+    public static Rectangle wei_tu_wjx = new Rectangle();
+    public static Rectangle shi_liang_wjx = new Rectangle();
+    public static Rectangle shu_biao = new Rectangle();
+    public static boolean tuo = false;
+    // public static int dk_gonglv = 100;
+    // public static int dk_shendu = 10;
+    // public static int dk_gonglv_sl = 100;
+    // public static int dk_shendu_sl = 10;
+    // public static int dk_cishu = 1;
+    public static List<BPoint> bPoints = null;
+    static int tu_kuan = 0;
+    static int tu_gao = 0;
+    static int da;
     public int type = 0;
     public boolean fill = false;
     public boolean selected = false;
     public GeneralPath path = new GeneralPath();
-
-    public static final int lei_xing_tupian = 1;
-    public static final int lei_xing_lujing = 0;
     public transient BufferedImage wei_tu = null;
     public transient BufferedImage wei_tu_yuan = null;
     public int[] wei_tu_ = null;
@@ -37,36 +50,21 @@ public class Tu_yuan implements Serializable {
     public boolean chuli_fan = false;
     public boolean chuli_jxx = false;
     public boolean chuli_jxy = false;
-    public static int tian_chong_md = 5;
     public int yu_zhi = 50;
     public AffineTransform Tx = new AffineTransform();
-    public static Rectangle zui_zhong_wjx = new Rectangle();
-    public static Rectangle wei_tu_wjx = new Rectangle();
-    public static Rectangle shi_liang_wjx = new Rectangle();
-    public static Rectangle shu_biao = new Rectangle();
-    public static boolean tuo = false;
-    // public static int dk_gonglv = 100;
-    // public static int dk_shendu = 10;
-    // public static int dk_gonglv_sl = 100;
-    // public static int dk_shendu_sl = 10;
-    // public static int dk_cishu = 1;
-    public static List<Dian> dian = null;
-    static int tu_kuan = 0;
-    static int tu_gao = 0;
-    static int da;
 
-    public static List<Tu_yuan> copyResult(List<Tu_yuan> ty) {
-        List<Tu_yuan> res = new ArrayList<>();
+    public static List<BElement> copyResult(List<BElement> ty) {
+        List<BElement> res = new ArrayList<>();
 
-        for (int i = 0; i < ty.size(); ++i) {
-            res.add(copy(ty.get(i)));
+        for (BElement bElement : ty) {
+            res.add(copy(bElement));
         }
 
         return res;
     }
 
-    public static Tu_yuan copy(Tu_yuan ty) {
-        Tu_yuan res = chuang_jian(ty.type, ty.wei_tu);
+    public static BElement copy(BElement ty) {
+        BElement res = chuang_jian(ty.type, ty.wei_tu);
         res.Tx = new AffineTransform(ty.Tx);
         res.selected = ty.selected;
         res.path = new GeneralPath(ty.path);
@@ -79,52 +77,34 @@ public class Tu_yuan implements Serializable {
         return res;
     }
 
-    void translate(double x, double y) {
-        AffineTransform Tx2 = AffineTransform.getTranslateInstance(x, y);
-        Tx2.concatenate(this.Tx);
-        this.Tx = Tx2;
-    }
-
-    void rotate(double angle, double x_anchor, double y_anchor) {
-        AffineTransform Tx2 = AffineTransform.getRotateInstance(angle * 3.14D / 180.0D, x_anchor, y_anchor);
-        Tx2.concatenate(this.Tx);
-        this.Tx = Tx2;
-    }
-
-    void scale(double scale_x, double scale_y) {
-        AffineTransform Tx2 = AffineTransform.getScaleInstance(scale_x, scale_y);
-        Tx2.concatenate(this.Tx);
-        this.Tx = Tx2;
-    }
-
-    static void center(List<Tu_yuan> sz) {
-        Rectangle rect = qu_jv_xing(Hua_ban.ty_shuzu);
-        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing2.transform(Hua_ban.ty_shuzu.get(0).Tx);
+    static void center(List<BElement> sz) {
+        Rectangle rect = qu_jv_xing(Board.bElements);
+        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing2.transform(Board.bElements.get(0).Tx);
         Rectangle rect2 = lu_jing2.getBounds();
         double x = rect2.x + rect2.width / 2.0, y = rect2.y + rect2.height / 2.0;
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                (Hua_ban.ty_shuzu.get(i)).translate((int) (x - (double) (rect.x + rect.width / 2)), (int) (y - (double) (rect.y + rect.height / 2)));
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            if ((Board.bElements.get(i)).selected) {
+                (Board.bElements.get(i)).translate((int) (x - (double) (rect.x + rect.width / 2)), (int) (y - (double) (rect.y + rect.height / 2)));
             }
         }
 
     }
 
-    public static Rectangle qu_jv_xing(Tu_yuan ty) {
+    public static Rectangle qu_jv_xing(BElement ty) {
         GeneralPath newPath = new GeneralPath(ty.path);
         newPath.transform(ty.Tx);
         return newPath.getBounds();
     }
 
-    public static Rectangle qu_jv_xing(List<Tu_yuan> sz) {
+    public static Rectangle qu_jv_xing(List<BElement> sz) {
         GeneralPath newPath = new GeneralPath();
 
         for (int i = 0; i < sz.size(); ++i) {
             if (sz.get(i).selected) {
-                GeneralPath iPath = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                iPath.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+                GeneralPath iPath = new GeneralPath((Board.bElements.get(i)).path);
+                iPath.transform((Board.bElements.get(i)).Tx);
                 newPath.append(iPath, true);
             }
         }
@@ -132,16 +112,16 @@ public class Tu_yuan implements Serializable {
         return newPath.getBounds();
     }
 
-    public static void select_byBoundingBox(List<Tu_yuan> sz, Rectangle rect) {
+    public static void select_byBoundingBox(List<BElement> sz, Rectangle rect) {
         for (int i = 1; i < sz.size(); ++i) {
-            Tu_yuan cur = Hua_ban.ty_shuzu.get(i);
+            BElement cur = Board.bElements.get(i);
             GeneralPath lu_jing3 = new GeneralPath(cur.path);
             lu_jing3.transform(cur.Tx);
             cur.selected = rect.contains(lu_jing3.getBounds());
         }
     }
 
-    public static Tu_yuan chuang_jian_wen_zi(String ss, Font zt, boolean sl) {
+    public static BElement chuang_jian_wen_zi(String ss, Font zt, boolean sl) {
         BufferedImage bimg = new BufferedImage(10, 10, 2);
         Graphics2D g2d = (Graphics2D) bimg.getGraphics();
         Font font = new Font(zt.getName(), zt.getStyle(), zt.getSize());
@@ -165,21 +145,20 @@ public class Tu_yuan implements Serializable {
         g2d2.setColor(Color.BLACK);
 
         for (int i = 0; i < sz.length; ++i) {
-            g2d2.drawString(sz[i], 0.0F, line.getAscent() + (line.getAscent() + (float) (g + Hua_ban.gao)) * (float) i);
+            g2d2.drawString(sz[i], 0.0F, line.getAscent() + (line.getAscent() + (float) (g + Board.bHeight)) * (float) i);
         }
 
         if (!sl) {
-            Tu_yuan fh = chuang_jian(1, bimg2);
-            return fh;
+            return chuang_jian(1, bimg2);
         } else {
             GeneralPath lj = to_ls(bimg2);
-            Tu_yuan fh = chuang_jian(0, (BufferedImage) null);
+            BElement fh = chuang_jian(0, null);
             fh.path = new GeneralPath(lj);
             return fh;
         }
     }
 
-    public static Tu_yuan chuang_jian_wen_zi_shu(String ss, Font zt, int gao, boolean sl) {
+    public static BElement chuang_jian_wen_zi_shu(String ss, Font zt, int gao, boolean sl) {
         BufferedImage bimg = new BufferedImage(10, 10, 2);
         Graphics2D g2d = (Graphics2D) bimg.getGraphics();
         Font font = new Font(zt.getName(), zt.getStyle(), zt.getSize());
@@ -195,7 +174,6 @@ public class Tu_yuan implements Serializable {
         g2d2.setFont(font);
         g2d2.clearRect(0, 0, bimg2.getWidth(), bimg2.getHeight());
         g2d2.setColor(Color.BLACK);
-        new String();
 
         for (int i = 0; i < ss.length(); ++i) {
             String tempStr = ss.substring(i, i + 1);
@@ -203,62 +181,60 @@ public class Tu_yuan implements Serializable {
         }
 
         if (!sl) {
-            Tu_yuan fh = chuang_jian(1, bimg2);
-            return fh;
+            return chuang_jian(1, bimg2);
         } else {
             GeneralPath lj = to_ls(bimg2);
-            Tu_yuan fh = chuang_jian(0, (BufferedImage) null);
+            BElement fh = chuang_jian(0, null);
             fh.path = new GeneralPath(lj);
             return fh;
         }
     }
 
-    public static Tu_yuan chuang_jian(int leixing, BufferedImage wt) {
-        Tu_yuan ty = new Tu_yuan();
-        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+    public static BElement chuang_jian(int leixing, BufferedImage wt) {
+        BElement ty = new BElement();
+        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing2.transform((Board.bElements.get(0)).Tx);
         Rectangle rect = lu_jing2.getBounds();
-        ty.Tx.translate((double) rect.x, (double) rect.y);
-        AffineTransform sf = AffineTransform.getScaleInstance(Hua_ban.quan_beishu, Hua_ban.quan_beishu);
+        ty.Tx.translate(rect.x, rect.y);
+        AffineTransform sf = AffineTransform.getScaleInstance(Board.quan_beishu, Board.quan_beishu);
         ty.Tx.concatenate(sf);
         switch (leixing) {
-            case 0:
+            case 0 -> {
                 ty.type = 0;
                 ty.path.moveTo(0.0F, 0.0F);
                 ty.path.lineTo(400.0F, 0.0F);
                 ty.path.lineTo(400.0F, 400.0F);
                 ty.path.lineTo(0.0F, 400.0F);
                 ty.path.closePath();
-                break;
-            case 1:
-                double bi = 0;
+            }
+            case 1 -> {
+                double bi;
                 if (wt.getWidth() > wt.getHeight()) {
                     if (wt.getWidth() > 1600) {
                         bi = 1600.0D / (double) wt.getWidth();
-                        wt = Tu_pian.zoomImage(wt, bi);
+                        wt = BImage.zoomImage(wt, bi);
                     }
                 } else if (wt.getHeight() > 1600) {
                     bi = 1600.0D / (double) wt.getHeight();
-                    wt = Tu_pian.zoomImage(wt, bi);
+                    wt = BImage.zoomImage(wt, bi);
                 }
-
                 ty.wei_tu_yuan = wt;
                 ty.type = 1;
                 ty.chuli_fs = 1;
-                ty.wei_tu = Tu_pian.hui_du(wt);
-                ty.wei_tu = Tu_pian.heibai(ty.wei_tu, 128);
+                ty.wei_tu = BImage.greyScale(wt);
+                ty.wei_tu = BImage.blackAndWhite(ty.wei_tu, 128);
                 ty.path.moveTo(0.0F, 0.0F);
                 ty.path.lineTo((float) wt.getWidth(), 0.0F);
                 ty.path.lineTo((float) wt.getWidth(), (float) wt.getHeight());
                 ty.path.lineTo(0.0F, (float) wt.getHeight());
                 ty.path.closePath();
-                break;
-            case 2:
+            }
+            case 2 -> {
                 ty.type = 0;
                 Float d = new Float(1.0F, 1.0F, 400.0F, 400.0F);
                 ty.path.append(d, false);
-                break;
-            case 3:
+            }
+            case 3 -> {
                 ty.type = 0;
                 ty.path.moveTo(197.0F, 102.0F);
                 ty.path.lineTo(212.0F, 69.0F);
@@ -291,8 +267,8 @@ public class Tu_yuan implements Serializable {
                 ty.path.lineTo(170.0F, 48.0F);
                 ty.path.lineTo(183.0F, 69.0F);
                 ty.path.closePath();
-                break;
-            case 4:
+            }
+            case 4 -> {
                 ty.type = 0;
                 ty.path.moveTo(121.0F, 0.0F);
                 ty.path.lineTo(149.0F, 93.0F);
@@ -305,141 +281,21 @@ public class Tu_yuan implements Serializable {
                 ty.path.lineTo(0.0F, 94.0F);
                 ty.path.lineTo(92.0F, 93.0F);
                 ty.path.closePath();
+            }
         }
 
         return ty;
     }
 
-    public BufferedImage qu_tu() {
-        GeneralPath lu_jing2 = new GeneralPath(this.path);
-        lu_jing2.transform(this.Tx);
-        Rectangle jx = lu_jing2.getBounds();
-        System.out.println(jx);
-        System.out.println(this.Tx);
-        AffineTransform tx2 = new AffineTransform(this.Tx.getScaleX(), this.Tx.getShearY(), this.Tx.getShearX(), this.Tx.getScaleY(), this.Tx.getTranslateX() - (double) jx.x, this.Tx.getTranslateY() - (double) jx.y);
-        System.out.println(tx2);
-        BufferedImage fh = new BufferedImage(jx.width, jx.height, 2);
-        Graphics2D g2D = fh.createGraphics();
-        g2D.setBackground(Color.WHITE);
-        g2D.clearRect(0, 0, jx.width, jx.height);
-        g2D.drawImage(this.wei_tu_yuan, tx2, (ImageObserver) null);
-        switch (this.chuli_fs) {
-            case 1:
-                fh = Tu_pian.hui_du(fh);
-                fh = Tu_pian.heibai(fh, (int) ((double) this.yu_zhi * 2.56D));
-                if (this.chuli_fan) {
-                    fh = Tu_pian.fanse(fh);
-                }
-
-                if (this.chuli_jxx) {
-                    fh = Tu_pian.jing_xiang_x(fh);
-                }
-
-                if (this.chuli_jxy) {
-                    fh = Tu_pian.jing_xiang_y(fh);
-                }
-                break;
-            case 2:
-                fh = Tu_pian.hui_du(fh);
-                fh = Tu_pian.convertGreyImgByFloyd(fh, (int) ((double) this.yu_zhi * 2.56D));
-                if (this.chuli_fan) {
-                    fh = Tu_pian.fanse(fh);
-                }
-
-                if (this.chuli_jxx) {
-                    fh = Tu_pian.jing_xiang_x(fh);
-                }
-
-                if (this.chuli_jxy) {
-                    fh = Tu_pian.jing_xiang_y(fh);
-                }
-                break;
-            case 3:
-                fh = Tu_pian.hui_du(fh);
-                fh = Tu_pian.heibai(fh, 128);
-                fh = Tu_pian.qu_lunkuo(fh, (int) ((double) this.yu_zhi * 2.56D));
-                break;
-            case 4:
-                fh = Tu_pian.su_miao(fh);
-                fh = Tu_pian.heibai(fh, 50 + (int) ((double) this.yu_zhi * 2.56D));
-                if (this.chuli_fan) {
-                    fh = Tu_pian.fanse(fh);
-                }
-
-                if (this.chuli_jxx) {
-                    fh = Tu_pian.jing_xiang_x(fh);
-                }
-
-                if (this.chuli_jxy) {
-                    fh = Tu_pian.jing_xiang_y(fh);
-                }
-        }
-
-        return fh;
-    }
-
-    public void chu_li() {
-        switch (this.chuli_fs) {
-            case 1:
-                this.wei_tu = Tu_pian.hui_du(this.wei_tu_yuan);
-                this.wei_tu = Tu_pian.heibai(this.wei_tu, (int) ((double) this.yu_zhi * 2.56D));
-                if (this.chuli_fan) {
-                    this.wei_tu = Tu_pian.fanse(this.wei_tu);
-                }
-
-                if (this.chuli_jxx) {
-                    this.wei_tu = Tu_pian.jing_xiang_x(this.wei_tu);
-                }
-
-                if (this.chuli_jxy) {
-                    this.wei_tu = Tu_pian.jing_xiang_y(this.wei_tu);
-                }
-                break;
-            case 2:
-                this.wei_tu = Tu_pian.hui_du(this.wei_tu_yuan);
-                this.wei_tu = Tu_pian.convertGreyImgByFloyd(this.wei_tu, (int) ((double) this.yu_zhi * 2.56D));
-                if (this.chuli_fan) {
-                    this.wei_tu = Tu_pian.fanse(this.wei_tu);
-                }
-
-                if (this.chuli_jxx) {
-                    this.wei_tu = Tu_pian.jing_xiang_x(this.wei_tu);
-                }
-
-                if (this.chuli_jxy) {
-                    this.wei_tu = Tu_pian.jing_xiang_y(this.wei_tu);
-                }
-                break;
-            case 3:
-                this.wei_tu = Tu_pian.qu_lunkuo(this.wei_tu_yuan, (int) ((double) this.yu_zhi * 2.56D));
-                break;
-            case 4:
-                this.wei_tu = Tu_pian.su_miao2(this.wei_tu_yuan);
-                this.wei_tu = Tu_pian.heibai(this.wei_tu, 50 + (int) ((double) this.yu_zhi * 2.56D));
-                if (this.chuli_fan) {
-                    this.wei_tu = Tu_pian.fanse(this.wei_tu);
-                }
-
-                if (this.chuli_jxx) {
-                    this.wei_tu = Tu_pian.jing_xiang_x(this.wei_tu);
-                }
-
-                if (this.chuli_jxy) {
-                    this.wei_tu = Tu_pian.jing_xiang_y(this.wei_tu);
-                }
-        }
-
-    }
-
-    public static void qu_jvxing(List<Tu_yuan> sz) {
+    public static void qu_jvxing(List<BElement> sz) {
         int z = 0;
         int d = 0;
         int y = 0;
         int x = 0;
 
-        for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-            lu_jing2.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (int i = 1; i < Board.bElements.size(); ++i) {
+            GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(i)).path);
+            lu_jing2.transform((Board.bElements.get(i)).Tx);
             Rectangle jx = lu_jing2.getBounds();
             if (i == 1) {
                 z = jx.x;
@@ -465,8 +321,8 @@ public class Tu_yuan implements Serializable {
             }
         }
 
-        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing2.transform((Board.bElements.get(0)).Tx);
         Rectangle jx2 = lu_jing2.getBounds();
         jx2.createIntersection(new Rectangle(z, d, y - z, x - d));
         zui_zhong_wjx = (new Rectangle(z, d, y - z, x - d)).createIntersection(jx2).getBounds();
@@ -479,10 +335,10 @@ public class Tu_yuan implements Serializable {
         GeneralPath lu_jing3;
         Rectangle jx;
         int i;
-        for (i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            if ((Hua_ban.ty_shuzu.get(i)).type == 0) {
-                lu_jing3 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                lu_jing3.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (i = 1; i < Board.bElements.size(); ++i) {
+            if ((Board.bElements.get(i)).type == 0) {
+                lu_jing3 = new GeneralPath((Board.bElements.get(i)).path);
+                lu_jing3.transform((Board.bElements.get(i)).Tx);
                 jx = lu_jing3.getBounds();
                 if (i == 1) {
                     z = jx.x;
@@ -511,10 +367,10 @@ public class Tu_yuan implements Serializable {
 
         shi_liang_wjx = new Rectangle(z, d, y - z, x - d);
 
-        for (i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            if ((Hua_ban.ty_shuzu.get(i)).type == 1) {
-                lu_jing3 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                lu_jing3.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (i = 1; i < Board.bElements.size(); ++i) {
+            if ((Board.bElements.get(i)).type == 1) {
+                lu_jing3 = new GeneralPath((Board.bElements.get(i)).path);
+                lu_jing3.transform((Board.bElements.get(i)).Tx);
                 jx = lu_jing3.getBounds();
                 if (i == 1) {
                     z = jx.x;
@@ -544,15 +400,15 @@ public class Tu_yuan implements Serializable {
         wei_tu_wjx = new Rectangle(z, d, y - z, x - d);
     }
 
-    public static void qu_jvxing3(List<Tu_yuan> sz) {
+    public static void qu_jvxing3(List<BElement> sz) {
         int z = 0;
         int d = 0;
         int y = 0;
         int x = 0;
 
-        for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-            lu_jing2.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (int i = 1; i < Board.bElements.size(); ++i) {
+            GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(i)).path);
+            lu_jing2.transform((Board.bElements.get(i)).Tx);
             Rectangle jx = lu_jing2.getBounds();
             if (i == 1) {
                 z = jx.x;
@@ -578,8 +434,8 @@ public class Tu_yuan implements Serializable {
             }
         }
 
-        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing2.transform((Board.bElements.get(0)).Tx);
         Rectangle jx2 = lu_jing2.getBounds();
         if (jx2.x > z) {
             z = jx2.x;
@@ -602,10 +458,10 @@ public class Tu_yuan implements Serializable {
         GeneralPath lu_jing3;
         Rectangle jx;
         int i;
-        for (i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            if ((Hua_ban.ty_shuzu.get(i)).type == 0) {
-                lu_jing3 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                lu_jing3.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (i = 1; i < Board.bElements.size(); ++i) {
+            if ((Board.bElements.get(i)).type == 0) {
+                lu_jing3 = new GeneralPath((Board.bElements.get(i)).path);
+                lu_jing3.transform((Board.bElements.get(i)).Tx);
                 jx = lu_jing3.getBounds();
                 if (i == 1) {
                     z = jx.x;
@@ -634,10 +490,10 @@ public class Tu_yuan implements Serializable {
 
         shi_liang_wjx = new Rectangle(z, d, y - z, x - d);
 
-        for (i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            if ((Hua_ban.ty_shuzu.get(i)).type == 1) {
-                lu_jing3 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                lu_jing3.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (i = 1; i < Board.bElements.size(); ++i) {
+            if ((Board.bElements.get(i)).type == 1) {
+                lu_jing3 = new GeneralPath((Board.bElements.get(i)).path);
+                lu_jing3.transform((Board.bElements.get(i)).Tx);
                 jx = lu_jing3.getBounds();
                 if (i == 1) {
                     z = jx.x;
@@ -668,61 +524,61 @@ public class Tu_yuan implements Serializable {
     }
 
     public static void hui_fu() {
-        GeneralPath lu_jing3 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing3.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+        GeneralPath lu_jing3 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing3.transform((Board.bElements.get(0)).Tx);
         Rectangle rect3 = lu_jing3.getBounds();
-        Hua_ban.quan_x2 = rect3.x;
-        Hua_ban.quan_y2 = rect3.y;
-        Hua_ban.quan_beishu2 = Hua_ban.quan_beishu;
+        Board.quan_x2 = rect3.x;
+        Board.quan_y2 = rect3.y;
+        Board.quan_beishu2 = Board.quan_beishu;
 
         for (int j = 0; j < 2; ++j) {
-            GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-            lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+            GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+            lu_jing2.transform((Board.bElements.get(0)).Tx);
             Rectangle rect = lu_jing2.getBounds();
-            AffineTransform sf = AffineTransform.getTranslateInstance((double) (0 - rect.x), (double) (0 - rect.y));
-            Hua_ban.quan_x = 0;
-            Hua_ban.quan_y = 0;
+            AffineTransform sf = AffineTransform.getTranslateInstance(-rect.x, -rect.y);
+            Board.quan_x = 0;
+            Board.quan_y = 0;
 
             int i;
             AffineTransform fb;
-            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (i = 0; i < Board.bElements.size(); ++i) {
                 fb = new AffineTransform(sf);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
 
-            sf = AffineTransform.getScaleInstance(1.0D / Hua_ban.quan_beishu, 1.0D / Hua_ban.quan_beishu);
-            Hua_ban.quan_beishu = 1.0D;
+            sf = AffineTransform.getScaleInstance(1.0D / Board.quan_beishu, 1.0D / Board.quan_beishu);
+            Board.quan_beishu = 1.0D;
 
-            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (i = 0; i < Board.bElements.size(); ++i) {
                 fb = new AffineTransform(sf);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
         }
 
     }
 
     public static void hui_fu_xian_chang() {
-        Hua_ban.quan_x = Hua_ban.quan_x2;
-        Hua_ban.quan_y = Hua_ban.quan_y2;
-        Hua_ban.quan_beishu = Hua_ban.quan_beishu2;
-        AffineTransform sf = AffineTransform.getScaleInstance(Hua_ban.quan_beishu, Hua_ban.quan_beishu);
+        Board.quan_x = Board.quan_x2;
+        Board.quan_y = Board.quan_y2;
+        Board.quan_beishu = Board.quan_beishu2;
+        AffineTransform sf = AffineTransform.getScaleInstance(Board.quan_beishu, Board.quan_beishu);
 
         int i;
         AffineTransform fb;
-        for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+        for (i = 0; i < Board.bElements.size(); ++i) {
             fb = new AffineTransform(sf);
-            fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-            (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+            fb.concatenate((Board.bElements.get(i)).Tx);
+            (Board.bElements.get(i)).Tx = fb;
         }
 
-        sf = AffineTransform.getTranslateInstance((double) Hua_ban.quan_x, (double) Hua_ban.quan_y);
+        sf = AffineTransform.getTranslateInstance(Board.quan_x, Board.quan_y);
 
-        for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+        for (i = 0; i < Board.bElements.size(); ++i) {
             fb = new AffineTransform(sf);
-            fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-            (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+            fb.concatenate((Board.bElements.get(i)).Tx);
+            (Board.bElements.get(i)).Tx = fb;
         }
 
     }
@@ -732,38 +588,38 @@ public class Tu_yuan implements Serializable {
 
         try {
             ImageIO.write(bb, "png", outputfile);
-        } catch (IOException var4) {
-            Logger.getLogger(Tu_yuan.class.getName()).log(Level.SEVERE, (String) null, var4);
+        } catch (IOException e) {
+            Logger.getLogger(BElement.class.getName()).log(Level.SEVERE, null, e);
         }
 
     }
 
-    public static BufferedImage qu_tu(List<Tu_yuan> sz) {
-        BufferedImage fh = new BufferedImage((int) ((double) Hua_ban.kuan / Hua_ban.fen_bian_lv) - 2, (int) ((double) Hua_ban.gao / Hua_ban.fen_bian_lv) - 2, 2);
+    public static BufferedImage qu_tu(List<BElement> sz) {
+        BufferedImage fh = new BufferedImage((int) ((double) Board.bWidth / Board.resolution) - 2, (int) ((double) Board.bHeight / Board.resolution) - 2, 2);
         Graphics2D g2D = fh.createGraphics();
         g2D.setBackground(Color.WHITE);
         g2D.clearRect(0, 0, fh.getWidth(), fh.getHeight());
         boolean you = false;
 
-        for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            if ((Hua_ban.ty_shuzu.get(i)).type == 1 && (Hua_ban.ty_shuzu.get(i)).chuli_fs != 3) {
-                GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                lu_jing2.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+        for (int i = 1; i < Board.bElements.size(); ++i) {
+            if ((Board.bElements.get(i)).type == 1 && (Board.bElements.get(i)).chuli_fs != 3) {
+                GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(i)).path);
+                lu_jing2.transform((Board.bElements.get(i)).Tx);
                 Rectangle jx = lu_jing2.getBounds();
-                g2D.drawImage((Hua_ban.ty_shuzu.get(i)).qu_tu(), jx.x, jx.y, (ImageObserver) null);
+                g2D.drawImage((Board.bElements.get(i)).qu_tu(), jx.x, jx.y, null);
                 you = true;
             }
         }
 
         if (you) {
-            BufferedImage fh2 = new BufferedImage((int) ((double) Hua_ban.kuan / Hua_ban.fen_bian_lv), (int) ((double) Hua_ban.gao / Hua_ban.fen_bian_lv), 2);
+            BufferedImage fh2 = new BufferedImage((int) ((double) Board.bWidth / Board.resolution), (int) ((double) Board.bHeight / Board.resolution), 2);
             Graphics2D g2D2 = fh2.createGraphics();
             g2D2.setBackground(Color.WHITE);
             int w = fh2.getWidth();
             int h = fh2.getHeight();
             g2D2.clearRect(0, 0, w, h);
-            g2D2.drawImage(fh, 1, 1, (ImageObserver) null);
-            qu_jvxing(Hua_ban.ty_shuzu);
+            g2D2.drawImage(fh, 1, 1, null);
+            qu_jvxing(Board.bElements);
             Rectangle jx = new Rectangle(0, 0, w, h);
             new Rectangle();
             if (zui_zhong_wjx.x == 0 && zui_zhong_wjx.y == 0 && zui_zhong_wjx.width == 0 && zui_zhong_wjx.height == 0) {
@@ -791,42 +647,42 @@ public class Tu_yuan implements Serializable {
         }
     }
 
-    public static BufferedImage qu_tu_sl(List<Tu_yuan> sz) {
-        BufferedImage fh = new BufferedImage((int) ((double) Hua_ban.kuan / Hua_ban.fen_bian_lv), (int) ((double) Hua_ban.gao / Hua_ban.fen_bian_lv), 2);
+    public static BufferedImage qu_tu_sl(List<BElement> sz) {
+        BufferedImage fh = new BufferedImage((int) ((double) Board.bWidth / Board.resolution), (int) ((double) Board.bHeight / Board.resolution), 2);
         Graphics2D g2D = fh.createGraphics();
         g2D.setBackground(Color.WHITE);
         g2D.clearRect(0, 0, fh.getWidth(), fh.getHeight());
         boolean you = false;
 
-        for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            GeneralPath lu_jing4 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-            lu_jing4.transform((Hua_ban.ty_shuzu.get(i)).Tx);
-            if ((Hua_ban.ty_shuzu.get(i)).type == 0) {
+        for (int i = 1; i < Board.bElements.size(); ++i) {
+            GeneralPath lu_jing4 = new GeneralPath((Board.bElements.get(i)).path);
+            lu_jing4.transform((Board.bElements.get(i)).Tx);
+            if ((Board.bElements.get(i)).type == 0) {
                 g2D.setColor(Color.BLACK);
                 g2D.draw(lu_jing4);
                 you = true;
             }
 
-            if ((Hua_ban.ty_shuzu.get(i)).type == 1 && (Hua_ban.ty_shuzu.get(i)).chuli_fs == 3) {
-                GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                lu_jing2.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+            if ((Board.bElements.get(i)).type == 1 && (Board.bElements.get(i)).chuli_fs == 3) {
+                GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(i)).path);
+                lu_jing2.transform((Board.bElements.get(i)).Tx);
                 Rectangle jx = lu_jing2.getBounds();
                 g2D.setColor(Color.BLACK);
-                g2D.drawImage((Hua_ban.ty_shuzu.get(i)).qu_tu(), jx.x, jx.y, (ImageObserver) null);
+                g2D.drawImage((Board.bElements.get(i)).qu_tu(), jx.x, jx.y, null);
                 you = true;
             }
         }
 
         if (you) {
             try {
-                BufferedImage fh2 = new BufferedImage((int) ((double) Hua_ban.kuan / Hua_ban.fen_bian_lv) + 4, (int) ((double) Hua_ban.gao / Hua_ban.fen_bian_lv) + 4, 2);
+                BufferedImage fh2 = new BufferedImage((int) ((double) Board.bWidth / Board.resolution) + 4, (int) ((double) Board.bHeight / Board.resolution) + 4, 2);
                 Graphics2D g2D2 = fh2.createGraphics();
                 g2D2.setBackground(Color.WHITE);
                 int w = fh2.getWidth();
                 int h = fh2.getHeight();
                 g2D2.clearRect(0, 0, w, h);
-                g2D2.drawImage(fh, 2, 2, (ImageObserver) null);
-                qu_jvxing(Hua_ban.ty_shuzu);
+                g2D2.drawImage(fh, 2, 2, null);
+                qu_jvxing(Board.bElements);
                 Rectangle jx = new Rectangle(0, 0, w, h);
                 new Rectangle();
                 if (zui_zhong_wjx.x == 0 && zui_zhong_wjx.y == 0 && zui_zhong_wjx.width == 0 && zui_zhong_wjx.height == 0) {
@@ -850,12 +706,12 @@ public class Tu_yuan implements Serializable {
                     try {
                         return fh2.getSubimage(jx2.x, jx2.y, w, h);
                     } catch (Exception var15) {
-                        JOptionPane.showMessageDialog((Component) null, var15);
+                        JOptionPane.showMessageDialog(null, var15);
                         return null;
                     }
                 }
             } catch (Exception var16) {
-                JOptionPane.showMessageDialog((Component) null, var16);
+                JOptionPane.showMessageDialog(null, var16);
                 return null;
             }
         } else {
@@ -863,17 +719,17 @@ public class Tu_yuan implements Serializable {
         }
     }
 
-    public static BufferedImage qu_tu_sl_tc(List<Tu_yuan> sz) {
-        BufferedImage fh = new BufferedImage((int) ((double) Hua_ban.kuan / Hua_ban.fen_bian_lv), (int) ((double) Hua_ban.gao / Hua_ban.fen_bian_lv), 2);
+    public static BufferedImage qu_tu_sl_tc(List<BElement> sz) {
+        BufferedImage fh = new BufferedImage((int) ((double) Board.bWidth / Board.resolution), (int) ((double) Board.bHeight / Board.resolution), 2);
         Graphics2D g2D = fh.createGraphics();
         g2D.setBackground(Color.WHITE);
         g2D.clearRect(0, 0, fh.getWidth(), fh.getHeight());
         boolean you = false;
 
-        for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-            GeneralPath lu_jing4 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-            lu_jing4.transform((Hua_ban.ty_shuzu.get(i)).Tx);
-            if ((Hua_ban.ty_shuzu.get(i)).type == 0 && (Hua_ban.ty_shuzu.get(i)).fill) {
+        for (int i = 1; i < Board.bElements.size(); ++i) {
+            GeneralPath lu_jing4 = new GeneralPath((Board.bElements.get(i)).path);
+            lu_jing4.transform((Board.bElements.get(i)).Tx);
+            if ((Board.bElements.get(i)).type == 0 && (Board.bElements.get(i)).fill) {
                 g2D.setColor(Color.BLACK);
                 lu_jing4.setWindingRule(0);
                 g2D.fill(lu_jing4);
@@ -882,14 +738,14 @@ public class Tu_yuan implements Serializable {
         }
 
         if (you) {
-            BufferedImage fh2 = new BufferedImage((int) ((double) Hua_ban.kuan / Hua_ban.fen_bian_lv) + 4, (int) ((double) Hua_ban.gao / Hua_ban.fen_bian_lv) + 4, 2);
+            BufferedImage fh2 = new BufferedImage((int) ((double) Board.bWidth / Board.resolution) + 4, (int) ((double) Board.bHeight / Board.resolution) + 4, 2);
             Graphics2D g2D2 = fh2.createGraphics();
             g2D2.setBackground(Color.WHITE);
             int w = fh2.getWidth();
             int h = fh2.getHeight();
             g2D2.clearRect(0, 0, w, h);
-            g2D2.drawImage(fh, 2, 2, (ImageObserver) null);
-            qu_jvxing(Hua_ban.ty_shuzu);
+            g2D2.drawImage(fh, 2, 2, null);
+            qu_jvxing(Board.bElements);
             Rectangle jx = new Rectangle(0, 0, w, h);
             new Rectangle();
             if (zui_zhong_wjx.x == 0 && zui_zhong_wjx.y == 0 && zui_zhong_wjx.width == 0 && zui_zhong_wjx.height == 0) {
@@ -917,19 +773,15 @@ public class Tu_yuan implements Serializable {
         }
     }
 
-    static Dian qu_xiao(Dian d1, Dian d2, Dian d3) {
-        if (d1.x == 242 && d1.y == 85) {
-            d1.x = 242;
-        }
-
-        int lxiao = Math.abs(d1.x - d2.x) > Math.abs(d1.y - d2.y) ? Math.abs(d1.y - d2.y) : Math.abs(d1.x - d2.x);
-        int lxiao2 = Math.abs(d1.x - d3.x) > Math.abs(d1.y - d3.y) ? Math.abs(d1.y - d3.y) : Math.abs(d1.x - d3.x);
+    static BPoint qu_xiao(BPoint d1, BPoint d2, BPoint d3) {
+        int lxiao = Math.min(Math.abs(d1.x - d2.x), Math.abs(d1.y - d2.y));
+        int lxiao2 = Math.min(Math.abs(d1.x - d3.x), Math.abs(d1.y - d3.y));
         return lxiao < lxiao2 ? d2 : d3;
     }
 
-    static Dian qu_jindian(Dian d, BufferedImage bb) {
-        Dian fh = new Dian(50000, 0);
-        List<Dian> zd = new ArrayList();
+    static BPoint qu_jindian(BPoint d, BufferedImage bb) {
+        BPoint fh = new BPoint(50000, 0);
+        List<BPoint> zd = new ArrayList<>();
 
         for (int c = 1; c < da; ++c) {
             int ls = d.y - c;
@@ -937,7 +789,7 @@ public class Tu_yuan implements Serializable {
             int b;
             for (b = d.x - c; b < d.x + c; ++b) {
                 if (b > 0 && b < tu_kuan && ls > 0 && ls < tu_gao && (new Color(bb.getRGB(b, ls))).getRed() == 0) {
-                    zd.add(new Dian(b, ls));
+                    zd.add(new BPoint(b, ls));
                 }
             }
 
@@ -945,7 +797,7 @@ public class Tu_yuan implements Serializable {
 
             for (b = d.y - c; b < d.y + c; ++b) {
                 if (b > 0 && b < tu_gao && ls > 0 && ls < tu_kuan && (new Color(bb.getRGB(ls, b))).getRed() == 0) {
-                    zd.add(new Dian(ls, b));
+                    zd.add(new BPoint(ls, b));
                 }
             }
 
@@ -953,7 +805,7 @@ public class Tu_yuan implements Serializable {
 
             for (b = d.x + c; b > d.x - c; --b) {
                 if (b > 0 && b < tu_kuan && ls > 0 && ls < tu_gao && (new Color(bb.getRGB(b, ls))).getRed() == 0) {
-                    zd.add(new Dian(b, ls));
+                    zd.add(new BPoint(b, ls));
                 }
             }
 
@@ -961,17 +813,17 @@ public class Tu_yuan implements Serializable {
 
             for (b = d.y + c; b > d.y - c; --b) {
                 if (b > 0 && b < tu_gao && ls > 0 && ls < tu_kuan && (new Color(bb.getRGB(ls, b))).getRed() == 0) {
-                    zd.add(new Dian(ls, b));
+                    zd.add(new BPoint(ls, b));
                 }
             }
 
-            Dian fh2 = new Dian(0, 0);
+            BPoint fh2 = new BPoint(0, 0);
             if (zd.size() > 0) {
                 for (int i = 0; i < zd.size(); ++i) {
                     if (i == 0) {
-                        fh2 = (Dian) zd.get(i);
+                        fh2 = zd.get(i);
                     } else {
-                        fh2 = qu_xiao(d, fh2, (Dian) zd.get(i));
+                        fh2 = qu_xiao(d, fh2, zd.get(i));
                     }
                 }
 
@@ -982,36 +834,36 @@ public class Tu_yuan implements Serializable {
         return fh;
     }
 
-    static List<Dian> pai_xu(BufferedImage tu_diaoke2) {
+    static List<BPoint> pai_xu(BufferedImage tu_diaoke2) {
         BufferedImage bb = tu_diaoke2.getSubimage(0, 0, tu_diaoke2.getWidth(), tu_diaoke2.getHeight());
-        List<Dian> fh = new ArrayList();
+        List<BPoint> fh = new ArrayList<>();
         tu_kuan = bb.getWidth();
         tu_gao = bb.getHeight();
-        da = bb.getWidth() > bb.getHeight() ? bb.getWidth() : bb.getHeight();
+        da = Math.max(bb.getWidth(), bb.getHeight());
 
-        for (int i = 0; i < dian.size(); ++i) {
+        for (int i = 0; i < bPoints.size(); ++i) {
             if (i == 0) {
-                fh.add((Dian) dian.get(i));
-                fh.add(new Dian(30000, 30000));
-                bb.setRGB(((Dian) dian.get(i)).x, ((Dian) dian.get(i)).y, Color.WHITE.getRGB());
+                fh.add(bPoints.get(i));
+                fh.add(new BPoint(30000, 30000));
+                bb.setRGB(bPoints.get(i).x, bPoints.get(i).y, Color.WHITE.getRGB());
             } else {
-                new Dian(0, 0);
-                Dian d2;
-                if (((Dian) fh.get(fh.size() - 1)).x != 30000 && ((Dian) fh.get(fh.size() - 1)).x != 50000) {
-                    d2 = (Dian) fh.get(fh.size() - 1);
+                new BPoint(0, 0);
+                BPoint d2;
+                if (fh.get(fh.size() - 1).x != 30000 && fh.get(fh.size() - 1).x != 50000) {
+                    d2 = fh.get(fh.size() - 1);
                 } else {
-                    d2 = (Dian) fh.get(fh.size() - 2);
+                    d2 = fh.get(fh.size() - 2);
                 }
 
-                Dian d = qu_jindian(d2, bb);
+                BPoint d = qu_jindian(d2, bb);
                 if (d.x == 50000) {
                     break;
                 }
 
                 if (!xiang_lian(d, d2)) {
-                    fh.add(new Dian(50000, 50000));
+                    fh.add(new BPoint(50000, 50000));
                     fh.add(d);
-                    fh.add(new Dian(30000, 30000));
+                    fh.add(new BPoint(30000, 30000));
                 } else {
                     fh.add(d);
                 }
@@ -1020,27 +872,27 @@ public class Tu_yuan implements Serializable {
             }
         }
 
-        fh.add(new Dian(50000, 50000));
+        fh.add(new BPoint(50000, 50000));
         return fh;
     }
 
-    static List<Dian> pai_xu2(BufferedImage tu_diaoke2) {
+    static List<BPoint> pai_xu2(BufferedImage tu_diaoke2) {
         BufferedImage bb = tu_diaoke2.getSubimage(0, 0, tu_diaoke2.getWidth(), tu_diaoke2.getHeight());
-        List<Dian> fh = new ArrayList();
+        List<BPoint> fh = new ArrayList<>();
         tu_kuan = bb.getWidth();
         tu_gao = bb.getHeight();
-        da = bb.getWidth() > bb.getHeight() ? bb.getWidth() : bb.getHeight();
+        da = Math.max(bb.getWidth(), bb.getHeight());
 
-        for (int i = 0; i < dian.size(); ++i) {
+        for (int i = 0; i < bPoints.size(); ++i) {
             if (i == 0) {
-                fh.add((Dian) dian.get(i));
-                bb.setRGB(((Dian) dian.get(i)).x, ((Dian) dian.get(i)).y, Color.WHITE.getRGB());
+                fh.add(bPoints.get(i));
+                bb.setRGB(bPoints.get(i).x, bPoints.get(i).y, Color.WHITE.getRGB());
             } else {
-                if (((Dian) fh.get(fh.size() - 1)).x == 242 && ((Dian) fh.get(fh.size() - 1)).y == 87) {
-                    ((Dian) fh.get(fh.size() - 1)).x = 242;
+                if (fh.get(fh.size() - 1).x == 242 && fh.get(fh.size() - 1).y == 87) {
+                    fh.get(fh.size() - 1).x = 242;
                 }
 
-                Dian d = qu_jindian((Dian) fh.get(fh.size() - 1), bb);
+                BPoint d = qu_jindian(fh.get(fh.size() - 1), bb);
                 if (d.x == 50000) {
                     break;
                 }
@@ -1053,8 +905,8 @@ public class Tu_yuan implements Serializable {
         return fh;
     }
 
-    static List<Dian> qu_tian_chong(BufferedImage img, int jian_ge) {
-        List<Dian> fh = new ArrayList();
+    static List<BPoint> qu_tian_chong(BufferedImage img, int jian_ge) {
+        List<BPoint> fh = new ArrayList<>();
         int width = img.getWidth();
         int height = img.getHeight();
         int[] pixels = new int[width * height];
@@ -1063,7 +915,7 @@ public class Tu_yuan implements Serializable {
         for (int i = 1; i < height; i += jian_ge) {
             for (int j = 1; j < width; ++j) {
                 if ((new Color(pixels[width * i + j])).getRed() == 0) {
-                    fh.add(new Dian(j, i));
+                    fh.add(new BPoint(j, i));
                 }
             }
         }
@@ -1071,8 +923,8 @@ public class Tu_yuan implements Serializable {
         return fh;
     }
 
-    static List<Dian> qudian(BufferedImage img) {
-        List<Dian> fh = new ArrayList();
+    static List<BPoint> qudian(BufferedImage img) {
+        List<BPoint> fh = new ArrayList<>();
         int width = img.getWidth();
         int height = img.getHeight();
         int[] pixels = new int[width * height];
@@ -1081,7 +933,7 @@ public class Tu_yuan implements Serializable {
         for (int i = 1; i < height; ++i) {
             for (int j = 1; j < width; ++j) {
                 if ((new Color(pixels[width * i + j])).getRed() == 0) {
-                    fh.add(new Dian(j, i));
+                    fh.add(new BPoint(j, i));
                 }
             }
         }
@@ -1089,7 +941,7 @@ public class Tu_yuan implements Serializable {
         return fh;
     }
 
-    static int qu_fang_xiang(Dian d1, Dian d2) {
+    static int qu_fang_xiang(BPoint d1, BPoint d2) {
         if (d2.x - d1.x == 1 && d2.y - d1.y == 1) {
             return 4;
         } else if (d2.x - d1.x == -1 && d2.y - d1.y == -1) {
@@ -1107,27 +959,27 @@ public class Tu_yuan implements Serializable {
         } else if (d2.x - d1.x == 0 && d2.y - d1.y == 1) {
             return 5;
         } else {
-            return Math.abs(d2.x - d1.x) > 1 && Math.abs(d2.y - d1.y) > 1 ? 9 : 9;
+            return 9;
         }
     }
 
-    public static List<Dian> you_hua(List<Dian> dd) {
-        List<Dian> fh = new ArrayList();
+    public static List<BPoint> you_hua(List<BPoint> dd) {
+        List<BPoint> fh = new ArrayList<>();
         int fx = 0;
 
         for (int i = 0; i < dd.size(); ++i) {
             if (i == 0) {
-                fh.add((Dian) dd.get(i));
+                fh.add(dd.get(i));
             } else if (i == 1) {
-                fh.add((Dian) dd.get(i));
-                fx = qu_fang_xiang((Dian) fh.get(fh.size() - 2), (Dian) fh.get(fh.size() - 2));
+                fh.add(dd.get(i));
+                fx = qu_fang_xiang(fh.get(fh.size() - 2), fh.get(fh.size() - 2));
             } else {
-                int fx2 = qu_fang_xiang((Dian) fh.get(fh.size() - 1), (Dian) dd.get(i));
+                int fx2 = qu_fang_xiang(fh.get(fh.size() - 1), dd.get(i));
                 if (fx == fx2 && fx != 9) {
                     fh.remove(fh.size() - 1);
-                    fh.add((Dian) dd.get(i));
+                    fh.add(dd.get(i));
                 } else {
-                    fh.add((Dian) dd.get(i));
+                    fh.add(dd.get(i));
                     fx = fx2;
                 }
             }
@@ -1136,12 +988,12 @@ public class Tu_yuan implements Serializable {
         return fh;
     }
 
-    static boolean xiang_lian(Dian a, Dian b) {
+    static boolean xiang_lian(BPoint a, BPoint b) {
         return Math.abs(a.x - b.x) <= 2 && Math.abs(a.y - b.y) <= 2;
     }
 
     public static double getDistance(int x1, int x2, int y1, int y2) {
-        return Math.sqrt((double) ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
     public static double qu_gao(double a, double b, double c) {
@@ -1150,14 +1002,14 @@ public class Tu_yuan implements Serializable {
         return 2.0D * s / b;
     }
 
-    public static double qu_gao_da(List<Dian> dd, int d1, int d2) {
+    public static double qu_gao_da(List<BPoint> dd, int d1, int d2) {
         double da = 0.0D;
 
         for (int i = 0; i < d2 - d1 - 1; ++i) {
-            if (((Dian) dd.get(i + d1)).x != 30000 && ((Dian) dd.get(i + d1)).x != 50000) {
-                double a = getDistance(((Dian) dd.get(d1)).x, ((Dian) dd.get(i + d1)).x, ((Dian) dd.get(d1)).y, ((Dian) dd.get(i + d1)).y);
-                double b = getDistance(((Dian) dd.get(d1)).x, ((Dian) dd.get(d2)).x, ((Dian) dd.get(d1)).y, ((Dian) dd.get(d2)).y);
-                double c = getDistance(((Dian) dd.get(i + d1)).x, ((Dian) dd.get(d2)).x, ((Dian) dd.get(i + d1)).y, ((Dian) dd.get(d2)).y);
+            if (dd.get(i + d1).x != 30000 && dd.get(i + d1).x != 50000) {
+                double a = getDistance(dd.get(d1).x, dd.get(i + d1).x, dd.get(d1).y, dd.get(i + d1).y);
+                double b = getDistance(dd.get(d1).x, dd.get(d2).x, dd.get(d1).y, dd.get(d2).y);
+                double c = getDistance(dd.get(i + d1).x, dd.get(d2).x, dd.get(i + d1).y, dd.get(d2).y);
                 double d = qu_gao(a, b, c);
                 if (d > da) {
                     da = d;
@@ -1168,25 +1020,25 @@ public class Tu_yuan implements Serializable {
         return da;
     }
 
-    public static List<Dian> you_hua2(List<Dian> dd) {
-        List<Dian> fh = new ArrayList();
+    public static List<BPoint> you_hua2(List<BPoint> dd) {
+        List<BPoint> fh = new ArrayList<>();
         int yi = 0;
 
         for (int i = 0; i < dd.size(); ++i) {
-            if (((Dian) dd.get(i)).x == 30000) {
-                fh.add((Dian) dd.get(i - 1));
-                fh.add((Dian) dd.get(i));
+            if (dd.get(i).x == 30000) {
+                fh.add(dd.get(i - 1));
+                fh.add(dd.get(i));
                 yi = i - 1;
-            } else if (((Dian) dd.get(i)).x == 50000) {
-                fh.add((Dian) dd.get(i - 1));
-                fh.add((Dian) dd.get(i));
+            } else if (dd.get(i).x == 50000) {
+                fh.add(dd.get(i - 1));
+                fh.add(dd.get(i));
                 yi = i + 1;
             } else if (i != 0) {
                 int ge_shu = i - yi;
                 if (ge_shu > 1) {
                     double da = qu_gao_da(dd, yi, i);
                     if (da > 0.7D) {
-                        fh.add((Dian) dd.get(i - 1));
+                        fh.add(dd.get(i - 1));
                         yi = i - 1;
                     }
                 }
@@ -1197,61 +1049,186 @@ public class Tu_yuan implements Serializable {
     }
 
     public static GeneralPath to_ls(BufferedImage bb) {
-        List<Dian> fh = null;
+        List<BPoint> fh;
         GeneralPath lj = new GeneralPath();
-        bb = Tu_pian.qu_lunkuo(bb, 128);
-        if (bb != null) {
-            dian = qudian(bb);
-            fh = pai_xu(bb);
-            fh = you_hua2(fh);
-        }
+        bb = BImage.qu_lunkuo(bb, 128);
+        bPoints = qudian(bb);
+        fh = pai_xu(bb);
+        fh = you_hua2(fh);
 
-        new Dian(0, 0);
-        Dian qi = new Dian(0, 0);
+        new BPoint(0, 0);
+        BPoint qi = new BPoint(0, 0);
         boolean kai_jg = false;
 
         for (int i = 0; i < fh.size(); ++i) {
-            Dian ls = (Dian) fh.get(i);
+            BPoint ls = fh.get(i);
             if (i == 0) {
                 lj.moveTo((float) ls.x, (float) ls.y);
-                new Dian(ls.x, ls.y);
-            } else if (((Dian) fh.get(i)).x == 30000) {
+                new BPoint(ls.x, ls.y);
+            } else if (fh.get(i).x == 30000) {
                 kai_jg = true;
-                qi = new Dian(((Dian) fh.get(i - 1)).x, ((Dian) fh.get(i - 1)).y);
-            } else if (((Dian) fh.get(i)).x == 50000) {
+                qi = new BPoint(fh.get(i - 1).x, fh.get(i - 1).y);
+            } else if (fh.get(i).x == 50000) {
                 kai_jg = false;
-                if (xiang_lian(qi, (Dian) fh.get(i - 1))) {
+                if (xiang_lian(qi, fh.get(i - 1))) {
                     lj.closePath();
                 }
             } else if (kai_jg) {
                 lj.lineTo((float) ls.x, (float) ls.y);
-                new Dian(ls.x, ls.y);
+                new BPoint(ls.x, ls.y);
             } else {
                 lj.moveTo((float) ls.x, (float) ls.y);
-                new Dian(ls.x, ls.y);
+                new BPoint(ls.x, ls.y);
             }
         }
 
-        if (xiang_lian(qi, (Dian) fh.get(fh.size() - 1))) {
+        if (xiang_lian(qi, fh.get(fh.size() - 1))) {
             lj.closePath();
         }
 
         return lj;
     }
 
-    public static List<Dian> qu_dian(List<Tu_yuan> sz) {
-        List<Dian> fh = null;
-        BufferedImage bb = qu_tu_sl(Hua_ban.ty_shuzu);
+    public static List<BPoint> qu_dian(List<BElement> sz) {
+        List<BPoint> fh = null;
+        BufferedImage bb = qu_tu_sl(Board.bElements);
         if (bb != null) {
-            dian = qudian(bb);
+            bPoints = qudian(bb);
             fh = pai_xu2(bb);
         }
 
-        BufferedImage bb2 = qu_tu_sl_tc(Hua_ban.ty_shuzu);
+        BufferedImage bb2 = qu_tu_sl_tc(Board.bElements);
         if (bb2 != null) {
             fh.addAll(qu_tian_chong(bb2, 1 + tian_chong_md));
         }
 
         return fh;
+    }
+
+    void translate(double x, double y) {
+        AffineTransform Tx2 = AffineTransform.getTranslateInstance(x, y);
+        Tx2.concatenate(this.Tx);
+        this.Tx = Tx2;
+    }
+
+    void rotate(double angle, double x_anchor, double y_anchor) {
+        AffineTransform Tx2 = AffineTransform.getRotateInstance(angle * 3.14D / 180.0D, x_anchor, y_anchor);
+        Tx2.concatenate(this.Tx);
+        this.Tx = Tx2;
+    }
+
+    void scale(double scale_x, double scale_y) {
+        AffineTransform Tx2 = AffineTransform.getScaleInstance(scale_x, scale_y);
+        Tx2.concatenate(this.Tx);
+        this.Tx = Tx2;
+    }
+
+    public BufferedImage qu_tu() {
+        GeneralPath lu_jing2 = new GeneralPath(this.path);
+        lu_jing2.transform(this.Tx);
+        Rectangle jx = lu_jing2.getBounds();
+        System.out.println(jx);
+        System.out.println(this.Tx);
+        AffineTransform tx2 = new AffineTransform(this.Tx.getScaleX(), this.Tx.getShearY(), this.Tx.getShearX(), this.Tx.getScaleY(), this.Tx.getTranslateX() - (double) jx.x, this.Tx.getTranslateY() - (double) jx.y);
+        System.out.println(tx2);
+        BufferedImage fh = new BufferedImage(jx.width, jx.height, 2);
+        Graphics2D g2D = fh.createGraphics();
+        g2D.setBackground(Color.WHITE);
+        g2D.clearRect(0, 0, jx.width, jx.height);
+        g2D.drawImage(this.wei_tu_yuan, tx2, null);
+        switch (this.chuli_fs) {
+            case 1 -> {
+                fh = BImage.greyScale(fh);
+                fh = BImage.blackAndWhite(fh, (int) ((double) this.yu_zhi * 2.56D));
+                if (this.chuli_fan) {
+                    fh = BImage.fanse(fh);
+                }
+                if (this.chuli_jxx) {
+                    fh = BImage.mirror_x(fh);
+                }
+                if (this.chuli_jxy) {
+                    fh = BImage.mirror_y(fh);
+                }
+            }
+            case 2 -> {
+                fh = BImage.greyScale(fh);
+                fh = BImage.convertGreyImgByFloyd(fh, (int) ((double) this.yu_zhi * 2.56D));
+                if (this.chuli_fan) {
+                    fh = BImage.fanse(fh);
+                }
+                if (this.chuli_jxx) {
+                    fh = BImage.mirror_x(fh);
+                }
+                if (this.chuli_jxy) {
+                    fh = BImage.mirror_y(fh);
+                }
+            }
+            case 3 -> {
+                fh = BImage.greyScale(fh);
+                fh = BImage.blackAndWhite(fh, 128);
+                fh = BImage.qu_lunkuo(fh, (int) ((double) this.yu_zhi * 2.56D));
+            }
+            case 4 -> {
+                fh = BImage.su_miao(fh);
+                fh = BImage.blackAndWhite(fh, 50 + (int) ((double) this.yu_zhi * 2.56D));
+                if (this.chuli_fan) {
+                    fh = BImage.fanse(fh);
+                }
+                if (this.chuli_jxx) {
+                    fh = BImage.mirror_x(fh);
+                }
+                if (this.chuli_jxy) {
+                    fh = BImage.mirror_y(fh);
+                }
+            }
+        }
+
+        return fh;
+    }
+
+    public void chu_li() {
+        switch (this.chuli_fs) {
+            case 1 -> {
+                this.wei_tu = BImage.greyScale(this.wei_tu_yuan);
+                this.wei_tu = BImage.blackAndWhite(this.wei_tu, (int) ((double) this.yu_zhi * 2.56D));
+                if (this.chuli_fan) {
+                    this.wei_tu = BImage.fanse(this.wei_tu);
+                }
+                if (this.chuli_jxx) {
+                    this.wei_tu = BImage.mirror_x(this.wei_tu);
+                }
+                if (this.chuli_jxy) {
+                    this.wei_tu = BImage.mirror_y(this.wei_tu);
+                }
+            }
+            case 2 -> {
+                this.wei_tu = BImage.greyScale(this.wei_tu_yuan);
+                this.wei_tu = BImage.convertGreyImgByFloyd(this.wei_tu, (int) ((double) this.yu_zhi * 2.56D));
+                if (this.chuli_fan) {
+                    this.wei_tu = BImage.fanse(this.wei_tu);
+                }
+                if (this.chuli_jxx) {
+                    this.wei_tu = BImage.mirror_x(this.wei_tu);
+                }
+                if (this.chuli_jxy) {
+                    this.wei_tu = BImage.mirror_y(this.wei_tu);
+                }
+            }
+            case 3 -> this.wei_tu = BImage.qu_lunkuo(this.wei_tu_yuan, (int) ((double) this.yu_zhi * 2.56D));
+            case 4 -> {
+                this.wei_tu = BImage.su_miao2(this.wei_tu_yuan);
+                this.wei_tu = BImage.blackAndWhite(this.wei_tu, 50 + (int) ((double) this.yu_zhi * 2.56D));
+                if (this.chuli_fan) {
+                    this.wei_tu = BImage.fanse(this.wei_tu);
+                }
+                if (this.chuli_jxx) {
+                    this.wei_tu = BImage.mirror_x(this.wei_tu);
+                }
+                if (this.chuli_jxy) {
+                    this.wei_tu = BImage.mirror_y(this.wei_tu);
+                }
+            }
+        }
+
     }
 }

@@ -69,7 +69,6 @@ public class Gu_jian extends JFrame {
 
     public boolean downloadNet(String di_zhi) throws MalformedURLException {
         int bytesum = 0;
-        int byteread = false;
         URL url = new URL(di_zhi);
 
         try {
@@ -184,7 +183,6 @@ public class Gu_jian extends JFrame {
 
         if (!byData.equals((Object) null)) {
             List<Byte> bao = new ArrayList();
-            int l = false;
             int l;
             if (byData.length % 1024 > 0) {
                 l = byData.length / 1024 + 1;
@@ -197,7 +195,7 @@ public class Gu_jian extends JFrame {
                     if (j * 1024 + i < byData.length) {
                         bao.add(byData[j * 1024 + i]);
                     } else {
-                        bao.add(-1);
+                        bao.add((byte) -1);
                     }
                 }
 

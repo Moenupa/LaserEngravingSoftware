@@ -1,13 +1,11 @@
 package examples;
 
-import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.awt.image.ImageObserver;
 import java.util.Arrays;
 
-public class Tu_pian {
+public class BImage {
     public static BufferedImage zoomImage(BufferedImage im, double resizeTimes) {
         BufferedImage result = null;
 
@@ -17,7 +15,7 @@ public class Tu_pian {
             int toWidth = (int) ((double) width * resizeTimes);
             int toHeight = (int) ((double) height * resizeTimes);
             result = new BufferedImage(toWidth, toHeight, 2);
-            result.getGraphics().drawImage(im.getScaledInstance(toWidth, toHeight, 4), 0, 0, (ImageObserver) null);
+            result.getGraphics().drawImage(im.getScaledInstance(toWidth, toHeight, 4), 0, 0, null);
         } catch (Exception var8) {
             System.out.println("创建缩略图发生异常" + var8.getMessage());
         }
@@ -26,18 +24,10 @@ public class Tu_pian {
     }
 
     private static int colorToRGB(int alpha, int red, int green, int blue) {
-        int newPixel = 0;
-        int newPixel = newPixel + alpha;
-        newPixel <<= 8;
-        newPixel += red;
-        newPixel <<= 8;
-        newPixel += green;
-        newPixel <<= 8;
-        newPixel += blue;
-        return newPixel;
+        return (((alpha << 8) + red << 8) + green << 8) + blue;
     }
 
-    public static BufferedImage hui_du(BufferedImage image) {
+    public static BufferedImage greyScale(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
         BufferedImage grayImage = new BufferedImage(width, height, image.getType());
@@ -48,13 +38,17 @@ public class Tu_pian {
                 int r = color >> 16 & 255;
                 int g = color >> 8 & 255;
                 int b = color & 255;
-                int gray = false;
                 int gray = (int) ((double) (r + g + b) / 3.0D);
                 grayImage.setRGB(i, j, colorToRGB(0, gray, gray, gray));
             }
         }
 
         return grayImage;
+    }
+
+    public static int limitBound(int p) {
+        if (p > 255) return 255;
+        return Math.max(p, 0);
     }
 
     public static BufferedImage convertGreyImgByFloyd(BufferedImage img, int zhi) {
@@ -64,48 +58,33 @@ public class Tu_pian {
         img.getRGB(0, 0, width, height, pixels, 0, width);
         int[] gray = new int[height * width];
 
-        int e;
-        int i;
-        int j;
-        int g;
-        for (e = 0; e < height; ++e) {
-            for (i = 0; i < width; ++i) {
-                j = pixels[width * e + i];
-                g = (j & 16711680) >> 16;
-                g += 128 - zhi;
-                if (g > 255) {
-                    g = 255;
-                }
-
-                if (g < 0) {
-                    g = 0;
-                }
-
-                gray[width * e + i] = g;
+        int p1, p2;
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                p1 = pixels[width * h + w];
+                p2 = ((p1 & 0xff0000) >> 16) + (128 - zhi);
+                gray[width * h + w] = limitBound(p2);
             }
         }
-
-        int e = false;
-
-        for (i = 0; i < height; ++i) {
-            for (j = 0; j < width; ++j) {
-                g = gray[width * i + j];
-                if (g >= 128) {
-                    pixels[width * i + j] = 33554431;
-                    e = g - 255;
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                p1 = gray[width * h + w];
+                if (p1 >= 128) {
+                    pixels[width * h + w] = 0x1ffffff;
+                    p2 = p1 - 255;
                 } else {
-                    pixels[width * i + j] = -16777216;
-                    e = g - 0;
+                    pixels[width * h + w] = -16777216;
+                    p2 = p1;
                 }
 
-                if (j < width - 1 && i < height - 1) {
-                    gray[width * i + j + 1] += 3 * e / 8;
-                    gray[width * (i + 1) + j] += 3 * e / 8;
-                    gray[width * (i + 1) + j + 1] += e / 4;
-                } else if (j == width - 1 && i < height - 1) {
-                    gray[width * (i + 1) + j] += 3 * e / 8;
-                } else if (j < width - 1 && i == height - 1) {
-                    gray[width * i + j + 1] += e / 4;
+                if (w < width - 1 && h < height - 1) {
+                    gray[width * h + w + 1] += 3 * p2 / 8;
+                    gray[width * (h + 1) + w] += 3 * p2 / 8;
+                    gray[width * (h + 1) + w + 1] += p2 / 4;
+                } else if (w == width - 1 && h < height - 1) {
+                    gray[width * (h + 1) + w] += 3 * p2 / 8;
+                } else if (w < width - 1 && h == height - 1) {
+                    gray[width * h + w + 1] += p2 / 4;
                 }
             }
         }
@@ -115,7 +94,7 @@ public class Tu_pian {
         return mBitmap;
     }
 
-    public static BufferedImage heibai(BufferedImage bb, int zhi) {
+    public static BufferedImage blackAndWhite(BufferedImage bb, int zhi) {
         BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
         int[] pixels = new int[bb.getWidth() * bb.getHeight()];
         nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
@@ -155,7 +134,7 @@ public class Tu_pian {
         return mBitmap;
     }
 
-    public static BufferedImage jing_xiang_x(BufferedImage bb) {
+    public static BufferedImage mirror_x(BufferedImage bb) {
         BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
         int[] pixels = new int[bb.getWidth() * bb.getHeight()];
         int[] pixels2 = new int[bb.getWidth() * bb.getHeight()];
@@ -174,7 +153,7 @@ public class Tu_pian {
         return mBitmap;
     }
 
-    public static BufferedImage jing_xiang_y(BufferedImage bb) {
+    public static BufferedImage mirror_y(BufferedImage bb) {
         BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
         int[] pixels = new int[bb.getWidth() * bb.getHeight()];
         int[] pixels2 = new int[bb.getWidth() * bb.getHeight()];
@@ -255,7 +234,7 @@ public class Tu_pian {
             for (int j = 0; j < height - 1; ++j) {
                 int index = width * j + i;
                 int rgba = pixels[index];
-                int g = ((rgba & 16711680) >> 16) * 3 + ((rgba & '\uff00') >> 8) * 6 + (rgba & 255) * 1;
+                int g = ((rgba & 0xff0000) >> 16) * 3 + ((rgba & '\uff00') >> 8) * 6 + (rgba & 255);
                 gray[index] = g / 10;
             }
         }
@@ -311,7 +290,7 @@ public class Tu_pian {
                 int b = guassBlur[index];
                 int a = gray[index];
                 int temp = a + a * b / (256 - b);
-                float ex = (float) (temp * temp) * 1.0F / 255.0F / 255.0F;
+                float ex = (float) (temp * temp) / 255.0F / 255.0F;
                 temp = (int) ((float) temp * ex);
                 a = Math.min(temp, 255);
                 output[index] = a;
@@ -354,7 +333,7 @@ public class Tu_pian {
         b1 = convolution(b1, matric);
         b1 = deceaseColorCompound(old, b1);
         ColorSpace cs1 = ColorSpace.getInstance(1003);
-        ColorConvertOp op1 = new ColorConvertOp(cs1, (RenderingHints) null);
+        ColorConvertOp op1 = new ColorConvertOp(cs1, null);
         BufferedImage b2 = new BufferedImage(old.getWidth(), old.getHeight(), 1);
         op1.filter(b1, b2);
         return b2;
@@ -372,12 +351,11 @@ public class Tu_pian {
                 int r1 = color1 >> 16 & 255;
                 int g1 = color1 >> 8 & 255;
                 int b1 = color1 & 255;
-                double sumA = (double) a1;
-                double sumR = 0.0D;
-                double sumG = 0.0D;
-                double sumB = 0.0D;
+                double sumR;
+                double sumG;
+                double sumB;
                 sumR = sumG = sumB = (double) r1 * 0.299D + (double) g1 * 0.587D + (double) b1 * 0.114D;
-                int result = (int) sumA << 24 | (int) sumR << 16 | (int) sumG << 8 | (int) sumB;
+                int result = (int) (double) a1 << 24 | (int) sumR << 16 | (int) sumG << 8 | (int) sumB;
                 retImage.setRGB(i, j, result);
             }
         }
@@ -400,12 +378,8 @@ public class Tu_pian {
                 int r = 255 - r1;
                 int g = 255 - g1;
                 int b = 255 - b1;
-                int result = a1 << 24 | r << 16 | g << 8 | b;
-                if (result > 255) {
-                    result = 255;
-                }
 
-                retImage.setRGB(i, j, result);
+                retImage.setRGB(i, j, limitBound(a1 << 24 | r << 16 | g << 8 | b));
             }
         }
 
@@ -413,8 +387,8 @@ public class Tu_pian {
     }
 
     public static BufferedImage deceaseColorCompound(BufferedImage sourceImage, BufferedImage targetImage) {
-        int width = sourceImage.getWidth() > targetImage.getWidth() ? sourceImage.getWidth() : targetImage.getWidth();
-        int height = sourceImage.getHeight() > targetImage.getHeight() ? sourceImage.getHeight() : targetImage.getHeight();
+        int width = Math.max(sourceImage.getWidth(), targetImage.getWidth());
+        int height = Math.max(sourceImage.getHeight(), targetImage.getHeight());
         BufferedImage retImage = new BufferedImage(width, height, 2);
 
         for (int i = 0; i < width; ++i) {
@@ -453,7 +427,7 @@ public class Tu_pian {
 
     private static int deceaseColorChannel(int source, int target) {
         int result = source + source * target / (256 - target);
-        return result > 255 ? 255 : result;
+        return Math.min(result, 255);
     }
 
     public static BufferedImage convolution(BufferedImage image, float[][] kernel) {
@@ -481,10 +455,10 @@ public class Tu_pian {
                         int b = color & 255;
                         int kelX = x - i + radius;
                         int kelY = y - j + radius;
-                        sumA += (double) (kernel[kelX][kelY] * (float) a);
-                        sumR += (double) (kernel[kelX][kelY] * (float) r);
-                        sumG += (double) (kernel[kelX][kelY] * (float) g);
-                        sumB += (double) (kernel[kelX][kelY] * (float) b);
+                        sumA += kernel[kelX][kelY] * (float) a;
+                        sumR += kernel[kelX][kelY] * (float) r;
+                        sumG += kernel[kelX][kelY] * (float) g;
+                        sumB += kernel[kelX][kelY] * (float) b;
                     }
                 }
 
@@ -506,7 +480,7 @@ public class Tu_pian {
         int y;
         for (x = -radius; x <= radius; ++x) {
             for (y = -radius; y <= radius; ++y) {
-                matric[radius + x][radius + y] = (float) (Math.pow(2.718281828459045D, (double) ((float) (-(x * x + y * y)) / sigmaSquare2)) / (3.141592653589793D * (double) sigmaSquare2));
+                matric[radius + x][radius + y] = (float) (Math.pow(2.718281828459045D, (float) (-(x * x + y * y)) / sigmaSquare2) / (3.141592653589793D * (double) sigmaSquare2));
                 sum += matric[radius + x][radius + y];
             }
         }

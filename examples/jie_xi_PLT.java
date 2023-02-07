@@ -10,16 +10,16 @@ import java.io.IOException;
 public class jie_xi_PLT {
     void add_lj(GeneralPath lj) {
         lj.setWindingRule(0);
-        new Tu_yuan();
-        Tu_yuan ty = Tu_yuan.chuang_jian(0, (BufferedImage) null);
+        new BElement();
+        BElement ty = BElement.chuang_jian(0, (BufferedImage) null);
         ty.path = new GeneralPath(lj);
-        Hua_ban.ty_shuzu.add(ty);
+        Board.bElements.add(ty);
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).selected = false;
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            ((BElement) Board.bElements.get(i)).selected = false;
         }
 
-        ((Tu_yuan) Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1)).selected = true;
+        ((BElement) Board.bElements.get(Board.bElements.size() - 1)).selected = true;
     }
 
     void jie_xi_PLT(File file) {
@@ -70,8 +70,8 @@ public class jie_xi_PLT {
                 zb = strArr[i].substring(2, strArr[i].length());
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
-                    x = Double.valueOf(zb2[0]) / 40.0D / Hua_ban.fen_bian_lv;
-                    y = Double.valueOf(zb2[1]) / 40.0D / Hua_ban.fen_bian_lv;
+                    x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
+                    y = Double.valueOf(zb2[1]) / 40.0D / Board.resolution;
                     y = 0.0D - y;
                     if (jue_dui) {
                         d_x = x;
@@ -100,8 +100,8 @@ public class jie_xi_PLT {
                 zb = strArr[i].substring(2, strArr[i].length());
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
-                    x = Double.valueOf(zb2[0]) / 40.0D / Hua_ban.fen_bian_lv;
-                    y = Double.valueOf(zb2[1]) / 40.0D / Hua_ban.fen_bian_lv;
+                    x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
+                    y = Double.valueOf(zb2[1]) / 40.0D / Board.resolution;
                     y = 0.0D - y;
                     if (jue_dui) {
                         d_x = x;
@@ -117,8 +117,8 @@ public class jie_xi_PLT {
                 zb = strArr[i].substring(2, strArr[i].length());
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
-                    x = Double.valueOf(zb2[0]) / 40.0D / Hua_ban.fen_bian_lv;
-                    y = Double.valueOf(zb2[1]) / 40.0D / Hua_ban.fen_bian_lv;
+                    x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
+                    y = Double.valueOf(zb2[1]) / 40.0D / Board.resolution;
                     y = 0.0D - y;
                     jue_dui = true;
                     if (jue_dui) {
@@ -135,8 +135,8 @@ public class jie_xi_PLT {
                 zb = strArr[i].substring(2, strArr[i].length());
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
-                    x = Double.valueOf(zb2[0]) / 40.0D / Hua_ban.fen_bian_lv;
-                    y = Double.valueOf(zb2[1]) / 40.0D / Hua_ban.fen_bian_lv;
+                    x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
+                    y = Double.valueOf(zb2[1]) / 40.0D / Board.resolution;
                     y = 0.0D - y;
                     jue_dui = false;
                     if (jue_dui) {

@@ -139,7 +139,7 @@ public class Zi_ti extends JFrame {
     }
 
     private void jButton1ActionPerformed(ActionEvent evt) {
-        Tu_yuan.chuang_jian_wen_zi(this.wen_zi.getText(), ziti, false);
+        BElement.chuang_jian_wen_zi(this.wen_zi.getText(), ziti, false);
         this.setVisible(false);
     }
 

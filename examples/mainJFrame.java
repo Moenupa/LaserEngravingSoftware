@@ -60,7 +60,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     public static ResourceBundle bundle = null;
     int miao = 0;
     boolean fu_zhi = false;
-    List<Tu_yuan> ty_fu_zhi = new ArrayList<>();
+    List<BElement> ty_fu_zhi = new ArrayList<>();
     boolean tuo_dong = false;
 
     public static String str_font = "";
@@ -79,7 +79,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     public static String str_update = "";
     public static String str_download_fail = "";
 
-    private Hua_ban hua_ban1 = new Hua_ban();
+    private Board board1 = new Board();
     private JPanel pn_inlay_hint = new JPanel();
     private JPanel pn_main_right = new JPanel();
     private JDialog dialog = new JDialog();
@@ -209,15 +209,15 @@ public class mainJFrame extends JFrame implements KeyListener {
             t.start();
         });
 
-        this.hua_ban1.setBackground(new Color(255, 255, 255));
-        this.hua_ban1.setBorder(BorderFactory.createLineBorder(new Color(153, 153, 255)));
-        this.hua_ban1.addMouseMotionListener(new MouseMotionAdapter() {
+        this.board1.setBackground(new Color(255, 255, 255));
+        this.board1.setBorder(BorderFactory.createLineBorder(new Color(153, 153, 255)));
+        this.board1.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent evt) {
                 mainJFrame.this.hua_ban1MouseDragged(evt);
             }
         });
-        this.hua_ban1.addMouseWheelListener(mainJFrame.this::hua_ban1MouseWheelMoved);
-        this.hua_ban1.addMouseListener(new MouseAdapter() {
+        this.board1.addMouseWheelListener(mainJFrame.this::hua_ban1MouseWheelMoved);
+        this.board1.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent evt) {
                 mainJFrame.this.hua_ban1MousePressed(evt);
             }
@@ -226,7 +226,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                 mainJFrame.this.hua_ban1MouseReleased(evt);
             }
         });
-        this.hua_ban1.setLayout(new AbsoluteLayout());
+        this.board1.setLayout(new AbsoluteLayout());
 
         // format inlay hint layout
         this.lb_inlay_h.setFont(new Font("宋体", Font.PLAIN, 14));
@@ -260,7 +260,7 @@ public class mainJFrame extends JFrame implements KeyListener {
         this.pn_inlay_hint.add(this.tf_inlay_w, new AbsoluteConstraints(150, 10, 30, 25));
         this.pn_inlay_hint.add(this.tf_inlay_x, new AbsoluteConstraints(38, 10, 30, 25));
         this.pn_inlay_hint.add(this.tf_inlay_y, new AbsoluteConstraints(93, 10, 30, 25));
-        this.hua_ban1.add(this.pn_inlay_hint, new AbsoluteConstraints(30, 20, 20, 10));
+        this.board1.add(this.pn_inlay_hint, new AbsoluteConstraints(30, 20, 20, 10));
 
         // binding connection
         this.btn_usbconnect.setIcon(new ImageIcon(this.getClass().getResource("/tu/usb2.png")));
@@ -424,7 +424,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                                 ).addGroup(Alignment.TRAILING, layout.createSequentialGroup().addGroup(
                                                 layout.createParallelGroup(Alignment.TRAILING)
                                                         .addComponent(this.jdt, Alignment.LEADING, -1, -1, 32767)
-                                                        .addComponent(this.hua_ban1, -1, -1, 32767))
+                                                        .addComponent(this.board1, -1, -1, 32767))
                                         .addPreferredGap(ComponentPlacement.UNRELATED)
                                         .addGroup(
                                                 layout.createParallelGroup(Alignment.LEADING)
@@ -456,7 +456,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                                 ).addPreferredGap(ComponentPlacement.RELATED).addGroup(
                                         layout.createParallelGroup(Alignment.LEADING)
                                                 .addComponent(this.pn_main_right, -1, -1, 32767)
-                                                .addComponent(this.hua_ban1, -1, 580, 32767)
+                                                .addComponent(this.board1, -1, 580, 32767)
                                 ).addPreferredGap(ComponentPlacement.RELATED)
                                 .addGroup(
                                         layout.createParallelGroup(Alignment.BASELINE)
@@ -469,7 +469,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     }
 
     public void up() {
-        this.hua_ban1.repaint();
+        this.board1.repaint();
     }
 
     void setLocale() {
@@ -552,22 +552,22 @@ public class mainJFrame extends JFrame implements KeyListener {
             this.btn_wificonnect.setVisible(false);
             Geng_xin.geng_xin();
             FileTransferHandler ft = new FileTransferHandler();
-            FileTransferHandler.hb = this.hua_ban1;
-            this.hua_ban1.setTransferHandler(ft);
+            FileTransferHandler.hb = this.board1;
+            this.board1.setTransferHandler(ft);
             this.setLocale();
-            Tu_yuan ty = new Tu_yuan();
+            BElement ty = new BElement();
             ty.type = 0;
             int i = 0;
 
             while (true) {
                 double var10002;
                 double var8;
-                if (i >= Hua_ban.gao / 10 + 1) {
+                if (i >= Board.bHeight / 10 + 1) {
                     i = 0;
 
                     while (true) {
-                        if (i >= Hua_ban.kuan / 10 + 1) {
-                            Hua_ban.ty_shuzu.add(ty);
+                        if (i >= Board.bWidth / 10 + 1) {
+                            Board.bElements.add(ty);
                             this.up();
                             this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
                             this.lb_wifi.setVisible(false);
@@ -575,13 +575,13 @@ public class mainJFrame extends JFrame implements KeyListener {
                             this.jTextField5.setVisible(false);
                             this.jTextField6.setVisible(false);
                             this.btn_unknown.setVisible(false);
-                            this.hua_ban1.win2 = this;
-                            this.hua_ban1.jp = this.pn_inlay_hint;
-                            this.hua_ban1.win = this.pn_main_right;
-                            this.hua_ban1.wb1 = this.tf_inlay_x;
-                            this.hua_ban1.wb2 = this.tf_inlay_y;
-                            this.hua_ban1.wb3 = this.tf_inlay_w;
-                            this.hua_ban1.wb4 = this.tf_inlay_h;
+                            this.board1.window = this;
+                            this.board1.pn_inlay_hint = this.pn_inlay_hint;
+                            this.board1.pn_settings = this.pn_main_right;
+                            this.board1.tf_x = this.tf_inlay_x;
+                            this.board1.tf_y = this.tf_inlay_y;
+                            this.board1.tf_w = this.tf_inlay_w;
+                            this.board1.tf_h = this.tf_inlay_h;
                             this.jdt.setVisible(false);
                             this.tf_inlay_x.addKeyListener(this);
                             this.tf_inlay_y.addKeyListener(this);
@@ -591,36 +591,34 @@ public class mainJFrame extends JFrame implements KeyListener {
                             this.getContentPane().setBackground(new Color(240, 240, 240));
                             this.pn_main_right.setBackground(new Color(240, 240, 240));
                             this.win = this;
-                            Runnable runnable2 = new Runnable() {
-                                public void run() {
-                                    while (true) {
-                                        if (mainJFrame.this.wang == null) {
-                                            mainJFrame.this.wang = new Wang();
-                                            mainJFrame.this.wang.bt = mainJFrame.this.btn_wificonnect;
-                                            mainJFrame.this.wang.hb = mainJFrame.this.hua_ban1;
-                                            mainJFrame.this.wang.fbl = mainJFrame.this.opt_accuracy;
-                                            mainJFrame.this.wang.rg = mainJFrame.this.sd_weak_light;
-                                            mainJFrame.this.wang.jdt = mainJFrame.this.jdt;
-                                            mainJFrame.this.wang.win = mainJFrame.this.win;
-                                        }
+                            Runnable runnable2 = () -> {
+                                while (true) {
+                                    if (mainJFrame.this.wang == null) {
+                                        mainJFrame.this.wang = new Wang();
+                                        mainJFrame.this.wang.bt = mainJFrame.this.btn_wificonnect;
+                                        mainJFrame.this.wang.hb = mainJFrame.this.board1;
+                                        mainJFrame.this.wang.fbl = mainJFrame.this.opt_accuracy;
+                                        mainJFrame.this.wang.rg = mainJFrame.this.sd_weak_light;
+                                        mainJFrame.this.wang.jdt = mainJFrame.this.jdt;
+                                        mainJFrame.this.wang.win = mainJFrame.this.win;
+                                    }
 
-                                        try {
-                                            Thread.sleep(1000L);
-                                        } catch (InterruptedException var2) {
-                                            Logger.getLogger("MAIN").log(Level.SEVERE, null, var2);
-                                        }
+                                    try {
+                                        Thread.sleep(1000L);
+                                    } catch (InterruptedException var2) {
+                                        Logger.getLogger("MAIN").log(Level.SEVERE, null, var2);
+                                    }
 
-                                        if (mainJFrame.kai_shi2 && !mainJFrame.this.zan_ting) {
-                                            ++mainJFrame.this.miao;
-                                            mainJFrame.this.lb_execution_time.setText(mainJFrame.this.miao / 60 + "." + mainJFrame.this.miao % 60);
-                                            if (mainJFrame.timeout++ > 3 && mainJFrame.timeout != 0) {
-                                                System.out.println("&&&");
-                                                mainJFrame.this.jdt.setValue(0);
-                                                mainJFrame.this.jdt.setVisible(false);
-                                                mainJFrame.kai_shi = false;
-                                                mainJFrame.timeout = 0;
-                                                mainJFrame.kai_shi2 = false;
-                                            }
+                                    if (mainJFrame.kai_shi2 && !mainJFrame.this.zan_ting) {
+                                        ++mainJFrame.this.miao;
+                                        mainJFrame.this.lb_execution_time.setText(mainJFrame.this.miao / 60 + "." + mainJFrame.this.miao % 60);
+                                        if (mainJFrame.timeout++ > 3 && mainJFrame.timeout != 0) {
+                                            System.out.println("&&&");
+                                            mainJFrame.this.jdt.setValue(0);
+                                            mainJFrame.this.jdt.setVisible(false);
+                                            mainJFrame.kai_shi = false;
+                                            mainJFrame.timeout = 0;
+                                            mainJFrame.kai_shi2 = false;
                                         }
                                     }
                                 }
@@ -632,21 +630,21 @@ public class mainJFrame extends JFrame implements KeyListener {
                         }
 
                         var8 = i;
-                        ty.path.moveTo(var8 / Hua_ban.fen_bian_lv * 10.0D, 0.0D);
+                        ty.path.moveTo(var8 / Board.resolution * 10.0D, 0.0D);
                         var8 = i;
-                        var8 = var8 / Hua_ban.fen_bian_lv * 10.0D;
-                        var10002 = Hua_ban.gao;
-                        ty.path.lineTo(var8, var10002 / Hua_ban.fen_bian_lv);
+                        var8 = var8 / Board.resolution * 10.0D;
+                        var10002 = Board.bHeight;
+                        ty.path.lineTo(var8, var10002 / Board.resolution);
                         ++i;
                     }
                 }
 
                 var10002 = i;
-                ty.path.moveTo(0.0D, var10002 / Hua_ban.fen_bian_lv * 10.0D);
-                var8 = Hua_ban.kuan;
-                var8 /= Hua_ban.fen_bian_lv;
+                ty.path.moveTo(0.0D, var10002 / Board.resolution * 10.0D);
+                var8 = Board.bWidth;
+                var8 /= Board.resolution;
                 var10002 = i;
-                ty.path.lineTo(var8, var10002 / Hua_ban.fen_bian_lv * 10.0D);
+                ty.path.lineTo(var8, var10002 / Board.resolution * 10.0D);
                 ++i;
             }
         } catch (Exception var6) {
@@ -656,7 +654,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     }
 
     int qu_anniu(int x, int y) {
-        Rectangle rect = Tu_yuan.qu_jv_xing(Hua_ban.ty_shuzu);
+        Rectangle rect = BElement.qu_jv_xing(Board.bElements);
         if (x > rect.x - 15 && x < rect.x + 15 && y > rect.y - 15 && y < rect.y + 15) {
             return 1;
         } else if (x > rect.x + rect.width - 15 && x < rect.x + rect.width + 15 && y > rect.y - 15 && y < rect.y + 15) {
@@ -702,13 +700,13 @@ public class mainJFrame extends JFrame implements KeyListener {
             int i;
             switch (this.an) {
                 case 1:
-                    List<Tu_yuan> sz = new ArrayList<>();
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if (!Hua_ban.ty_shuzu.get(i).selected) {
-                            sz.add(Hua_ban.ty_shuzu.get(i));
+                    List<BElement> sz = new ArrayList<>();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if (!Board.bElements.get(i).selected) {
+                            sz.add(Board.bElements.get(i));
                         }
                     }
-                    Hua_ban.ty_shuzu = sz;
+                    Board.bElements = sz;
                     this.up();
                     Che_xiao.tian_jia();
                     return;
@@ -716,19 +714,19 @@ public class mainJFrame extends JFrame implements KeyListener {
                 case 3:
                     return;
                 case 4:
-                    Hua_ban.suo = !Hua_ban.suo;
+                    Board.lock = !Board.lock;
                     this.up();
                     return;
                 case 5:
-                    Tu_yuan.center(Hua_ban.ty_shuzu);
+                    BElement.center(Board.bElements);
                     this.up();
                     Che_xiao.tian_jia();
                     return;
                 case 6:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if ((Hua_ban.ty_shuzu.get(i)).selected && (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                            (Hua_ban.ty_shuzu.get(i)).chuli_fs = 1;
-                            (Hua_ban.ty_shuzu.get(i)).chu_li();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
+                            (Board.bElements.get(i)).chuli_fs = 1;
+                            (Board.bElements.get(i)).chu_li();
                             this.up();
                             Che_xiao.tian_jia();
                             return;
@@ -736,10 +734,10 @@ public class mainJFrame extends JFrame implements KeyListener {
                     }
                     return;
                 case 7:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if ((Hua_ban.ty_shuzu.get(i)).selected && (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                            (Hua_ban.ty_shuzu.get(i)).chuli_fs = 2;
-                            (Hua_ban.ty_shuzu.get(i)).chu_li();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
+                            (Board.bElements.get(i)).chuli_fs = 2;
+                            (Board.bElements.get(i)).chu_li();
                             this.up();
                             Che_xiao.tian_jia();
                             return;
@@ -747,8 +745,8 @@ public class mainJFrame extends JFrame implements KeyListener {
                     }
                     return;
                 case 8:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        Tu_yuan cur = Hua_ban.ty_shuzu.get(i);
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        BElement cur = Board.bElements.get(i);
                         if (cur.selected && cur.type == 1) {
                             cur.chuli_fs = 3;
                             cur.chu_li();
@@ -759,10 +757,10 @@ public class mainJFrame extends JFrame implements KeyListener {
                     }
                     return;
                 case 9:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if ((Hua_ban.ty_shuzu.get(i)).selected && (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                            (Hua_ban.ty_shuzu.get(i)).chuli_fs = 4;
-                            (Hua_ban.ty_shuzu.get(i)).chu_li();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
+                            (Board.bElements.get(i)).chuli_fs = 4;
+                            (Board.bElements.get(i)).chu_li();
                             this.up();
                             Che_xiao.tian_jia();
                             return;
@@ -771,10 +769,10 @@ public class mainJFrame extends JFrame implements KeyListener {
 
                     return;
                 case 10:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if ((Hua_ban.ty_shuzu.get(i)).selected && (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                            (Hua_ban.ty_shuzu.get(i)).chuli_jxy = !(Hua_ban.ty_shuzu.get(i)).chuli_jxy;
-                            (Hua_ban.ty_shuzu.get(i)).chu_li();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
+                            (Board.bElements.get(i)).chuli_jxy = !(Board.bElements.get(i)).chuli_jxy;
+                            (Board.bElements.get(i)).chu_li();
                             this.up();
                             Che_xiao.tian_jia();
                             return;
@@ -783,10 +781,10 @@ public class mainJFrame extends JFrame implements KeyListener {
 
                     return;
                 case 11:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if ((Hua_ban.ty_shuzu.get(i)).selected && (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                            (Hua_ban.ty_shuzu.get(i)).chuli_jxx = !(Hua_ban.ty_shuzu.get(i)).chuli_jxx;
-                            (Hua_ban.ty_shuzu.get(i)).chu_li();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
+                            (Board.bElements.get(i)).chuli_jxx = !(Board.bElements.get(i)).chuli_jxx;
+                            (Board.bElements.get(i)).chu_li();
                             this.up();
                             Che_xiao.tian_jia();
                             return;
@@ -796,10 +794,10 @@ public class mainJFrame extends JFrame implements KeyListener {
 
 
                 case 12:
-                    for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if (Hua_ban.ty_shuzu.get(i).selected && Hua_ban.ty_shuzu.get(i).type == 1) {
-                            Hua_ban.ty_shuzu.get(i).chuli_fan = !Hua_ban.ty_shuzu.get(i).chuli_fan;
-                            (Hua_ban.ty_shuzu.get(i)).chu_li();
+                    for (i = 0; i < Board.bElements.size(); ++i) {
+                        if (Board.bElements.get(i).selected && Board.bElements.get(i).type == 1) {
+                            Board.bElements.get(i).chuli_fan = !Board.bElements.get(i).chuli_fan;
+                            (Board.bElements.get(i)).chu_li();
                             this.up();
                             Che_xiao.tian_jia();
                             return;
@@ -812,15 +810,15 @@ public class mainJFrame extends JFrame implements KeyListener {
             Rectangle rect_q;
             int ii;
             if (this.an == 13) {
-                rect_q = Tu_yuan.qu_jv_xing(Hua_ban.ty_shuzu);
-                Tu_yuan ty = Tu_yuan.chuang_jian(0, null);
+                rect_q = BElement.qu_jv_xing(Board.bElements);
+                BElement ty = BElement.chuang_jian(0, null);
                 ty.path = new GeneralPath();
                 int wei_zhi = 0;
 
-                for (ii = 0; ii < Hua_ban.ty_shuzu.size(); ++ii) {
-                    if ((Hua_ban.ty_shuzu.get(ii)).selected && (Hua_ban.ty_shuzu.get(ii)).type == 0) {
-                        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(ii)).path);
-                        lu_jing2.transform((Hua_ban.ty_shuzu.get(ii)).Tx);
+                for (ii = 0; ii < Board.bElements.size(); ++ii) {
+                    if ((Board.bElements.get(ii)).selected && (Board.bElements.get(ii)).type == 0) {
+                        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(ii)).path);
+                        lu_jing2.transform((Board.bElements.get(ii)).Tx);
                         ty.path.append(lu_jing2, false);
                         ++ii;
                         wei_zhi = ii;
@@ -828,22 +826,22 @@ public class mainJFrame extends JFrame implements KeyListener {
                 }
 
                 if (ii == 1) {
-                    ty.fill = !(Hua_ban.ty_shuzu.get(wei_zhi)).fill;
+                    ty.fill = !(Board.bElements.get(wei_zhi)).fill;
                 } else {
                     ty.fill = true;
                 }
 
-                List<Tu_yuan> sz = new ArrayList<>();
+                List<BElement> sz = new ArrayList<>();
 
-                for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                    if (!(Hua_ban.ty_shuzu.get(i)).selected || (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                        sz.add(Hua_ban.ty_shuzu.get(i));
+                for (i = 0; i < Board.bElements.size(); ++i) {
+                    if (!(Board.bElements.get(i)).selected || (Board.bElements.get(i)).type == 1) {
+                        sz.add(Board.bElements.get(i));
                     }
                 }
 
-                Hua_ban.ty_shuzu = sz;
+                Board.bElements = sz;
                 ty.selected = true;
-                Rectangle r = Tu_yuan.qu_jv_xing(ty);
+                Rectangle r = BElement.qu_jv_xing(ty);
                 AffineTransform sf1 = AffineTransform.getTranslateInstance(-r.x, -r.y);
                 AffineTransform fb = new AffineTransform(sf1);
                 fb.concatenate(ty.Tx);
@@ -856,30 +854,30 @@ public class mainJFrame extends JFrame implements KeyListener {
                 AffineTransform fb2 = new AffineTransform(sf2);
                 fb2.concatenate(ty.Tx);
                 ty.Tx = fb2;
-                Hua_ban.ty_shuzu.add(ty);
+                Board.bElements.add(ty);
                 Che_xiao.tian_jia();
                 return;
             }
 
-            rect_q = Tu_yuan.qu_jv_xing(Hua_ban.ty_shuzu);
+            rect_q = BElement.qu_jv_xing(Board.bElements);
             if (this.anxia_x > rect_q.x && this.anxia_x < rect_q.x + rect_q.width && this.anxia_y > rect_q.y && this.anxia_y < rect_q.y + rect_q.height) {
                 this.kuang = false;
                 this.up();
             } else {
-                for (i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-                    if (!(Hua_ban.ty_shuzu.get(i)).selected) {
-                        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(i)).path);
-                        lu_jing2.transform((Hua_ban.ty_shuzu.get(i)).Tx);
+                for (i = 1; i < Board.bElements.size(); ++i) {
+                    if (!(Board.bElements.get(i)).selected) {
+                        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(i)).path);
+                        lu_jing2.transform((Board.bElements.get(i)).Tx);
                         Rectangle rect = lu_jing2.getBounds();
                         if (this.anxia_x > rect.x && this.anxia_x < rect.x + rect.width && this.anxia_y > rect.y && this.anxia_y < rect.y + rect.height) {
-                            for (ii = 0; ii < Hua_ban.ty_shuzu.size(); ++ii) {
-                                (Hua_ban.ty_shuzu.get(ii)).selected = false;
+                            for (ii = 0; ii < Board.bElements.size(); ++ii) {
+                                (Board.bElements.get(ii)).selected = false;
                             }
 
-                            (Hua_ban.ty_shuzu.get(i)).selected = true;
-                            Tu_yuan ty = Hua_ban.ty_shuzu.get(i);
-                            Hua_ban.ty_shuzu.remove(i);
-                            Hua_ban.ty_shuzu.add(1, ty);
+                            (Board.bElements.get(i)).selected = true;
+                            BElement ty = Board.bElements.get(i);
+                            Board.bElements.remove(i);
+                            Board.bElements.add(1, ty);
                             this.sd_contrast.setValue(ty.yu_zhi);
                             this.up();
                             this.kuang = false;
@@ -887,8 +885,8 @@ public class mainJFrame extends JFrame implements KeyListener {
                         }
                     }
 
-                    for (ii = 0; ii < Hua_ban.ty_shuzu.size(); ++ii) {
-                        (Hua_ban.ty_shuzu.get(ii)).selected = false;
+                    for (ii = 0; ii < Board.bElements.size(); ++ii) {
+                        (Board.bElements.get(ii)).selected = false;
                     }
 
                     this.kuang = true;
@@ -906,7 +904,7 @@ public class mainJFrame extends JFrame implements KeyListener {
 
     private void hua_ban1MouseReleased(MouseEvent evt) {
         this.an_xia = false;
-        Tu_yuan.tuo = false;
+        BElement.tuo = false;
         if (this.tuo_dong) {
             this.tuo_dong = false;
             Che_xiao.tian_jia();
@@ -921,7 +919,7 @@ public class mainJFrame extends JFrame implements KeyListener {
             int dy = evt.getY();
             int x;
             if (this.an_niu == 1) {
-                Rectangle rect = Tu_yuan.qu_jv_xing(Hua_ban.ty_shuzu);
+                Rectangle rect = BElement.qu_jv_xing(Board.bElements);
                 int i;
                 if (this.an == 0) {
                     if (this.kuang) {
@@ -943,13 +941,13 @@ public class mainJFrame extends JFrame implements KeyListener {
                             g = dy - this.anxia_y_1;
                         }
 
-                        Tu_yuan.tuo = true;
-                        Tu_yuan.shu_biao = new Rectangle(x, y, i, g);
-                        Tu_yuan.select_byBoundingBox(Hua_ban.ty_shuzu, Tu_yuan.shu_biao);
+                        BElement.tuo = true;
+                        BElement.shu_biao = new Rectangle(x, y, i, g);
+                        BElement.select_byBoundingBox(Board.bElements, BElement.shu_biao);
                     } else {
-                        for (x = 0; x < Hua_ban.ty_shuzu.size(); ++x) {
-                            if ((Hua_ban.ty_shuzu.get(x)).selected) {
-                                (Hua_ban.ty_shuzu.get(x)).translate(dx - this.anxia_x, dy - this.anxia_y);
+                        for (x = 0; x < Board.bElements.size(); ++x) {
+                            if ((Board.bElements.get(x)).selected) {
+                                (Board.bElements.get(x)).translate(dx - this.anxia_x, dy - this.anxia_y);
                             }
                         }
                     }
@@ -958,61 +956,60 @@ public class mainJFrame extends JFrame implements KeyListener {
                     this.anxia_y = dy;
                     this.up();
                 } else if (this.an == 2) {
-                    float zhong_xin_x = 0.0F;
-                    float zhong_xin_y = 0.0F;
-                    float jiao1 = 0.0F;
-                    float jiao2 = 0.0F;
-                    zhong_xin_x = (float) (rect.x + rect.width / 2);
-                    zhong_xin_y = (float) (rect.y + rect.height / 2);
-                    if ((float) this.anxia_x > zhong_xin_x && (float) this.anxia_y < zhong_xin_y) {
-                        jiao1 = 360.0F - (float) Math.toDegrees(Math.atan((zhong_xin_y - (float) this.anxia_y) / ((float) this.anxia_x - zhong_xin_x)));
-                    } else if ((float) this.anxia_x < zhong_xin_x && (float) this.anxia_y < zhong_xin_y) {
-                        jiao1 = 270.0F - (float) Math.toDegrees(Math.atan((zhong_xin_x - (float) this.anxia_x) / (zhong_xin_y - (float) this.anxia_y)));
-                    } else if ((float) this.anxia_x < zhong_xin_x && (float) this.anxia_y > zhong_xin_y) {
-                        jiao1 = 90.0F + (float) Math.toDegrees(Math.atan((zhong_xin_x - (float) this.anxia_x) / ((float) this.anxia_y - zhong_xin_y)));
-                    } else if ((float) this.anxia_x > zhong_xin_x && (float) this.anxia_y > zhong_xin_y) {
-                        jiao1 = (float) Math.toDegrees(Math.atan(((float) this.anxia_y - zhong_xin_y) / ((float) this.anxia_x - zhong_xin_x)));
+                    float center_x, center_y;
+                    float deg1 = 0.0F;
+                    float deg2;
+                    center_x = (float) (rect.x + rect.width / 2);
+                    center_y = (float) (rect.y + rect.height / 2);
+                    if ((float) this.anxia_x > center_x && (float) this.anxia_y < center_y) {
+                        deg1 = 360.0F - (float) Math.toDegrees(Math.atan((center_y - (float) this.anxia_y) / ((float) this.anxia_x - center_x)));
+                    } else if ((float) this.anxia_x < center_x && (float) this.anxia_y < center_y) {
+                        deg1 = 270.0F - (float) Math.toDegrees(Math.atan((center_x - (float) this.anxia_x) / (center_y - (float) this.anxia_y)));
+                    } else if ((float) this.anxia_x < center_x && (float) this.anxia_y > center_y) {
+                        deg1 = 90.0F + (float) Math.toDegrees(Math.atan((center_x - (float) this.anxia_x) / ((float) this.anxia_y - center_y)));
+                    } else if ((float) this.anxia_x > center_x && (float) this.anxia_y > center_y) {
+                        deg1 = (float) Math.toDegrees(Math.atan(((float) this.anxia_y - center_y) / ((float) this.anxia_x - center_x)));
                     }
 
-                    if ((float) dx > zhong_xin_x && (float) dy < zhong_xin_y) {
-                        jiao2 = 360.0F - (float) Math.toDegrees(Math.atan((zhong_xin_y - (float) dy) / ((float) dx - zhong_xin_x)));
+                    if ((float) dx > center_x && (float) dy < center_y) {
+                        deg2 = 360.0F - (float) Math.toDegrees(Math.atan((center_y - (float) dy) / ((float) dx - center_x)));
 
-                        for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                            if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                                (Hua_ban.ty_shuzu.get(i)).rotate(jiao2 - jiao1, zhong_xin_x, zhong_xin_y);
+                        for (i = 0; i < Board.bElements.size(); ++i) {
+                            if ((Board.bElements.get(i)).selected) {
+                                (Board.bElements.get(i)).rotate(deg2 - deg1, center_x, center_y);
                             }
                         }
 
                         this.anxia_x = dx;
                         this.anxia_y = dy;
-                    } else if ((float) dx < zhong_xin_x && (float) dy < zhong_xin_y) {
-                        jiao2 = 270.0F - (float) Math.toDegrees(Math.atan((zhong_xin_x - (float) dx) / (zhong_xin_y - (float) dy)));
+                    } else if ((float) dx < center_x && (float) dy < center_y) {
+                        deg2 = 270.0F - (float) Math.toDegrees(Math.atan((center_x - (float) dx) / (center_y - (float) dy)));
 
-                        for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                            if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                                (Hua_ban.ty_shuzu.get(i)).rotate(jiao2 - jiao1, zhong_xin_x, zhong_xin_y);
+                        for (i = 0; i < Board.bElements.size(); ++i) {
+                            if ((Board.bElements.get(i)).selected) {
+                                (Board.bElements.get(i)).rotate(deg2 - deg1, center_x, center_y);
                             }
                         }
 
                         this.anxia_x = dx;
                         this.anxia_y = dy;
-                    } else if ((float) dx < zhong_xin_x && (float) dy > zhong_xin_y) {
-                        jiao2 = 90.0F + (float) Math.toDegrees(Math.atan((zhong_xin_x - (float) dx) / ((float) dy - zhong_xin_y)));
+                    } else if ((float) dx < center_x && (float) dy > center_y) {
+                        deg2 = 90.0F + (float) Math.toDegrees(Math.atan((center_x - (float) dx) / ((float) dy - center_y)));
 
-                        for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                            if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                                (Hua_ban.ty_shuzu.get(i)).rotate(jiao2 - jiao1, zhong_xin_x, zhong_xin_y);
+                        for (i = 0; i < Board.bElements.size(); ++i) {
+                            if ((Board.bElements.get(i)).selected) {
+                                (Board.bElements.get(i)).rotate(deg2 - deg1, center_x, center_y);
                             }
                         }
 
                         this.anxia_x = dx;
                         this.anxia_y = dy;
-                    } else if ((float) dx > zhong_xin_x && (float) dy > zhong_xin_y) {
-                        jiao2 = (float) Math.toDegrees(Math.atan(((float) dy - zhong_xin_y) / ((float) dx - zhong_xin_x)));
+                    } else if ((float) dx > center_x && (float) dy > center_y) {
+                        deg2 = (float) Math.toDegrees(Math.atan(((float) dy - center_y) / ((float) dx - center_x)));
 
-                        for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                            if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                                (Hua_ban.ty_shuzu.get(i)).rotate(jiao2 - jiao1, zhong_xin_x, zhong_xin_y);
+                        for (i = 0; i < Board.bElements.size(); ++i) {
+                            if ((Board.bElements.get(i)).selected) {
+                                (Board.bElements.get(i)).rotate(deg2 - deg1, center_x, center_y);
                             }
                         }
 
@@ -1025,14 +1022,14 @@ public class mainJFrame extends JFrame implements KeyListener {
 
                 if (this.an == 3) {
                     double sf;
-                    if (Hua_ban.suo) {
+                    if (Board.lock) {
                         sf = (double) (this.anxia_x - rect.x) / (double) rect.width;
                         if (sf > 0.0D) {
-                            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                                    (Hua_ban.ty_shuzu.get(i)).translate(-rect.x, -rect.y);
-                                    (Hua_ban.ty_shuzu.get(i)).scale(sf, sf);
-                                    (Hua_ban.ty_shuzu.get(i)).translate(rect.x, rect.y);
+                            for (i = 0; i < Board.bElements.size(); ++i) {
+                                if ((Board.bElements.get(i)).selected) {
+                                    (Board.bElements.get(i)).translate(-rect.x, -rect.y);
+                                    (Board.bElements.get(i)).scale(sf, sf);
+                                    (Board.bElements.get(i)).translate(rect.x, rect.y);
                                 }
                             }
                         }
@@ -1042,11 +1039,11 @@ public class mainJFrame extends JFrame implements KeyListener {
                         sf = (double) (this.anxia_x - rect.x) / (double) rect.width;
                         double sf_y = (double) (this.anxia_y - rect.y) / (double) rect.height;
                         if (sf > 0.0D && sf_y > 0.0D) {
-                            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                                    (Hua_ban.ty_shuzu.get(i)).translate(-rect.x, -rect.y);
-                                    (Hua_ban.ty_shuzu.get(i)).scale(sf, sf_y);
-                                    (Hua_ban.ty_shuzu.get(i)).translate(rect.x, rect.y);
+                            for (i = 0; i < Board.bElements.size(); ++i) {
+                                if ((Board.bElements.get(i)).selected) {
+                                    (Board.bElements.get(i)).translate(-rect.x, -rect.y);
+                                    (Board.bElements.get(i)).scale(sf, sf_y);
+                                    (Board.bElements.get(i)).translate(rect.x, rect.y);
                                 }
                             }
                         }
@@ -1061,13 +1058,13 @@ public class mainJFrame extends JFrame implements KeyListener {
                 this.tuo_dong = true;
             } else if (this.an_niu == 3) {
                 AffineTransform py = AffineTransform.getTranslateInstance(dx - this.anxia_x, dy - this.anxia_y);
-                Hua_ban.quan_x = (int) ((double) (Hua_ban.quan_x + (dx - this.anxia_x)) / Hua_ban.quan_beishu);
-                Hua_ban.quan_y = (int) ((double) (Hua_ban.quan_y + (dy - this.anxia_y)) / Hua_ban.quan_beishu);
+                Board.quan_x = (int) ((double) (Board.quan_x + (dx - this.anxia_x)) / Board.quan_beishu);
+                Board.quan_y = (int) ((double) (Board.quan_y + (dy - this.anxia_y)) / Board.quan_beishu);
 
-                for (x = 0; x < Hua_ban.ty_shuzu.size(); ++x) {
+                for (x = 0; x < Board.bElements.size(); ++x) {
                     AffineTransform fb = new AffineTransform(py);
-                    fb.concatenate((Hua_ban.ty_shuzu.get(x)).Tx);
-                    (Hua_ban.ty_shuzu.get(x)).Tx = fb;
+                    fb.concatenate((Board.bElements.get(x)).Tx);
+                    (Board.bElements.get(x)).Tx = fb;
                 }
 
                 this.anxia_x = dx;
@@ -1111,7 +1108,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(gcodeFilePath));
 
                         try {
-                            Hua_ban.ty_shuzu = (List) ois.readObject();
+                            Board.bElements = (List) ois.readObject();
                         } catch (Throwable var14) {
                             try {
                                 ois.close();
@@ -1127,12 +1124,12 @@ public class mainJFrame extends JFrame implements KeyListener {
                         var15.printStackTrace();
                     }
 
-                    for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        if ((Hua_ban.ty_shuzu.get(i)).type == 1) {
-                            (Hua_ban.ty_shuzu.get(i)).wei_tu = new BufferedImage((Hua_ban.ty_shuzu.get(i)).wt_w, (Hua_ban.ty_shuzu.get(i)).wt_g, 2);
-                            (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan = new BufferedImage((Hua_ban.ty_shuzu.get(i)).wty_w, (Hua_ban.ty_shuzu.get(i)).wty_g, 2);
-                            (Hua_ban.ty_shuzu.get(i)).wei_tu.setRGB(0, 0, (Hua_ban.ty_shuzu.get(i)).wt_w, (Hua_ban.ty_shuzu.get(i)).wt_g, (Hua_ban.ty_shuzu.get(i)).wei_tu_, 0, (Hua_ban.ty_shuzu.get(i)).wt_w);
-                            (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.setRGB(0, 0, (Hua_ban.ty_shuzu.get(i)).wty_w, (Hua_ban.ty_shuzu.get(i)).wty_g, (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan_, 0, (Hua_ban.ty_shuzu.get(i)).wty_w);
+                    for (int i = 0; i < Board.bElements.size(); ++i) {
+                        if ((Board.bElements.get(i)).type == 1) {
+                            (Board.bElements.get(i)).wei_tu = new BufferedImage((Board.bElements.get(i)).wt_w, (Board.bElements.get(i)).wt_g, 2);
+                            (Board.bElements.get(i)).wei_tu_yuan = new BufferedImage((Board.bElements.get(i)).wty_w, (Board.bElements.get(i)).wty_g, 2);
+                            (Board.bElements.get(i)).wei_tu.setRGB(0, 0, (Board.bElements.get(i)).wt_w, (Board.bElements.get(i)).wt_g, (Board.bElements.get(i)).wei_tu_, 0, (Board.bElements.get(i)).wt_w);
+                            (Board.bElements.get(i)).wei_tu_yuan.setRGB(0, 0, (Board.bElements.get(i)).wty_w, (Board.bElements.get(i)).wty_g, (Board.bElements.get(i)).wei_tu_yuan_, 0, (Board.bElements.get(i)).wty_w);
                         }
                     }
 
@@ -1147,14 +1144,14 @@ public class mainJFrame extends JFrame implements KeyListener {
             } else {
                 try {
                     img = ImageIO.read(gcodeFile);
-                    Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian(1, img));
+                    Board.bElements.add(BElement.chuang_jian(1, img));
 
-                    for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                        (Hua_ban.ty_shuzu.get(i)).selected = false;
+                    for (int i = 0; i < Board.bElements.size(); ++i) {
+                        (Board.bElements.get(i)).selected = false;
                     }
 
-                    (Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1)).selected = true;
-                    Tu_yuan.center(Hua_ban.ty_shuzu);
+                    (Board.bElements.get(Board.bElements.size() - 1)).selected = true;
+                    BElement.center(Board.bElements);
                     Che_xiao.tian_jia();
                     this.up();
                 } catch (IOException e) {
@@ -1172,55 +1169,55 @@ public class mainJFrame extends JFrame implements KeyListener {
         if (evt.getPreciseWheelRotation() < 0.0D) {
             AffineTransform sf1 = AffineTransform.getTranslateInstance(-dx, -dy);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 sf2 = new AffineTransform(sf1);
-                sf2.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = sf2;
+                sf2.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = sf2;
             }
 
-            Hua_ban.quan_beishu *= 1.1D;
+            Board.quan_beishu *= 1.1D;
             AffineTransform sf = AffineTransform.getScaleInstance(1.1D, 1.1D);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 fb = new AffineTransform(sf);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
 
             sf2 = AffineTransform.getTranslateInstance(dx, dy);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 fb = new AffineTransform(sf2);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
         } else {
-            GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-            lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+            GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+            lu_jing2.transform((Board.bElements.get(0)).Tx);
             Rectangle rect = lu_jing2.getBounds();
             sf2 = AffineTransform.getTranslateInstance(-dx, -dy);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 fb = new AffineTransform(sf2);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
 
-            Hua_ban.quan_beishu *= 0.9D;
+            Board.quan_beishu *= 0.9D;
             fb = AffineTransform.getScaleInstance(0.9D, 0.9D);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 // AffineTransform fb = new AffineTransform(fb);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
 
             fb = AffineTransform.getTranslateInstance(dx, dy);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 // AffineTransform fb = new AffineTransform(fb);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
         }
 
@@ -1257,9 +1254,9 @@ public class mainJFrame extends JFrame implements KeyListener {
     private void evt_engrave(ActionEvent evt) {
         if (this.com_isOpened || this.wang.lian_jie) {
             if (!kai_shi) {
-                if (Hua_ban.kuang) {
+                if (Board.boundingBox) {
                     handler.send(new byte[]{33, 0, 4, 0}, 3);
-                    Hua_ban.kuang = false;
+                    Board.boundingBox = false;
                 }
 
                 this.xie_ru(new byte[]{22, 0, 4, 0}, 2);
@@ -1285,23 +1282,23 @@ public class mainJFrame extends JFrame implements KeyListener {
 
         Thread t;
         if (this.com_isOpened) {
-            if (Hua_ban.kuang) {
+            if (Board.boundingBox) {
                 t = new Thread(() -> {
                     handler.send(new byte[]{33, 0, 4, 0}, 3);
-                    Hua_ban.kuang = false;
+                    Board.boundingBox = false;
                     this.up();
                 });
                 t.start();
             } else {
                 t = new Thread(() -> {
-                    Tu_yuan.qu_jvxing(Hua_ban.ty_shuzu);
-                    GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-                    lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+                    BElement.qu_jvxing(Board.bElements);
+                    GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+                    lu_jing2.transform((Board.bElements.get(0)).Tx);
                     Rectangle rect = lu_jing2.getBounds();
-                    Rectangle zui_zhong_wjx2 = new Rectangle(Tu_yuan.zui_zhong_wjx);
-                    AffineTransform sf = AffineTransform.getTranslateInstance(0 - rect.x, 0 - rect.y);
+                    Rectangle zui_zhong_wjx2 = new Rectangle(BElement.zui_zhong_wjx);
+                    AffineTransform sf = AffineTransform.getTranslateInstance(-rect.x, -rect.y);
                     zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
-                    sf = AffineTransform.getScaleInstance(1.0D / Hua_ban.quan_beishu, 1.0D / Hua_ban.quan_beishu);
+                    sf = AffineTransform.getScaleInstance(1.0D / Board.quan_beishu, 1.0D / Board.quan_beishu);
                     zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
                     if (zui_zhong_wjx2.width >= 2 || zui_zhong_wjx2.height >= 2) {
                         byte kg = (byte) (zui_zhong_wjx2.width >> 8);
@@ -1315,30 +1312,30 @@ public class mainJFrame extends JFrame implements KeyListener {
                         if (mainJFrame.handler.send(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 1)) {
                         }
 
-                        Hua_ban.kuang = true;
+                        Board.boundingBox = true;
                         mainJFrame.this.up();
                     }
                 });
                 t.start();
             }
         } else if (this.wang.lian_jie) {
-            if (Hua_ban.kuang) {
+            if (Board.boundingBox) {
                 t = new Thread(() -> {
                     this.wang.xie2(new byte[]{33, 0, 4, 0}, 300);
-                    Hua_ban.kuang = false;
+                    Board.boundingBox = false;
                     this.up();
                 });
                 t.start();
             } else {
                 t = new Thread(() -> {
-                    Tu_yuan.qu_jvxing(Hua_ban.ty_shuzu);
-                    GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-                    lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+                    BElement.qu_jvxing(Board.bElements);
+                    GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+                    lu_jing2.transform((Board.bElements.get(0)).Tx);
                     Rectangle rect = lu_jing2.getBounds();
-                    Rectangle zui_zhong_wjx2 = new Rectangle(Tu_yuan.zui_zhong_wjx);
-                    AffineTransform sf = AffineTransform.getTranslateInstance(0 - rect.x, 0 - rect.y);
+                    Rectangle zui_zhong_wjx2 = new Rectangle(BElement.zui_zhong_wjx);
+                    AffineTransform sf = AffineTransform.getTranslateInstance(-rect.x, -rect.y);
                     zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
-                    sf = AffineTransform.getScaleInstance(1.0D / Hua_ban.quan_beishu, 1.0D / Hua_ban.quan_beishu);
+                    sf = AffineTransform.getScaleInstance(1.0D / Board.quan_beishu, 1.0D / Board.quan_beishu);
                     zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
                     byte kg = (byte) (zui_zhong_wjx2.width >> 8);
                     byte kd = (byte) zui_zhong_wjx2.width;
@@ -1349,7 +1346,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                     byte yg = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2 >> 8);
                     byte yd = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2);
                     mainJFrame.this.wang.xie2(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
-                    Hua_ban.kuang = true;
+                    Board.boundingBox = true;
                     mainJFrame.this.up();
                 });
                 t.start();
@@ -1360,59 +1357,59 @@ public class mainJFrame extends JFrame implements KeyListener {
     }
 
     private void evt_circle(ActionEvent evt) {
-        Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian(2, null));
+        Board.bElements.add(BElement.chuang_jian(2, null));
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            Hua_ban.ty_shuzu.get(i).selected = false;
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            Board.bElements.get(i).selected = false;
         }
 
-        Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1).selected = true;
-        Tu_yuan.center(Hua_ban.ty_shuzu);
+        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        BElement.center(Board.bElements);
         Che_xiao.tian_jia();
         this.up();
     }
 
     private void evt_heart(ActionEvent evt) {
-        Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian(3, null));
+        Board.bElements.add(BElement.chuang_jian(3, null));
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            Hua_ban.ty_shuzu.get(i).selected = false;
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            Board.bElements.get(i).selected = false;
         }
 
-        Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1).selected = true;
-        Tu_yuan.center(Hua_ban.ty_shuzu);
+        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        BElement.center(Board.bElements);
         Che_xiao.tian_jia();
         this.up();
     }
 
     private void evt_star(ActionEvent evt) {
-        Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian(4, null));
+        Board.bElements.add(BElement.chuang_jian(4, null));
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            Hua_ban.ty_shuzu.get(i).selected = false;
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            Board.bElements.get(i).selected = false;
         }
 
-        Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1).selected = true;
-        Tu_yuan.center(Hua_ban.ty_shuzu);
+        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        BElement.center(Board.bElements);
         Che_xiao.tian_jia();
         this.up();
     }
 
     private void evt_text(ActionEvent evt) {
-        Zi_ti2 dialog = new Zi_ti2(this.hua_ban1, true);
+        Zi_ti2 dialog = new Zi_ti2(this.board1, true);
         dialog.setDefaultCloseOperation(2);
         dialog.setVisible(true);
     }
 
     private void evt_square(ActionEvent evt) {
-        Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian(0, null));
+        Board.bElements.add(BElement.chuang_jian(0, null));
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            Hua_ban.ty_shuzu.get(i).selected = false;
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            Board.bElements.get(i).selected = false;
         }
 
-        Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1).selected = true;
-        Tu_yuan.center(Hua_ban.ty_shuzu);
+        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        BElement.center(Board.bElements);
         Che_xiao.tian_jia();
         this.up();
     }
@@ -1481,21 +1478,21 @@ public class mainJFrame extends JFrame implements KeyListener {
             if (this.com_isOpened || this.wang.lian_jie) {
                 if (this.driver_version[2] == 37) {
                     if (this.opt_accuracy.getSelectedIndex() == 0) {
-                        Hua_ban.fen_bian_lv = 0.064D;
+                        Board.resolution = 0.064D;
                     } else if (this.opt_accuracy.getSelectedIndex() == 1) {
-                        Hua_ban.fen_bian_lv = 0.08D;
+                        Board.resolution = 0.08D;
                     } else if (this.opt_accuracy.getSelectedIndex() == 2) {
-                        Hua_ban.fen_bian_lv = 0.096D;
+                        Board.resolution = 0.096D;
                     }
                 } else if (this.opt_accuracy.getSelectedIndex() == 0) {
-                    Hua_ban.fen_bian_lv = 0.05D;
+                    Board.resolution = 0.05D;
                 } else if (this.opt_accuracy.getSelectedIndex() == 1) {
-                    Hua_ban.fen_bian_lv = 0.0625D;
+                    Board.resolution = 0.0625D;
                 } else if (this.opt_accuracy.getSelectedIndex() == 2) {
-                    Hua_ban.fen_bian_lv = 0.075D;
+                    Board.resolution = 0.075D;
                 }
 
-                this.hua_ban1.di_tu();
+                this.board1.di_tu();
                 this.she_zhi_can_shu();
             }
 
@@ -1532,22 +1529,22 @@ public class mainJFrame extends JFrame implements KeyListener {
         chooser.setFileFilter(filter);
         int option = chooser.showSaveDialog(this);
         if (option == 0) {
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if (Hua_ban.ty_shuzu.get(i).type == 1) {
-                    Hua_ban.ty_shuzu.get(i).wt_w = Hua_ban.ty_shuzu.get(i).wei_tu.getWidth();
-                    Hua_ban.ty_shuzu.get(i).wt_g = Hua_ban.ty_shuzu.get(i).wei_tu.getHeight();
-                    Hua_ban.ty_shuzu.get(i).wty_w = Hua_ban.ty_shuzu.get(i).wei_tu_yuan.getWidth();
-                    Hua_ban.ty_shuzu.get(i).wty_g = (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getHeight();
-                    (Hua_ban.ty_shuzu.get(i)).wei_tu_ = new int[(Hua_ban.ty_shuzu.get(i)).wei_tu.getWidth() * (Hua_ban.ty_shuzu.get(i)).wei_tu.getHeight()];
-                    (Hua_ban.ty_shuzu.get(i)).wei_tu.getRGB(0, 0, (Hua_ban.ty_shuzu.get(i)).wei_tu.getWidth(), (Hua_ban.ty_shuzu.get(i)).wei_tu.getHeight(), (Hua_ban.ty_shuzu.get(i)).wei_tu_, 0, (Hua_ban.ty_shuzu.get(i)).wei_tu.getWidth());
-                    (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan_ = new int[(Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getWidth() * (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getHeight()];
-                    (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getRGB(0, 0, (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getWidth(), (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getHeight(), (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan_, 0, (Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.getWidth());
+            for (int i = 0; i < Board.bElements.size(); ++i) {
+                if (Board.bElements.get(i).type == 1) {
+                    Board.bElements.get(i).wt_w = Board.bElements.get(i).wei_tu.getWidth();
+                    Board.bElements.get(i).wt_g = Board.bElements.get(i).wei_tu.getHeight();
+                    Board.bElements.get(i).wty_w = Board.bElements.get(i).wei_tu_yuan.getWidth();
+                    Board.bElements.get(i).wty_g = (Board.bElements.get(i)).wei_tu_yuan.getHeight();
+                    (Board.bElements.get(i)).wei_tu_ = new int[(Board.bElements.get(i)).wei_tu.getWidth() * (Board.bElements.get(i)).wei_tu.getHeight()];
+                    (Board.bElements.get(i)).wei_tu.getRGB(0, 0, (Board.bElements.get(i)).wei_tu.getWidth(), (Board.bElements.get(i)).wei_tu.getHeight(), (Board.bElements.get(i)).wei_tu_, 0, (Board.bElements.get(i)).wei_tu.getWidth());
+                    (Board.bElements.get(i)).wei_tu_yuan_ = new int[(Board.bElements.get(i)).wei_tu_yuan.getWidth() * (Board.bElements.get(i)).wei_tu_yuan.getHeight()];
+                    (Board.bElements.get(i)).wei_tu_yuan.getRGB(0, 0, (Board.bElements.get(i)).wei_tu_yuan.getWidth(), (Board.bElements.get(i)).wei_tu_yuan.getHeight(), (Board.bElements.get(i)).wei_tu_yuan_, 0, (Board.bElements.get(i)).wei_tu_yuan.getWidth());
                 }
             }
 
-            Tu_yuan.hui_fu();
-            BufferedImage tu_diaoke2 = Tu_yuan.qu_tu(Hua_ban.ty_shuzu);
-            Tu_yuan.hui_fu_xian_chang();
+            BElement.hui_fu();
+            BufferedImage tu_diaoke2 = BElement.qu_tu(Board.bElements);
+            BElement.hui_fu_xian_chang();
             String ss = chooser.getSelectedFile().getPath();
             ss = ss.toLowerCase();
             if (!ss.endsWith(".xj")) {
@@ -1561,7 +1558,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                 try {
                     BMPEncoder.write(tu_diaoke2, f);
                 } catch (IOException var14) {
-                    Logger.getLogger(Tu_yuan.class.getName()).log(Level.SEVERE, null, var14);
+                    Logger.getLogger(BElement.class.getName()).log(Level.SEVERE, null, var14);
                 }
             }
 
@@ -1571,7 +1568,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
 
                 try {
-                    oos.writeObject(Hua_ban.ty_shuzu);
+                    oos.writeObject(Board.bElements);
                 } catch (Throwable var12) {
                     try {
                         oos.close();
@@ -1623,11 +1620,11 @@ public class mainJFrame extends JFrame implements KeyListener {
 
     private void jSlider6StateChanged(ChangeEvent evt) {
         this.lb_contrast.setText(bundle.getString("str_dui_bi") + this.sd_contrast.getValue() + "%");
-        if (Hua_ban.ty_shuzu.size() >= 2) {
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if ((Hua_ban.ty_shuzu.get(i)).selected && (Hua_ban.ty_shuzu.get(i)).type == 1) {
-                    (Hua_ban.ty_shuzu.get(i)).yu_zhi = this.sd_contrast.getValue();
-                    (Hua_ban.ty_shuzu.get(i)).chu_li();
+        if (Board.bElements.size() >= 2) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
+                if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
+                    (Board.bElements.get(i)).yu_zhi = this.sd_contrast.getValue();
+                    (Board.bElements.get(i)).chu_li();
                 }
             }
 
@@ -1637,7 +1634,7 @@ public class mainJFrame extends JFrame implements KeyListener {
 
     private void jSlider7StateChanged(ChangeEvent evt) {
         this.lb_fill.setText(bundle.getString("str_tian_chong") + this.sd_fill.getValue());
-        Tu_yuan.tian_chong_md = this.sd_fill.getValue();
+        BElement.tian_chong_md = this.sd_fill.getValue();
         this.up();
     }
 
@@ -1658,42 +1655,42 @@ public class mainJFrame extends JFrame implements KeyListener {
     }
 
     void qu_yu() {
-        GeneralPath lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing2.transform((Board.bElements.get(0)).Tx);
         Rectangle rect = lu_jing2.getBounds();
         System.out.print(rect);
         AffineTransform fb;
-        if (rect.width > this.hua_ban1.getWidth() || rect.height > this.hua_ban1.getHeight()) {
+        if (rect.width > this.board1.getWidth() || rect.height > this.board1.getHeight()) {
             double b;
-            if (rect.width - this.hua_ban1.getWidth() > rect.height - this.hua_ban1.getHeight()) {
-                b = (double) this.hua_ban1.getWidth() / (double) rect.width;
+            if (rect.width - this.board1.getWidth() > rect.height - this.board1.getHeight()) {
+                b = (double) this.board1.getWidth() / (double) rect.width;
             } else {
-                b = (double) this.hua_ban1.getHeight() / (double) rect.height;
+                b = (double) this.board1.getHeight() / (double) rect.height;
             }
 
-            Hua_ban.quan_beishu *= b;
+            Board.quan_beishu *= b;
             AffineTransform sf = AffineTransform.getScaleInstance(b, b);
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+            for (int i = 0; i < Board.bElements.size(); ++i) {
                 fb = new AffineTransform(sf);
-                fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-                (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+                fb.concatenate((Board.bElements.get(i)).Tx);
+                (Board.bElements.get(i)).Tx = fb;
             }
         }
 
-        lu_jing2 = new GeneralPath((Hua_ban.ty_shuzu.get(0)).path);
-        lu_jing2.transform((Hua_ban.ty_shuzu.get(0)).Tx);
+        lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
+        lu_jing2.transform((Board.bElements.get(0)).Tx);
         rect = lu_jing2.getBounds();
         int x1 = rect.x + rect.width / 2;
         int y1 = rect.y + rect.height / 2;
-        int x2 = this.hua_ban1.getWidth() / 2;
-        int y2 = this.hua_ban1.getHeight() / 2;
+        int x2 = this.board1.getWidth() / 2;
+        int y2 = this.board1.getHeight() / 2;
         fb = AffineTransform.getTranslateInstance(x2 - x1, y2 - y1);
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
+        for (int i = 0; i < Board.bElements.size(); ++i) {
             // AffineTransform fb = new AffineTransform(fb);
-            fb.concatenate((Hua_ban.ty_shuzu.get(i)).Tx);
-            (Hua_ban.ty_shuzu.get(i)).Tx = fb;
+            fb.concatenate((Board.bElements.get(i)).Tx);
+            (Board.bElements.get(i)).Tx = fb;
         }
 
         this.up();
@@ -1759,11 +1756,11 @@ public class mainJFrame extends JFrame implements KeyListener {
         byte bl = 0;
         byte[] bao;
         int len = 0;
-        Tu_yuan.hui_fu();
-        BufferedImage tu_diaoke2 = Tu_yuan.qu_tu(Hua_ban.ty_shuzu);
-        List<Dian> dian = Tu_yuan.qu_dian(Hua_ban.ty_shuzu);
-        Tu_yuan.hui_fu_xian_chang();
-        if (tu_diaoke2 == null && dian == null) {
+        BElement.hui_fu();
+        BufferedImage tu_diaoke2 = BElement.qu_tu(Board.bElements);
+        List<BPoint> bPoints = BElement.qu_dian(Board.bElements);
+        BElement.hui_fu_xian_chang();
+        if (tu_diaoke2 == null && bPoints == null) {
             this.btn_engrave.setEnabled(true);
         } else {
             // int jishu = 0;
@@ -1786,24 +1783,24 @@ public class mainJFrame extends JFrame implements KeyListener {
                 wz_sl = 33;
             }
 
-            if (dian != null) {
-                k_sl = Tu_yuan.zui_zhong_wjx.width;
-                g_sl = Tu_yuan.zui_zhong_wjx.height;
+            if (bPoints != null) {
+                k_sl = BElement.zui_zhong_wjx.width;
+                g_sl = BElement.zui_zhong_wjx.height;
                 sl_ = true;
             } else {
-                dian = new ArrayList<>();
+                bPoints = new ArrayList<>();
             }
 
-            int z = Tu_yuan.zui_zhong_wjx.x + Tu_yuan.zui_zhong_wjx.width / 2 + 67;
-            int s = Tu_yuan.zui_zhong_wjx.y + Tu_yuan.zui_zhong_wjx.height / 2;
-            int z_sl = Tu_yuan.shi_liang_wjx.x + Tu_yuan.shi_liang_wjx.width / 2 + 67;
-            int s_sl = Tu_yuan.shi_liang_wjx.y + Tu_yuan.shi_liang_wjx.height / 2;
-            bao = new byte[wz_sl - 33 + dian.size() * 4];
+            int z = BElement.zui_zhong_wjx.x + BElement.zui_zhong_wjx.width / 2 + 67;
+            int s = BElement.zui_zhong_wjx.y + BElement.zui_zhong_wjx.height / 2;
+            int z_sl = BElement.shi_liang_wjx.x + BElement.shi_liang_wjx.width / 2 + 67;
+            int s_sl = BElement.shi_liang_wjx.y + BElement.shi_liang_wjx.height / 2;
+            bao = new byte[wz_sl - 33 + bPoints.size() * 4];
             kai_shi = true;
-            this.kai_shi_tuo_ji((33 + len * g + dian.size() * 4) / 4094 + 1, 1, k, g, 33, this.sd_carve_power.getValue() * 10, this.sd_carve_depth.getValue(), k_sl, g_sl, wz_sl, this.sd_cut_power.getValue() * 10, this.sd_cut_depth.getValue(), dian.size(), z, s, this.opt_num_times.getSelectedIndex() + 1, z_sl, s_sl);
+            this.kai_shi_tuo_ji((33 + len * g + bPoints.size() * 4) / 4094 + 1, 1, k, g, 33, this.sd_carve_power.getValue() * 10, this.sd_carve_depth.getValue(), k_sl, g_sl, wz_sl, this.sd_cut_power.getValue() * 10, this.sd_cut_depth.getValue(), bPoints.size(), z, s, this.opt_num_times.getSelectedIndex() + 1, z_sl, s_sl);
 
             try {
-                Thread.sleep(40 * ((33 + len * g + dian.size() * 4) / 4094 + 1));
+                Thread.sleep(40 * ((33 + len * g + bPoints.size() * 4) / 4094 + 1));
             } catch (InterruptedException var31) {
                 Logger.getLogger("MAIN").log(Level.SEVERE, null, var31);
             }
@@ -1853,11 +1850,11 @@ public class mainJFrame extends JFrame implements KeyListener {
             }
 
             if (sl_) {
-                for (int j = 0; j < dian.size(); ++j) {
-                    bao[jishu++] = (byte) ((Dian) ((List) dian).get(j)).x;
-                    bao[jishu++] = (byte) (((Dian) ((List) dian).get(j)).x >> 8);
-                    bao[jishu++] = (byte) ((Dian) ((List) dian).get(j)).y;
-                    bao[jishu++] = (byte) (((Dian) ((List) dian).get(j)).y >> 8);
+                for (int j = 0; j < bPoints.size(); ++j) {
+                    bao[jishu++] = (byte) ((BPoint) ((List) bPoints).get(j)).x;
+                    bao[jishu++] = (byte) (((BPoint) ((List) bPoints).get(j)).x >> 8);
+                    bao[jishu++] = (byte) ((BPoint) ((List) bPoints).get(j)).y;
+                    bao[jishu++] = (byte) (((BPoint) ((List) bPoints).get(j)).y >> 8);
                 }
             }
 
@@ -1951,20 +1948,20 @@ public class mainJFrame extends JFrame implements KeyListener {
                         toggle_connect_status(true);
                         if (handler.read_version()) {
                             this.driver_version = new byte[]{handler.ret_val[0], handler.ret_val[1], handler.ret_val[2]};
-                            this.hua_ban1.ban_ben(this.driver_version, 2);
+                            this.board1.version(this.driver_version, 2);
                             if (this.driver_version[2] == 37) {
-                                if (Hua_ban.fen_bian_lv == 0.096D) {
+                                if (Board.resolution == 0.096D) {
                                     this.opt_accuracy.setSelectedIndex(2);
-                                } else if (Hua_ban.fen_bian_lv == 0.08D) {
+                                } else if (Board.resolution == 0.08D) {
                                     this.opt_accuracy.setSelectedIndex(1);
-                                } else if (Hua_ban.fen_bian_lv == 0.064D) {
+                                } else if (Board.resolution == 0.064D) {
                                     this.opt_accuracy.setSelectedIndex(0);
                                 }
-                            } else if (Hua_ban.fen_bian_lv == 0.075D) {
+                            } else if (Board.resolution == 0.075D) {
                                 this.opt_accuracy.setSelectedIndex(2);
-                            } else if (Hua_ban.fen_bian_lv == 0.0625D) {
+                            } else if (Board.resolution == 0.0625D) {
                                 this.opt_accuracy.setSelectedIndex(1);
-                            } else if (Hua_ban.fen_bian_lv == 0.05D) {
+                            } else if (Board.resolution == 0.05D) {
                                 this.opt_accuracy.setSelectedIndex(0);
                             }
 
@@ -2073,13 +2070,13 @@ public class mainJFrame extends JFrame implements KeyListener {
         int i;
         if (!Objects.equals(this.tf_inlay_x.getText(), "")) {
             x = (double) Integer.valueOf(this.tf_inlay_x.getText());
-            x -= this.hua_ban1.x;
-            x /= Hua_ban.fen_bian_lv;
-            x *= Hua_ban.quan_beishu;
+            x -= this.board1.val_x;
+            x /= Board.resolution;
+            x *= Board.quan_beishu;
 
-            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                    (Hua_ban.ty_shuzu.get(i)).translate((int) x, (Hua_ban.ty_shuzu.get(i)).path.getBounds().y);
+            for (i = 0; i < Board.bElements.size(); ++i) {
+                if ((Board.bElements.get(i)).selected) {
+                    (Board.bElements.get(i)).translate((int) x, (Board.bElements.get(i)).path.getBounds().y);
                 }
             }
 
@@ -2088,13 +2085,13 @@ public class mainJFrame extends JFrame implements KeyListener {
 
         if (this.tf_inlay_y.getText() != "") {
             x = (double) Integer.valueOf(this.tf_inlay_y.getText());
-            x -= this.hua_ban1.y;
-            x /= Hua_ban.fen_bian_lv;
-            x *= Hua_ban.quan_beishu;
+            x -= this.board1.val_y;
+            x /= Board.resolution;
+            x *= Board.quan_beishu;
 
-            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                    (Hua_ban.ty_shuzu.get(i)).translate((Hua_ban.ty_shuzu.get(i)).path.getBounds().x, (int) x);
+            for (i = 0; i < Board.bElements.size(); ++i) {
+                if ((Board.bElements.get(i)).selected) {
+                    (Board.bElements.get(i)).translate((Board.bElements.get(i)).path.getBounds().x, (int) x);
                 }
             }
 
@@ -2104,19 +2101,19 @@ public class mainJFrame extends JFrame implements KeyListener {
         Rectangle rect;
         if (this.tf_inlay_w.getText() != "") {
             x = (double) Integer.valueOf(this.tf_inlay_w.getText());
-            x /= this.hua_ban1.ww;
-            rect = Tu_yuan.qu_jv_xing(Hua_ban.ty_shuzu);
+            x /= this.board1.val_w;
+            rect = BElement.qu_jv_xing(Board.bElements);
 
-            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                    (Hua_ban.ty_shuzu.get(i)).translate(-rect.x, -rect.y);
-                    if (Hua_ban.suo) {
-                        (Hua_ban.ty_shuzu.get(i)).scale(x, x);
+            for (i = 0; i < Board.bElements.size(); ++i) {
+                if ((Board.bElements.get(i)).selected) {
+                    (Board.bElements.get(i)).translate(-rect.x, -rect.y);
+                    if (Board.lock) {
+                        (Board.bElements.get(i)).scale(x, x);
                     } else {
-                        (Hua_ban.ty_shuzu.get(i)).scale(x, 1.0D);
+                        (Board.bElements.get(i)).scale(x, 1.0D);
                     }
 
-                    (Hua_ban.ty_shuzu.get(i)).translate(rect.x, rect.y);
+                    (Board.bElements.get(i)).translate(rect.x, rect.y);
                 }
             }
 
@@ -2125,19 +2122,19 @@ public class mainJFrame extends JFrame implements KeyListener {
 
         if (this.tf_inlay_h.getText() != "") {
             x = (double) Integer.valueOf(this.tf_inlay_h.getText());
-            x /= this.hua_ban1.hh;
-            rect = Tu_yuan.qu_jv_xing(Hua_ban.ty_shuzu);
+            x /= this.board1.val_h;
+            rect = BElement.qu_jv_xing(Board.bElements);
 
-            for (i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                    (Hua_ban.ty_shuzu.get(i)).translate(-rect.x, -rect.y);
-                    if (Hua_ban.suo) {
-                        (Hua_ban.ty_shuzu.get(i)).scale(x, x);
+            for (i = 0; i < Board.bElements.size(); ++i) {
+                if ((Board.bElements.get(i)).selected) {
+                    (Board.bElements.get(i)).translate(-rect.x, -rect.y);
+                    if (Board.lock) {
+                        (Board.bElements.get(i)).scale(x, x);
                     } else {
-                        (Hua_ban.ty_shuzu.get(i)).scale(1.0D, x);
+                        (Board.bElements.get(i)).scale(1.0D, x);
                     }
 
-                    (Hua_ban.ty_shuzu.get(i)).translate(rect.x, rect.y);
+                    (Board.bElements.get(i)).translate(rect.x, rect.y);
                 }
             }
 
@@ -2151,25 +2148,25 @@ public class mainJFrame extends JFrame implements KeyListener {
         if (e.isControlDown() && e.getKeyCode() == 67) {
             this.ty_fu_zhi.clear();
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if ((Hua_ban.ty_shuzu.get(i)).selected) {
-                    this.ty_fu_zhi.add(Tu_yuan.copy(Hua_ban.ty_shuzu.get(i)));
+            for (int i = 0; i < Board.bElements.size(); ++i) {
+                if ((Board.bElements.get(i)).selected) {
+                    this.ty_fu_zhi.add(BElement.copy(Board.bElements.get(i)));
                 }
             }
 
             this.fu_zhi = true;
         } else if (e.isControlDown() && e.getKeyCode() == 86) {
             if (this.fu_zhi) {
-                for (Tu_yuan tu_yuan : this.ty_fu_zhi) {
-                    Hua_ban.ty_shuzu.add(Tu_yuan.copy(tu_yuan));
+                for (BElement BEle : this.ty_fu_zhi) {
+                    Board.bElements.add(BElement.copy(BEle));
                 }
 
                 this.up();
                 Che_xiao.tian_jia();
             }
         } else if (e.isControlDown() && e.getKeyCode() == 65) {
-            for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-                (Hua_ban.ty_shuzu.get(i)).selected = true;
+            for (int i = 1; i < Board.bElements.size(); ++i) {
+                (Board.bElements.get(i)).selected = true;
             }
 
             this.up();
@@ -2177,8 +2174,8 @@ public class mainJFrame extends JFrame implements KeyListener {
             Che_xiao.che_xiao();
             this.up();
         } else if (e.isControlDown() && e.getKeyCode() == 88) {
-            for (int i = 1; i < Hua_ban.ty_shuzu.size(); ++i) {
-                (Hua_ban.ty_shuzu.get(i)).selected = true;
+            for (int i = 1; i < Board.bElements.size(); ++i) {
+                (Board.bElements.get(i)).selected = true;
             }
 
             Che_xiao.chong_zuo();
@@ -2188,15 +2185,15 @@ public class mainJFrame extends JFrame implements KeyListener {
         if (c == 10) {
             this.set();
         } else if (c == 127) {
-            List<Tu_yuan> sz = new ArrayList<>();
+            List<BElement> sz = new ArrayList<>();
 
-            for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                if (!(Hua_ban.ty_shuzu.get(i)).selected) {
-                    sz.add(Hua_ban.ty_shuzu.get(i));
+            for (int i = 0; i < Board.bElements.size(); ++i) {
+                if (!(Board.bElements.get(i)).selected) {
+                    sz.add(Board.bElements.get(i));
                 }
             }
 
-            Hua_ban.ty_shuzu = sz;
+            Board.bElements = sz;
             this.up();
             Che_xiao.tian_jia();
         }

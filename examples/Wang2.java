@@ -25,7 +25,7 @@ public class Wang2 {
     Socket ke_hu;
     public int xin_tiao = 0;
     public JButton bt = null;
-    public Hua_ban hb = null;
+    public Board hb = null;
     public JComboBox fbl = null;
     public JSlider rg = null;
     public JProgressBar jdt = null;
@@ -39,7 +39,7 @@ public class Wang2 {
         Runnable runnable2 = new Runnable() {
             public void run() {
                 while (true) {
-                    if (!Hua_ban.kuang && !mainJFrame.kai_shi && !Wang2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                    if (!Board.boundingBox && !mainJFrame.kai_shi && !Wang2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                         try {
                             Thread.sleep(100L);
                         } catch (InterruptedException var4) {
@@ -267,14 +267,14 @@ public class Wang2 {
                             if (Wang2.this.lianjie(new byte[]{10, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100)) {
                                 byte[] fhx = Wang2.this.ban_ben(new byte[]{-1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100);
                                 if (fhx != null) {
-                                    Wang2.this.hb.ban_ben(fhx, 2);
+                                    Wang2.this.hb.version(fhx, 2);
                                 }
 
                                 Thread.sleep(500L);
                                 Wang2.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi.png")));
                                 int rg2 = Wang2.this.rg.getValue() * 2;
                                 int jd = Wang2.this.fbl.getSelectedIndex();
-                                Hua_ban.fen_bian_lv = 0.05D + (double) Wang2.this.fbl.getSelectedIndex() * 0.0125D;
+                                Board.resolution = 0.05D + (double) Wang2.this.fbl.getSelectedIndex() * 0.0125D;
                                 Wang2.this.hb.di_tu();
                                 Wang2.this.lianjie(new byte[]{40, 0, 11, (byte) rg2, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
                                 break;

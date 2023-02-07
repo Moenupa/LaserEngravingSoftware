@@ -1,4 +1,4 @@
-import examples.Tu_yuan;
+import examples.BElement;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -40,7 +40,7 @@ public class NewClass2 extends JFrame {
          Graphics2D graphics2 = (Graphics2D)g;
          graphics2.setPaint(textPaint);
          new Float(45.0F, 25.0F, 200.0F, 200.0F);
-         Tu_yuan ty = new Tu_yuan();
+         BElement ty = new BElement();
          ty.path.moveTo(121.0F, 0.0F);
          ty.path.lineTo(149.0F, 93.0F);
          ty.path.lineTo(241.0F, 94.0F);

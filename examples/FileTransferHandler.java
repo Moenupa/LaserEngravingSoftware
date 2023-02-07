@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 class FileTransferHandler extends TransferHandler {
-    public static Hua_ban hb = null;
+    public static Board hb = null;
 
     public boolean importData(JComponent comp, Transferable t) {
         try {
@@ -35,7 +35,7 @@ class FileTransferHandler extends TransferHandler {
                                     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName));
 
                                     try {
-                                        Hua_ban.ty_shuzu = (List) ois.readObject();
+                                        Board.bElements = (List) ois.readObject();
                                     } catch (Throwable var12) {
                                         try {
                                             ois.close();
@@ -51,12 +51,12 @@ class FileTransferHandler extends TransferHandler {
                                     var13.printStackTrace();
                                 }
 
-                                for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                                    if (((Tu_yuan) Hua_ban.ty_shuzu.get(i)).type == 1) {
-                                        ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wei_tu = new BufferedImage(((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wt_w, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wt_g, 2);
-                                        ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wei_tu_yuan = new BufferedImage(((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wty_w, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wty_g, 2);
-                                        ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wei_tu.setRGB(0, 0, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wt_w, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wt_g, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wei_tu_, 0, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wt_w);
-                                        ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wei_tu_yuan.setRGB(0, 0, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wty_w, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wty_g, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wei_tu_yuan_, 0, ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).wty_w);
+                                for (int i = 0; i < Board.bElements.size(); ++i) {
+                                    if (((BElement) Board.bElements.get(i)).type == 1) {
+                                        ((BElement) Board.bElements.get(i)).wei_tu = new BufferedImage(((BElement) Board.bElements.get(i)).wt_w, ((BElement) Board.bElements.get(i)).wt_g, 2);
+                                        ((BElement) Board.bElements.get(i)).wei_tu_yuan = new BufferedImage(((BElement) Board.bElements.get(i)).wty_w, ((BElement) Board.bElements.get(i)).wty_g, 2);
+                                        ((BElement) Board.bElements.get(i)).wei_tu.setRGB(0, 0, ((BElement) Board.bElements.get(i)).wt_w, ((BElement) Board.bElements.get(i)).wt_g, ((BElement) Board.bElements.get(i)).wei_tu_, 0, ((BElement) Board.bElements.get(i)).wt_w);
+                                        ((BElement) Board.bElements.get(i)).wei_tu_yuan.setRGB(0, 0, ((BElement) Board.bElements.get(i)).wty_w, ((BElement) Board.bElements.get(i)).wty_g, ((BElement) Board.bElements.get(i)).wei_tu_yuan_, 0, ((BElement) Board.bElements.get(i)).wty_w);
                                     }
                                 }
 
@@ -72,14 +72,14 @@ class FileTransferHandler extends TransferHandler {
                         } else {
                             try {
                                 plt = ImageIO.read(new File(fileName));
-                                Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian(1, plt));
+                                Board.bElements.add(BElement.chuang_jian(1, plt));
 
-                                for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-                                    ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).selected = false;
+                                for (int i = 0; i < Board.bElements.size(); ++i) {
+                                    ((BElement) Board.bElements.get(i)).selected = false;
                                 }
 
-                                ((Tu_yuan) Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1)).selected = true;
-                                Tu_yuan.center(Hua_ban.ty_shuzu);
+                                ((BElement) Board.bElements.get(Board.bElements.size() - 1)).selected = true;
+                                BElement.center(Board.bElements);
                                 if (hb != null) {
                                     hb.repaint();
                                 }

@@ -16,7 +16,7 @@ public class Zi_ti2 extends JDialog {
     static int box1 = 0;
     static int box2 = 0;
     static int daxiao = 10;
-    Hua_ban fu;
+    Board fu;
     private JSlider da_xiao;
     private JButton jButton1;
     private JCheckBox jCheckBox1;
@@ -34,7 +34,7 @@ public class Zi_ti2 extends JDialog {
         this.initComponents();
     }
 
-    public Zi_ti2(Hua_ban parent, boolean modal) {
+    public Zi_ti2(Board parent, boolean modal) {
         this.setTitle("输入文字");
         this.setLocation(new Point(200, 100));
         this.fu = parent;
@@ -137,17 +137,17 @@ public class Zi_ti2 extends JDialog {
 
     private void jButton1ActionPerformed(ActionEvent evt) {
         if (this.jCheckBox1.isSelected()) {
-            Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian_wen_zi_shu(this.wen_zi.getText(), ziti, 0, this.jCheckBox2.isSelected()));
+            Board.bElements.add(BElement.chuang_jian_wen_zi_shu(this.wen_zi.getText(), ziti, 0, this.jCheckBox2.isSelected()));
         } else {
-            Hua_ban.ty_shuzu.add(Tu_yuan.chuang_jian_wen_zi(this.wen_zi.getText(), ziti, this.jCheckBox2.isSelected()));
+            Board.bElements.add(BElement.chuang_jian_wen_zi(this.wen_zi.getText(), ziti, this.jCheckBox2.isSelected()));
         }
 
-        for (int i = 0; i < Hua_ban.ty_shuzu.size(); ++i) {
-            ((Tu_yuan) Hua_ban.ty_shuzu.get(i)).selected = false;
+        for (int i = 0; i < Board.bElements.size(); ++i) {
+            ((BElement) Board.bElements.get(i)).selected = false;
         }
 
-        ((Tu_yuan) Hua_ban.ty_shuzu.get(Hua_ban.ty_shuzu.size() - 1)).selected = true;
-        Tu_yuan.center(Hua_ban.ty_shuzu);
+        ((BElement) Board.bElements.get(Board.bElements.size() - 1)).selected = true;
+        BElement.center(Board.bElements);
         Che_xiao.tian_jia();
         this.fu.repaint();
         this.setVisible(false);

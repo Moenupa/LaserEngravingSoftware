@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Che_xiao {
-    static List<List<Tu_yuan>> ty_shuzu_cx = new ArrayList();
+    static List<List<BElement>> ty_shuzu_cx = new ArrayList();
     static int dang_qian = 0;
     static int bu_shu = 20;
 
@@ -16,11 +16,11 @@ public class Che_xiao {
                 }
             }
 
-            ty_shuzu_cx.add(Tu_yuan.copyResult(Hua_ban.ty_shuzu));
+            ty_shuzu_cx.add(BElement.copyResult(Board.bElements));
             dang_qian = ty_shuzu_cx.size();
         } else {
             ty_shuzu_cx.remove(0);
-            ty_shuzu_cx.add(Tu_yuan.copyResult(Hua_ban.ty_shuzu));
+            ty_shuzu_cx.add(BElement.copyResult(Board.bElements));
             dang_qian = ty_shuzu_cx.size();
         }
 
@@ -28,7 +28,7 @@ public class Che_xiao {
 
     public static void che_xiao() {
         if (dang_qian > 1) {
-            Hua_ban.ty_shuzu = Tu_yuan.copyResult((List) ty_shuzu_cx.get(dang_qian - 1 - 1));
+            Board.bElements = BElement.copyResult((List) ty_shuzu_cx.get(dang_qian - 1 - 1));
             --dang_qian;
         }
 
@@ -36,7 +36,7 @@ public class Che_xiao {
 
     public static void chong_zuo() {
         if (dang_qian < bu_shu) {
-            Hua_ban.ty_shuzu = Tu_yuan.copyResult((List) ty_shuzu_cx.get(dang_qian + 1 - 1));
+            Board.bElements = BElement.copyResult((List) ty_shuzu_cx.get(dang_qian + 1 - 1));
             ++dang_qian;
         }
 
