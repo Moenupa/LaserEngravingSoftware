@@ -340,4 +340,9 @@ public class Board extends JPanel {
         }
 
     }
+
+    public static void selectLast() {
+        for (BElement bElement : bElements) bElement.selected = false;
+        bElements.get(bElements.size() - 1).selected = true;
+    }
 }

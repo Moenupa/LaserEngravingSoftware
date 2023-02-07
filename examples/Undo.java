@@ -3,7 +3,7 @@ package examples;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Che_xiao {
+public class Undo {
     static List<List<BElement>> ty_shuzu_cx = new ArrayList();
     static int dang_qian = 0;
     static int bu_shu = 20;

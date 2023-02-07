@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class Com {
     public JProgressBar jdt;
 
-    SerialPort com = null;
+    SerialPort com;
 
     public byte[] ret_val = new byte[]{0, 0, 0, 0};
     int ret_code = 0;
@@ -41,8 +41,8 @@ public class Com {
                     case 2:
                         // add ret_val -> terminate buffer
                         this.terminate_count += ret_val.length;
-                        for (int i = 0; i < ret_val.length; ++i) {
-                            this.terminate_buffer.add(ret_val[i]);
+                        for (byte b : ret_val) {
+                            this.terminate_buffer.add(b);
                         }
 
                         // if count >= 3, mv first 3 -> this.ret_val
@@ -56,8 +56,8 @@ public class Com {
                         return;
                     case 3:
                         // add ret_val -> terminate buffer
-                        for (int i = 0; i < ret_val.length; ++i) {
-                            this.terminate_buffer.add(ret_val[i]);
+                        for (byte b : ret_val) {
+                            this.terminate_buffer.add(b);
                         }
 
                         int size = this.terminate_buffer.size();
@@ -97,9 +97,7 @@ public class Com {
                         byte[] fh2 = SerialPortUtil.readData(this.com);
                         byte[] fh = new byte[this.ret_code];
 
-                        for (int i = 0; i < fh.length; ++i) {
-                            fh[i] = fh2[i];
-                        }
+                        System.arraycopy(fh2, 0, fh, 0, fh.length);
 
                         if (fh.length == 4) {
                             if (fh[0] == -1 && fh[1] == -1 && fh[2] == 0) {
@@ -108,7 +106,6 @@ public class Com {
                                 mainJFrame.kai_shi = true;
                                 mainJFrame.kai_shi2 = true;
                                 mainJFrame.timeout = 0;
-                                return;
                             } else {
                                 if (fh[0] == -1 && fh[1] == -1 && fh[2] == -1 && fh[3] == -1) {
                                     this.jdt.setValue(0);
@@ -120,14 +117,12 @@ public class Com {
                                     this.ret = true;
                                     this.ret_val = fh;
                                 }
-
-                                return;
                             }
                         } else {
                             this.ret = true;
                             this.ret_val = fh;
-                            return;
                         }
+                        return;
                     }
                 } catch (Exception e) {
                     Logger.getLogger("MAIN").log(Level.SEVERE, null, e);

@@ -8,10 +8,10 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Wang2 {
+public class Wifi2 {
     BufferedInputStream bis;
     BufferedOutputStream bos;
-    Wang2.ReadThread readThread;
+    Wifi2.ReadThread readThread;
     DatagramSocket udp;
     InetAddress serverAddress;
     public byte[] data_r = new byte[100];
@@ -31,7 +31,7 @@ public class Wang2 {
     public JProgressBar jdt = null;
     public mainJFrame win = null;
 
-    public Wang2() {
+    public Wifi2() {
         this.fw_kai();
     }
 
@@ -39,22 +39,22 @@ public class Wang2 {
         Runnable runnable2 = new Runnable() {
             public void run() {
                 while (true) {
-                    if (!Board.boundingBox && !mainJFrame.kai_shi && !Wang2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                    if (!Board.boundingBox && !mainJFrame.kai_shi && !Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                         try {
                             Thread.sleep(100L);
                         } catch (InterruptedException var4) {
-                            Logger.getLogger(Wang2.class.getName()).log(Level.SEVERE, (String) null, var4);
+                            Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var4);
                         }
 
-                        if (!Wang2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                        if (!Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                             try {
                                 Thread.sleep(100L);
                             } catch (InterruptedException var3) {
-                                Logger.getLogger(Wang2.class.getName()).log(Level.SEVERE, (String) null, var3);
+                                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var3);
                             }
 
-                            if (!Wang2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
-                                Wang2.this.guan_bi();
+                            if (!Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                                Wifi2.this.guan_bi();
                                 return;
                             }
                         }
@@ -63,7 +63,7 @@ public class Wang2 {
                     try {
                         Thread.sleep(6000L);
                     } catch (InterruptedException var2) {
-                        Logger.getLogger(Wang2.class.getName()).log(Level.SEVERE, (String) null, var2);
+                        Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var2);
                     }
                 }
             }
@@ -75,7 +75,7 @@ public class Wang2 {
     public void xie2323(byte[] data) {
         if (this.lian_jie) {
             this.data_w = data;
-            Wang2.WriteRead writeRead = new Wang2.WriteRead();
+            Wifi2.WriteRead writeRead = new Wifi2.WriteRead();
             writeRead.start();
         }
 
@@ -89,7 +89,7 @@ public class Wang2 {
             return false;
         } else {
             this.data_w = data;
-            Wang2.WriteRead writeRead = new Wang2.WriteRead();
+            Wifi2.WriteRead writeRead = new Wifi2.WriteRead();
             writeRead.start();
 
             while (this.fanhui == null && m++ <= chao) {
@@ -115,7 +115,7 @@ public class Wang2 {
             return false;
         } else {
             this.data_w = data;
-            Wang2.WriteRead writeRead = new Wang2.WriteRead();
+            Wifi2.WriteRead writeRead = new Wifi2.WriteRead();
             writeRead.start();
 
             while (this.fanhui == null && m++ <= chao) {
@@ -137,7 +137,7 @@ public class Wang2 {
             return null;
         } else {
             this.data_w = data;
-            Wang2.WriteRead writeRead = new Wang2.WriteRead();
+            Wifi2.WriteRead writeRead = new Wifi2.WriteRead();
             writeRead.start();
 
             while (this.fanhui == null && m++ <= chao) {
@@ -161,7 +161,7 @@ public class Wang2 {
             return false;
         } else {
             this.data_w = data;
-            Wang2.WriteRead writeRead = new Wang2.WriteRead();
+            Wifi2.WriteRead writeRead = new Wifi2.WriteRead();
             writeRead.start();
             boolean bl = false;
 
@@ -223,7 +223,7 @@ public class Wang2 {
             return false;
         } else {
             this.data_w = data;
-            Wang2.WriteRead writeRead = new Wang2.WriteRead();
+            Wifi2.WriteRead writeRead = new Wifi2.WriteRead();
             writeRead.start();
 
             while (this.fanhui == null && m++ <= chao) {
@@ -246,48 +246,48 @@ public class Wang2 {
         (new Thread(new Runnable() {
             public void run() {
                 try {
-                    Wang2.this.fu_wu = new ServerSocket(12346);
-                    Wang2.this.ke_hu = Wang2.this.fu_wu.accept();
-                    Wang2.this.bis = new BufferedInputStream(Wang2.this.ke_hu.getInputStream());
-                    Wang2.this.bos = new BufferedOutputStream(Wang2.this.ke_hu.getOutputStream());
-                    Wang2.this.readThread = Wang2.this.new ReadThread();
-                    Wang2.this.readThread.start();
-                    Wang2.this.lian_jie = true;
-                    if (Wang2.this.bt != null) {
+                    Wifi2.this.fu_wu = new ServerSocket(12346);
+                    Wifi2.this.ke_hu = Wifi2.this.fu_wu.accept();
+                    Wifi2.this.bis = new BufferedInputStream(Wifi2.this.ke_hu.getInputStream());
+                    Wifi2.this.bos = new BufferedOutputStream(Wifi2.this.ke_hu.getOutputStream());
+                    Wifi2.this.readThread = Wifi2.this.new ReadThread();
+                    Wifi2.this.readThread.start();
+                    Wifi2.this.lian_jie = true;
+                    if (Wifi2.this.bt != null) {
                         byte[] fh = null;
                         int var2 = 0;
 
                         while (true) {
                             if (var2++ > 3) {
-                                Wang2.this.guan_bi();
+                                Wifi2.this.guan_bi();
                                 return;
                             }
 
                             Thread.sleep(500L);
-                            if (Wang2.this.lianjie(new byte[]{10, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100)) {
-                                byte[] fhx = Wang2.this.ban_ben(new byte[]{-1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100);
+                            if (Wifi2.this.lianjie(new byte[]{10, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100)) {
+                                byte[] fhx = Wifi2.this.ban_ben(new byte[]{-1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100);
                                 if (fhx != null) {
-                                    Wang2.this.hb.version(fhx, 2);
+                                    Wifi2.this.hb.version(fhx, 2);
                                 }
 
                                 Thread.sleep(500L);
-                                Wang2.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi.png")));
-                                int rg2 = Wang2.this.rg.getValue() * 2;
-                                int jd = Wang2.this.fbl.getSelectedIndex();
-                                Board.resolution = 0.05D + (double) Wang2.this.fbl.getSelectedIndex() * 0.0125D;
-                                Wang2.this.hb.di_tu();
-                                Wang2.this.lianjie(new byte[]{40, 0, 11, (byte) rg2, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
+                                Wifi2.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi.png")));
+                                int rg2 = Wifi2.this.rg.getValue() * 2;
+                                int jd = Wifi2.this.fbl.getSelectedIndex();
+                                Board.resolution = 0.05D + (double) Wifi2.this.fbl.getSelectedIndex() * 0.0125D;
+                                Wifi2.this.hb.di_tu();
+                                Wifi2.this.lianjie(new byte[]{40, 0, 11, (byte) rg2, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
                                 break;
                             }
                         }
                     }
 
-                    Wang2.this.xin_tiao();
+                    Wifi2.this.xin_tiao();
                 } catch (Exception var6) {
                     var6.printStackTrace();
-                    Wang2.this.lian_jie = false;
-                    if (Wang2.this.bt != null) {
-                        Wang2.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi2.png")));
+                    Wifi2.this.lian_jie = false;
+                    if (Wifi2.this.bt != null) {
+                        Wifi2.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi2.png")));
                     }
                 }
 
@@ -295,11 +295,11 @@ public class Wang2 {
         })).start();
         (new Thread(new Runnable() {
             public void run() {
-                while (!Wang2.this.lian_jie) {
+                while (!Wifi2.this.lian_jie) {
                     try {
-                        Wang2.this.udp = new DatagramSocket();
-                        Wang2.this.serverAddress = InetAddress.getByName("255.255.255.255");
-                        byte[] data = ("IPjiakuo\"" + Wang2.this.qu_ip() + "\",12346\r\n").getBytes();
+                        Wifi2.this.udp = new DatagramSocket();
+                        Wifi2.this.serverAddress = InetAddress.getByName("255.255.255.255");
+                        byte[] data = ("IPjiakuo\"" + Wifi2.this.qu_ip() + "\",12346\r\n").getBytes();
                         byte[] data2 = new byte[data.length + 3];
                         data2[0] = 2;
                         data2[1] = (byte) (data2.length >> 8);
@@ -311,8 +311,8 @@ public class Wang2 {
 
                         DatagramPacket packet = new DatagramPacket(data2, data2.length);
                         packet.setSocketAddress(new InetSocketAddress("255.255.255.255", 12345));
-                        Wang2.this.udp.setBroadcast(true);
-                        Wang2.this.udp.send(packet);
+                        Wifi2.this.udp.setBroadcast(true);
+                        Wifi2.this.udp.send(packet);
                     } catch (SocketException var5) {
                         var5.printStackTrace();
                     } catch (UnknownHostException var6) {
@@ -338,7 +338,7 @@ public class Wang2 {
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException var3) {
-            Logger.getLogger(Wang2.class.getName()).log(Level.SEVERE, (String) null, var3);
+            Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var3);
         }
 
         return ip;
@@ -371,7 +371,7 @@ public class Wang2 {
             try {
                 this.fu_wu.close();
             } catch (IOException var3) {
-                Logger.getLogger(Wang2.class.getName()).log(Level.SEVERE, (String) null, var3);
+                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var3);
             }
 
             this.fu_wu = null;
@@ -381,14 +381,14 @@ public class Wang2 {
             try {
                 this.ke_hu.close();
             } catch (IOException var2) {
-                Logger.getLogger(Wang2.class.getName()).log(Level.SEVERE, (String) null, var2);
+                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var2);
             }
 
             this.ke_hu = null;
         }
 
-        if (this.win.wang != null) {
-            this.win.wang = null;
+        if (this.win.wifi != null) {
+            this.win.wifi = null;
         }
 
     }
@@ -398,18 +398,18 @@ public class Wang2 {
         }
 
         public void run() {
-            if (!Wang2.this.mang) {
-                Wang2.this.mang = true;
-                Wang2.this.xin_tiao = 0;
+            if (!Wifi2.this.mang) {
+                Wifi2.this.mang = true;
+                Wifi2.this.xin_tiao = 0;
 
                 try {
-                    Wang2.this.bos.write(Wang2.this.data_w);
-                    Wang2.this.bos.flush();
+                    Wifi2.this.bos.write(Wifi2.this.data_w);
+                    Wifi2.this.bos.flush();
                 } catch (Exception var3) {
                     var3.printStackTrace();
                 }
 
-                Wang2.this.mang = false;
+                Wifi2.this.mang = false;
             } else {
                 try {
                     Thread.sleep(500L);
@@ -434,13 +434,13 @@ public class Wang2 {
             while (true) {
                 try {
                     int count = 0;
-                    if (Wang2.this.bis != null) {
-                        count = Wang2.this.bis.available();
+                    if (Wifi2.this.bis != null) {
+                        count = Wifi2.this.bis.available();
                     }
 
                     if (count > 0) {
-                        int f = Wang2.this.bis.read(Wang2.this.data_r);
-                        Wang2.this.fanhui = new byte[f];
+                        int f = Wifi2.this.bis.read(Wifi2.this.data_r);
+                        Wifi2.this.fanhui = new byte[f];
 
                         for (int i = 0; i < f; ++i) {
                         }
@@ -466,32 +466,32 @@ public class Wang2 {
             while (true) {
                 try {
                     int count = 0;
-                    if (Wang2.this.bis != null) {
-                        count = Wang2.this.bis.available();
+                    if (Wifi2.this.bis != null) {
+                        count = Wifi2.this.bis.available();
                     }
 
                     if (count > 0) {
-                        int f = Wang2.this.bis.read(Wang2.this.data_r);
-                        Wang2.this.fanhui = new byte[f];
-                        Wang2.this.fanhui2 = new byte[f];
+                        int f = Wifi2.this.bis.read(Wifi2.this.data_r);
+                        Wifi2.this.fanhui = new byte[f];
+                        Wifi2.this.fanhui2 = new byte[f];
 
                         for (int i = 0; i < f; ++i) {
-                            Wang2.this.fanhui[i] = Wang2.this.data_r[i];
-                            Wang2.this.fanhui2[i] = Wang2.this.data_r[i];
+                            Wifi2.this.fanhui[i] = Wifi2.this.data_r[i];
+                            Wifi2.this.fanhui2[i] = Wifi2.this.data_r[i];
                         }
 
-                        if (Wang2.this.fanhui.length == 4) {
-                            if (Wang2.this.fanhui[0] == -1 && Wang2.this.fanhui[1] == -1 && Wang2.this.fanhui[2] == 0) {
-                                if (Wang2.this.win != null && !Wang2.this.win.com_isOpened && Wang2.this.lian_jie) {
+                        if (Wifi2.this.fanhui.length == 4) {
+                            if (Wifi2.this.fanhui[0] == -1 && Wifi2.this.fanhui[1] == -1 && Wifi2.this.fanhui[2] == 0) {
+                                if (Wifi2.this.win != null && !Wifi2.this.win.com_isOpened && Wifi2.this.lian_jie) {
                                 }
-                            } else if (Wang2.this.fanhui[0] == -1 && Wang2.this.fanhui[1] == -1 && Wang2.this.fanhui[2] == -1 && Wang2.this.fanhui[3] == -1) {
-                                Wang2.this.jdt.setValue(0);
-                                Wang2.this.jdt.setVisible(false);
+                            } else if (Wifi2.this.fanhui[0] == -1 && Wifi2.this.fanhui[1] == -1 && Wifi2.this.fanhui[2] == -1 && Wifi2.this.fanhui[3] == -1) {
+                                Wifi2.this.jdt.setValue(0);
+                                Wifi2.this.jdt.setVisible(false);
                                 mainJFrame.kai_shi = false;
                             }
                         } else {
-                            Wang2.this.fan_hui_ma = f;
-                            Wang2.this.xin_tiao = 0;
+                            Wifi2.this.fan_hui_ma = f;
+                            Wifi2.this.xin_tiao = 0;
                         }
                     }
 

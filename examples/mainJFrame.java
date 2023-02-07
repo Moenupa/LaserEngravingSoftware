@@ -36,7 +36,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     JMenuItem item1;
     public byte[] driver_version = new byte[]{0, 0, 0, 0};
     public static String ce_shi = "";
-    public Wang wang = null;
+    public Wifi wifi = null;
     boolean an_xia = false;
     int anxia_x = 0;
     int anxia_y = 0;
@@ -202,8 +202,8 @@ public class mainJFrame extends JFrame implements KeyListener {
             Thread t = new Thread(() -> {
                 if (this.com_isOpened) {
                     handler.send(new byte[]{22, 0, 4, 0}, 2);
-                } else if (mainJFrame.this.wang.lian_jie) {
-                    this.wang.xie2(new byte[]{22, 0, 4, 0}, 200);
+                } else if (mainJFrame.this.wifi.connected) {
+                    this.wifi.xie2(new byte[]{22, 0, 4, 0}, 200);
                 }
             });
             t.start();
@@ -537,7 +537,7 @@ public class mainJFrame extends JFrame implements KeyListener {
         this.item1 = new JMenuItem(str_firmware);
         this.item1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Gu_jian gj = new Gu_jian();
+                Firmware gj = new Firmware();
                 gj.setVisible(true);
                 gj.setDefaultCloseOperation(2);
             }
@@ -550,7 +550,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     private void formWindowOpened(WindowEvent evt) {
         try {
             this.btn_wificonnect.setVisible(false);
-            Geng_xin.geng_xin();
+            Update.geng_xin();
             FileTransferHandler ft = new FileTransferHandler();
             FileTransferHandler.hb = this.board1;
             this.board1.setTransferHandler(ft);
@@ -593,14 +593,14 @@ public class mainJFrame extends JFrame implements KeyListener {
                             this.win = this;
                             Runnable runnable2 = () -> {
                                 while (true) {
-                                    if (mainJFrame.this.wang == null) {
-                                        mainJFrame.this.wang = new Wang();
-                                        mainJFrame.this.wang.bt = mainJFrame.this.btn_wificonnect;
-                                        mainJFrame.this.wang.hb = mainJFrame.this.board1;
-                                        mainJFrame.this.wang.fbl = mainJFrame.this.opt_accuracy;
-                                        mainJFrame.this.wang.rg = mainJFrame.this.sd_weak_light;
-                                        mainJFrame.this.wang.jdt = mainJFrame.this.jdt;
-                                        mainJFrame.this.wang.win = mainJFrame.this.win;
+                                    if (mainJFrame.this.wifi == null) {
+                                        mainJFrame.this.wifi = new Wifi();
+                                        mainJFrame.this.wifi.bt = mainJFrame.this.btn_wificonnect;
+                                        mainJFrame.this.wifi.board = mainJFrame.this.board1;
+                                        mainJFrame.this.wifi.fbl = mainJFrame.this.opt_accuracy;
+                                        mainJFrame.this.wifi.rg = mainJFrame.this.sd_weak_light;
+                                        mainJFrame.this.wifi.jdt = mainJFrame.this.jdt;
+                                        mainJFrame.this.wifi.window = mainJFrame.this.win;
                                     }
 
                                     try {
@@ -708,7 +708,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                     }
                     Board.bElements = sz;
                     this.up();
-                    Che_xiao.tian_jia();
+                    Undo.tian_jia();
                     return;
                 case 2:
                 case 3:
@@ -720,7 +720,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                 case 5:
                     BElement.center(Board.bElements);
                     this.up();
-                    Che_xiao.tian_jia();
+                    Undo.tian_jia();
                     return;
                 case 6:
                     for (i = 0; i < Board.bElements.size(); ++i) {
@@ -728,7 +728,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             (Board.bElements.get(i)).chuli_fs = 1;
                             (Board.bElements.get(i)).chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -739,7 +739,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             (Board.bElements.get(i)).chuli_fs = 2;
                             (Board.bElements.get(i)).chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -751,7 +751,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             cur.chuli_fs = 3;
                             cur.chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -762,7 +762,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             (Board.bElements.get(i)).chuli_fs = 4;
                             (Board.bElements.get(i)).chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -774,7 +774,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             (Board.bElements.get(i)).chuli_jxy = !(Board.bElements.get(i)).chuli_jxy;
                             (Board.bElements.get(i)).chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -786,7 +786,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             (Board.bElements.get(i)).chuli_jxx = !(Board.bElements.get(i)).chuli_jxx;
                             (Board.bElements.get(i)).chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -799,7 +799,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                             Board.bElements.get(i).chuli_fan = !Board.bElements.get(i).chuli_fan;
                             (Board.bElements.get(i)).chu_li();
                             this.up();
-                            Che_xiao.tian_jia();
+                            Undo.tian_jia();
                             return;
                         }
                     }
@@ -855,7 +855,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                 fb2.concatenate(ty.Tx);
                 ty.Tx = fb2;
                 Board.bElements.add(ty);
-                Che_xiao.tian_jia();
+                Undo.tian_jia();
                 return;
             }
 
@@ -907,7 +907,7 @@ public class mainJFrame extends JFrame implements KeyListener {
         BElement.tuo = false;
         if (this.tuo_dong) {
             this.tuo_dong = false;
-            Che_xiao.tian_jia();
+            Undo.tian_jia();
         }
 
         this.up();
@@ -1133,26 +1133,21 @@ public class mainJFrame extends JFrame implements KeyListener {
                         }
                     }
 
-                    Che_xiao.tian_jia();
+                    Undo.tian_jia();
                     this.up();
                 } else if (suffix.equals("PLT")) {
                     jie_xi_PLT plt = new jie_xi_PLT();
-                    plt.jie_xi_PLT(gcodeFile);
-                    Che_xiao.tian_jia();
+                    plt.analyzePLT(gcodeFile);
+                    Undo.tian_jia();
                     this.up();
                 }
             } else {
                 try {
                     img = ImageIO.read(gcodeFile);
                     Board.bElements.add(BElement.chuang_jian(1, img));
-
-                    for (int i = 0; i < Board.bElements.size(); ++i) {
-                        (Board.bElements.get(i)).selected = false;
-                    }
-
-                    (Board.bElements.get(Board.bElements.size() - 1)).selected = true;
+                    Board.selectLast();
                     BElement.center(Board.bElements);
-                    Che_xiao.tian_jia();
+                    Undo.tian_jia();
                     this.up();
                 } catch (IOException e) {
                 }
@@ -1252,7 +1247,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     }
 
     private void evt_engrave(ActionEvent evt) {
-        if (this.com_isOpened || this.wang.lian_jie) {
+        if (this.com_isOpened || this.wifi.connected) {
             if (!kai_shi) {
                 if (Board.boundingBox) {
                     handler.send(new byte[]{33, 0, 4, 0}, 3);
@@ -1318,10 +1313,10 @@ public class mainJFrame extends JFrame implements KeyListener {
                 });
                 t.start();
             }
-        } else if (this.wang.lian_jie) {
+        } else if (this.wifi.connected) {
             if (Board.boundingBox) {
                 t = new Thread(() -> {
-                    this.wang.xie2(new byte[]{33, 0, 4, 0}, 300);
+                    this.wifi.xie2(new byte[]{33, 0, 4, 0}, 300);
                     Board.boundingBox = false;
                     this.up();
                 });
@@ -1345,7 +1340,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                     byte xd = (byte) (zui_zhong_wjx2.x + 67 + zui_zhong_wjx2.width / 2);
                     byte yg = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2 >> 8);
                     byte yd = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2);
-                    mainJFrame.this.wang.xie2(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
+                    mainJFrame.this.wifi.xie2(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
                     Board.boundingBox = true;
                     mainJFrame.this.up();
                 });
@@ -1358,59 +1353,39 @@ public class mainJFrame extends JFrame implements KeyListener {
 
     private void evt_circle(ActionEvent evt) {
         Board.bElements.add(BElement.chuang_jian(2, null));
-
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            Board.bElements.get(i).selected = false;
-        }
-
-        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        Board.selectLast();
         BElement.center(Board.bElements);
-        Che_xiao.tian_jia();
+        Undo.tian_jia();
         this.up();
     }
 
     private void evt_heart(ActionEvent evt) {
         Board.bElements.add(BElement.chuang_jian(3, null));
-
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            Board.bElements.get(i).selected = false;
-        }
-
-        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        Board.selectLast();
         BElement.center(Board.bElements);
-        Che_xiao.tian_jia();
+        Undo.tian_jia();
         this.up();
     }
 
     private void evt_star(ActionEvent evt) {
         Board.bElements.add(BElement.chuang_jian(4, null));
-
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            Board.bElements.get(i).selected = false;
-        }
-
-        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        Board.selectLast();
         BElement.center(Board.bElements);
-        Che_xiao.tian_jia();
+        Undo.tian_jia();
         this.up();
     }
 
     private void evt_text(ActionEvent evt) {
-        Zi_ti2 dialog = new Zi_ti2(this.board1, true);
+        FontDialog dialog = new FontDialog(this.board1, true);
         dialog.setDefaultCloseOperation(2);
         dialog.setVisible(true);
     }
 
     private void evt_square(ActionEvent evt) {
         Board.bElements.add(BElement.chuang_jian(0, null));
-
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            Board.bElements.get(i).selected = false;
-        }
-
-        Board.bElements.get(Board.bElements.size() - 1).selected = true;
+        Board.selectLast();
         BElement.center(Board.bElements);
-        Che_xiao.tian_jia();
+        Undo.tian_jia();
         this.up();
     }
 
@@ -1424,8 +1399,8 @@ public class mainJFrame extends JFrame implements KeyListener {
             int gl = this.sd_carve_power.getValue() * 10;
             if (this.com_isOpened) {
                 handler.send_settings(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 2);
-            } else if (this.wang.lian_jie) {
-                this.wang.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
+            } else if (this.wifi.connected) {
+                this.wifi.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
             }
 
         });
@@ -1438,8 +1413,8 @@ public class mainJFrame extends JFrame implements KeyListener {
             int gl = this.sd_cut_power.getValue() * 10;
             if (this.com_isOpened) {
                 handler.send_settings(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 2);
-            } else if (this.wang.lian_jie) {
-                this.wang.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
+            } else if (this.wifi.connected) {
+                this.wifi.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
             }
 
         });
@@ -1452,8 +1427,8 @@ public class mainJFrame extends JFrame implements KeyListener {
             int jd = this.opt_accuracy.getSelectedIndex();
             if (this.com_isOpened) {
                 handler.send(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 2);
-            } else if (this.wang.lian_jie) {
-                this.wang.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
+            } else if (this.wifi.connected) {
+                this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
             }
         });
         t.start();
@@ -1462,11 +1437,11 @@ public class mainJFrame extends JFrame implements KeyListener {
     private void jSlider9MouseReleased(MouseEvent evt) {
         if (this.com_isOpened) {
             this.she_zhi_can_shu();
-        } else if (this.wang.lian_jie) {
+        } else if (this.wifi.connected) {
             Thread t = new Thread(() -> {
                 int rg = mainJFrame.this.sd_weak_light.getValue() * 2;
                 int jd = mainJFrame.this.opt_accuracy.getSelectedIndex();
-                mainJFrame.this.wang.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
+                mainJFrame.this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
             });
             t.start();
         }
@@ -1474,8 +1449,8 @@ public class mainJFrame extends JFrame implements KeyListener {
     }
 
     private void changeAccuracy(ActionEvent evt) {
-        if (this.wang != null) {
-            if (this.com_isOpened || this.wang.lian_jie) {
+        if (this.wifi != null) {
+            if (this.com_isOpened || this.wifi.connected) {
                 if (this.driver_version[2] == 37) {
                     if (this.opt_accuracy.getSelectedIndex() == 0) {
                         Board.resolution = 0.064D;
@@ -1509,11 +1484,11 @@ public class mainJFrame extends JFrame implements KeyListener {
                 }
 
                 mainJFrame.this.shi_zi = !mainJFrame.this.shi_zi;
-            } else if (mainJFrame.this.wang.lian_jie) {
+            } else if (mainJFrame.this.wifi.connected) {
                 if (mainJFrame.this.shi_zi) {
-                    mainJFrame.this.wang.xie2(new byte[]{7, 0, 4, 0}, 200);
+                    mainJFrame.this.wifi.xie2(new byte[]{7, 0, 4, 0}, 200);
                 } else {
-                    mainJFrame.this.wang.xie2(new byte[]{6, 0, 4, 0}, 200);
+                    mainJFrame.this.wifi.xie2(new byte[]{6, 0, 4, 0}, 200);
                 }
 
                 mainJFrame.this.shi_zi = !mainJFrame.this.shi_zi;
@@ -1701,12 +1676,12 @@ public class mainJFrame extends JFrame implements KeyListener {
         if (this.com_isOpened) {
             return handler.fa_song_fe(sz, 2);
         } else {
-            return this.wang.lian_jie && this.wang.kaishi(sz, 22);
+            return this.wifi.connected && this.wifi.kaishi(sz, 22);
         }
     }
 
     boolean xie_ru(byte[] m, int chao_shi) {
-        return !this.com_isOpened ? this.wang.xie_shuju(m, chao_shi * 100) : handler.send(m, chao_shi);
+        return !this.com_isOpened ? this.wifi.xie_shuju(m, chao_shi * 100) : handler.send(m, chao_shi);
     }
 
     byte jiao_yan(byte[] bao) {
@@ -2162,7 +2137,7 @@ public class mainJFrame extends JFrame implements KeyListener {
                 }
 
                 this.up();
-                Che_xiao.tian_jia();
+                Undo.tian_jia();
             }
         } else if (e.isControlDown() && e.getKeyCode() == 65) {
             for (int i = 1; i < Board.bElements.size(); ++i) {
@@ -2171,14 +2146,14 @@ public class mainJFrame extends JFrame implements KeyListener {
 
             this.up();
         } else if (e.isControlDown() && e.getKeyCode() == 90) {
-            Che_xiao.che_xiao();
+            Undo.che_xiao();
             this.up();
         } else if (e.isControlDown() && e.getKeyCode() == 88) {
             for (int i = 1; i < Board.bElements.size(); ++i) {
                 (Board.bElements.get(i)).selected = true;
             }
 
-            Che_xiao.chong_zuo();
+            Undo.chong_zuo();
             this.up();
         }
 
@@ -2195,7 +2170,7 @@ public class mainJFrame extends JFrame implements KeyListener {
 
             Board.bElements = sz;
             this.up();
-            Che_xiao.tian_jia();
+            Undo.tian_jia();
         }
 
     }

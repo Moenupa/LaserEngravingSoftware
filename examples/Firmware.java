@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Gu_jian extends JFrame {
+public class Firmware extends JFrame {
     private JButton jButton1;
     private JComboBox<String> jComboBox1;
     private JLabel jLabel1;
     private JProgressBar jProgressBar1;
 
-    public Gu_jian() {
+    public Firmware() {
         this.initComponents();
     }
 
@@ -40,13 +40,13 @@ public class Gu_jian extends JFrame {
         this.setBackground(SystemColor.controlHighlight);
         this.addWindowListener(new WindowAdapter() {
             public void windowOpened(WindowEvent evt) {
-                Gu_jian.this.formWindowOpened(evt);
+                Firmware.this.formWindowOpened(evt);
             }
         });
         this.jButton1.setText("更新");
         this.jButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                Gu_jian.this.jButton1ActionPerformed(evt);
+                Firmware.this.jButton1ActionPerformed(evt);
             }
         });
         this.jComboBox1.setModel(new DefaultComboBoxModel(new String[]{"K6", "JL1", "JL1_S", "JL2", "JL3", "JL3_S", "JL4", "JL4_S", "L1", "L1_S", " "}));
@@ -103,7 +103,7 @@ public class Gu_jian extends JFrame {
         try {
             Thread.sleep(600L);
         } catch (InterruptedException var2) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var2);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var2);
         }
 
     }
@@ -170,7 +170,7 @@ public class Gu_jian extends JFrame {
         try {
             Thread.sleep(6000L);
         } catch (InterruptedException var10) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var10);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var10);
         }
 
         String filepath = System.getProperty("user.dir");
@@ -178,7 +178,7 @@ public class Gu_jian extends JFrame {
         try {
             byData = this.getContent(filepath + "/bin.bin");
         } catch (IOException var9) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var9);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var9);
         }
 
         if (!byData.equals((Object) null)) {
@@ -208,7 +208,7 @@ public class Gu_jian extends JFrame {
                     try {
                         Thread.sleep(100L);
                     } catch (InterruptedException var8) {
-                        Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var8);
+                        Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var8);
                     }
                 } while (!mainJFrame.handler.send(listTobyte1(bao), 1));
 
@@ -226,15 +226,15 @@ public class Gu_jian extends JFrame {
         Runnable runnable2 = new Runnable() {
             public void run() {
                 try {
-                    if (Gu_jian.this.downloadNet(di_zhi)) {
-                        Gu_jian.this.fu_wei();
-                        Gu_jian.this.sheng();
+                    if (Firmware.this.downloadNet(di_zhi)) {
+                        Firmware.this.fu_wei();
+                        Firmware.this.sheng();
                         mainJFrame.handler.send(new byte[]{4, 0, 4, 0}, 1);
                     } else {
                         JOptionPane.showMessageDialog((Component) null, mainJFrame.str_download_fail);
                     }
                 } catch (MalformedURLException var2) {
-                    Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var2);
+                    Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var2);
                 }
 
             }
@@ -291,18 +291,18 @@ public class Gu_jian extends JFrame {
                 }
             }
         } catch (ClassNotFoundException var5) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var5);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var5);
         } catch (InstantiationException var6) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var6);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var6);
         } catch (IllegalAccessException var7) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var7);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var7);
         } catch (UnsupportedLookAndFeelException var8) {
-            Logger.getLogger(Gu_jian.class.getName()).log(Level.SEVERE, (String) null, var8);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var8);
         }
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                (new Gu_jian()).setVisible(true);
+                (new Firmware()).setVisible(true);
             }
         });
     }

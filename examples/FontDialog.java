@@ -11,7 +11,7 @@ import java.awt.event.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Zi_ti2 extends JDialog {
+public class FontDialog extends JDialog {
     public static Font ziti = null;
     static int box1 = 0;
     static int box2 = 0;
@@ -29,12 +29,12 @@ public class Zi_ti2 extends JDialog {
     private JComboBox<String> zi_ti_Box;
     private JComboBox<String> zi_xing_Box;
 
-    public Zi_ti2(Frame parent, boolean modal) {
+    public FontDialog(Frame parent, boolean modal) {
         super(parent, modal);
         this.initComponents();
     }
 
-    public Zi_ti2(Board parent, boolean modal) {
+    public FontDialog(Board parent, boolean modal) {
         this.setTitle("输入文字");
         this.setLocation(new Point(200, 100));
         this.fu = parent;
@@ -56,7 +56,7 @@ public class Zi_ti2 extends JDialog {
         this.setDefaultCloseOperation(2);
         this.addWindowListener(new WindowAdapter() {
             public void windowOpened(WindowEvent evt) {
-                Zi_ti2.this.formWindowOpened(evt);
+                FontDialog.this.formWindowOpened(evt);
             }
         });
         this.jLabel2.setText("字型：");
@@ -64,20 +64,20 @@ public class Zi_ti2 extends JDialog {
         this.zi_ti_Box.setModel(new DefaultComboBoxModel(new String[]{"Item 1", "Item 2", "Item 3", "Item 4"}));
         this.zi_ti_Box.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
-                Zi_ti2.this.zi_ti_BoxItemStateChanged(evt);
+                FontDialog.this.zi_ti_BoxItemStateChanged(evt);
             }
         });
         this.zi_xing_Box.setModel(new DefaultComboBoxModel(new String[]{"Item 1", "Item 2", "Item 3", "Item 4"}));
         this.zi_xing_Box.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
-                Zi_ti2.this.zi_xing_BoxItemStateChanged(evt);
+                FontDialog.this.zi_xing_BoxItemStateChanged(evt);
             }
         });
         this.da_xiao.setMaximum(200);
         this.da_xiao.setValue(10);
         this.da_xiao.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
-                Zi_ti2.this.da_xiaoStateChanged(evt);
+                FontDialog.this.da_xiaoStateChanged(evt);
             }
         });
         this.wen_zi.setColumns(20);
@@ -87,7 +87,7 @@ public class Zi_ti2 extends JDialog {
         this.jButton1.setText("OK");
         this.jButton1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                Zi_ti2.this.jButton1ActionPerformed(evt);
+                FontDialog.this.jButton1ActionPerformed(evt);
             }
         });
         this.jLabel1.setText("字体：");
@@ -141,14 +141,9 @@ public class Zi_ti2 extends JDialog {
         } else {
             Board.bElements.add(BElement.chuang_jian_wen_zi(this.wen_zi.getText(), ziti, this.jCheckBox2.isSelected()));
         }
-
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            ((BElement) Board.bElements.get(i)).selected = false;
-        }
-
-        ((BElement) Board.bElements.get(Board.bElements.size() - 1)).selected = true;
+        Board.selectLast();
         BElement.center(Board.bElements);
-        Che_xiao.tian_jia();
+        Undo.tian_jia();
         this.fu.repaint();
         this.setVisible(false);
     }
@@ -196,18 +191,18 @@ public class Zi_ti2 extends JDialog {
                 }
             }
         } catch (ClassNotFoundException var5) {
-            Logger.getLogger(Zi_ti2.class.getName()).log(Level.SEVERE, (String) null, var5);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var5);
         } catch (InstantiationException var6) {
-            Logger.getLogger(Zi_ti2.class.getName()).log(Level.SEVERE, (String) null, var6);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var6);
         } catch (IllegalAccessException var7) {
-            Logger.getLogger(Zi_ti2.class.getName()).log(Level.SEVERE, (String) null, var7);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var7);
         } catch (UnsupportedLookAndFeelException var8) {
-            Logger.getLogger(Zi_ti2.class.getName()).log(Level.SEVERE, (String) null, var8);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var8);
         }
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Zi_ti2 dialog = new Zi_ti2(new JFrame(), true);
+                FontDialog dialog = new FontDialog(new JFrame(), true);
                 dialog.addWindowListener(new WindowAdapter() {
                     public void windowClosing(WindowEvent e) {
                         System.exit(0);

@@ -16,7 +16,7 @@ import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Geng_xin {
+public class Update {
     private static String openFile(String filePath) {
         String ee = new String();
 
@@ -81,20 +81,20 @@ public class Geng_xin {
     public static void geng_xin() {
         Runnable runnable2 = new Runnable() {
             public void run() {
-                String gx = Geng_xin.openFile("http://jiakuo25.0594.bftii.com/geng_xin.txt");
+                String gx = Update.openFile("http://jiakuo25.0594.bftii.com/geng_xin.txt");
                 String[] strArr = gx.split("\r\n");
                 if (strArr.length > 1 && strArr[0].equals("1")) {
                     try {
-                        if (Geng_xin.compareVersion(strArr[1].toUpperCase(), mainJFrame.software_version.toUpperCase()) > 0) {
+                        if (Update.compareVersion(strArr[1].toUpperCase(), mainJFrame.software_version.toUpperCase()) > 0) {
                             int n = JOptionPane.showConfirmDialog((Component) null, mainJFrame.str_outdated, "", 0);
                             if (n == 0) {
                                 try {
                                     Properties props = System.getProperties();
                                     String osName = props.getProperty("os.name");
                                     if (osName.contains("Win")) {
-                                        Geng_xin.browse2("http://jiakuo25.0594.bftii.com/Laser_java_win.zip");
+                                        Update.browse2("http://jiakuo25.0594.bftii.com/Laser_java_win.zip");
                                     } else {
-                                        Geng_xin.browse2("http://jiakuo25.0594.bftii.com/Laser_java_mac.zip");
+                                        Update.browse2("http://jiakuo25.0594.bftii.com/Laser_java_mac.zip");
                                     }
                                 } catch (TooManyListenersException var6) {
                                     Logger.getLogger(Com.class.getName()).log(Level.SEVERE, (String) null, var6);
@@ -102,7 +102,7 @@ public class Geng_xin {
                             }
                         }
                     } catch (Exception var7) {
-                        Logger.getLogger(Geng_xin.class.getName()).log(Level.SEVERE, (String) null, var7);
+                        Logger.getLogger(Update.class.getName()).log(Level.SEVERE, (String) null, var7);
                     }
                 }
 

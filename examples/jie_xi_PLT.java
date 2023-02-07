@@ -1,28 +1,22 @@
 package examples;
 
 import java.awt.geom.GeneralPath;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class jie_xi_PLT {
-    void add_lj(GeneralPath lj) {
-        lj.setWindingRule(0);
+    void addPath(GeneralPath path) {
+        path.setWindingRule(0);
         new BElement();
-        BElement ty = BElement.chuang_jian(0, (BufferedImage) null);
-        ty.path = new GeneralPath(lj);
+        BElement ty = BElement.chuang_jian(0, null);
+        ty.path = new GeneralPath(path);
         Board.bElements.add(ty);
-
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            ((BElement) Board.bElements.get(i)).selected = false;
-        }
-
-        ((BElement) Board.bElements.get(Board.bElements.size() - 1)).selected = true;
+        Board.selectLast();
     }
 
-    void jie_xi_PLT(File file) {
+    void analyzePLT(File file) {
         BufferedReader reader = null;
         StringBuffer sbf = new StringBuffer();
 
@@ -35,14 +29,14 @@ public class jie_xi_PLT {
             }
 
             reader.close();
-        } catch (IOException var31) {
-            var31.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException var30) {
-                    var30.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -51,7 +45,7 @@ public class jie_xi_PLT {
         plt = sbf.toString();
         plt.replaceAll("\r|\n", "");
         String[] strArr = plt.split(";");
-        GeneralPath lj = new GeneralPath();
+        GeneralPath path = new GeneralPath();
         boolean yi = true;
         boolean jue_dui = true;
         double d_x = 0.0D;
@@ -67,7 +61,7 @@ public class jie_xi_PLT {
             double x;
             double y;
             if (ml.equals("PU")) {
-                zb = strArr[i].substring(2, strArr[i].length());
+                zb = strArr[i].substring(2);
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
                     x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
@@ -82,22 +76,22 @@ public class jie_xi_PLT {
                     }
 
                     if (yi) {
-                        lj.moveTo(d_x, d_y);
+                        path.moveTo(d_x, d_y);
                         yi = false;
                     } else {
                         if (q_x == d_x && q_y == d_y) {
                         }
 
-                        this.add_lj(lj);
-                        lj = new GeneralPath();
-                        lj.moveTo(d_x, d_y);
+                        this.addPath(path);
+                        path = new GeneralPath();
+                        path.moveTo(d_x, d_y);
                     }
 
                     q_x = d_x;
                     q_y = d_y;
                 }
             } else if (ml.equals("PD")) {
-                zb = strArr[i].substring(2, strArr[i].length());
+                zb = strArr[i].substring(2);
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
                     x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
@@ -111,10 +105,10 @@ public class jie_xi_PLT {
                         d_y += y;
                     }
 
-                    lj.lineTo(d_x, d_y);
+                    path.lineTo(d_x, d_y);
                 }
             } else if (ml.equals("PA")) {
-                zb = strArr[i].substring(2, strArr[i].length());
+                zb = strArr[i].substring(2);
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
                     x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
@@ -129,10 +123,10 @@ public class jie_xi_PLT {
                         d_y += y;
                     }
 
-                    lj.lineTo(d_x, d_y);
+                    path.lineTo(d_x, d_y);
                 }
             } else if (ml.equals("PR")) {
-                zb = strArr[i].substring(2, strArr[i].length());
+                zb = strArr[i].substring(2);
                 zb2 = zb.split(" ");
                 if (zb2.length == 2) {
                     x = Double.valueOf(zb2[0]) / 40.0D / Board.resolution;
@@ -147,11 +141,11 @@ public class jie_xi_PLT {
                         d_y += y;
                     }
 
-                    lj.lineTo(d_x, d_y);
+                    path.lineTo(d_x, d_y);
                 }
             }
         }
 
-        this.add_lj(lj);
+        this.addPath(path);
     }
 }
