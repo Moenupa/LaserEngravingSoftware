@@ -137,13 +137,13 @@ public class FontDialog extends JDialog {
 
     private void jButton1ActionPerformed(ActionEvent evt) {
         if (this.jCheckBox1.isSelected()) {
-            Board.bElements.add(BElement.chuang_jian_wen_zi_shu(this.wen_zi.getText(), ziti, 0, this.jCheckBox2.isSelected()));
+            Board.bElements.add(BElement.createTextNum(this.wen_zi.getText(), ziti, 0, this.jCheckBox2.isSelected()));
         } else {
-            Board.bElements.add(BElement.chuang_jian_wen_zi(this.wen_zi.getText(), ziti, this.jCheckBox2.isSelected()));
+            Board.bElements.add(BElement.createText(this.wen_zi.getText(), ziti, this.jCheckBox2.isSelected()));
         }
         Board.selectLast();
         BElement.center(Board.bElements);
-        Undo.tian_jia();
+        Undo.add();
         this.fu.repaint();
         this.setVisible(false);
     }
@@ -168,7 +168,7 @@ public class FontDialog extends JDialog {
         this.zi_xing_Box.setModel(new DefaultComboBoxModel(fontStyles));
         if (ziti == null) {
             daxiao = 120;
-            ziti = new Font((String) this.zi_ti_Box.getItemAt(this.zi_ti_Box.getSelectedIndex()), 0, daxiao);
+            ziti = new Font(this.zi_ti_Box.getItemAt(this.zi_ti_Box.getSelectedIndex()), 0, daxiao);
             this.wen_zi.setFont(ziti);
         } else {
             this.zi_ti_Box.setSelectedIndex(box1);
@@ -191,13 +191,13 @@ public class FontDialog extends JDialog {
                 }
             }
         } catch (ClassNotFoundException var5) {
-            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var5);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, null, var5);
         } catch (InstantiationException var6) {
-            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var6);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, null, var6);
         } catch (IllegalAccessException var7) {
-            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var7);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, null, var7);
         } catch (UnsupportedLookAndFeelException var8) {
-            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, (String) null, var8);
+            Logger.getLogger(FontDialog.class.getName()).log(Level.SEVERE, null, var8);
         }
 
         EventQueue.invokeLater(new Runnable() {

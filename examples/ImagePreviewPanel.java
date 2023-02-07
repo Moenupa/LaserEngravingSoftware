@@ -14,10 +14,8 @@ import java.util.logging.Logger;
 public class ImagePreviewPanel extends JPanel implements PropertyChangeListener {
     private int width;
     private int height;
-    private ImageIcon icon;
     private BufferedImage image;
-    private static final int ACCSIZE = 155;
-    private Color bg;
+    private final Color bg;
 
     public ImagePreviewPanel() {
         this.setPreferredSize(new Dimension(155, -1));
@@ -32,14 +30,14 @@ public class ImagePreviewPanel extends JPanel implements PropertyChangeListener 
                 return;
             }
 
-            String name = selection.getAbsolutePath();
-            if (name != null && name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".gif") || name.toLowerCase().endsWith(".bmp") || name.toLowerCase().endsWith(".png")) {
+            String name = selection.getAbsolutePath().toLowerCase();
+            if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif") || name.endsWith(".bmp") || name.endsWith(".png")) {
                 try {
                     this.image = ImageIO.read(selection);
                     this.scaleImage();
                     this.repaint();
                 } catch (IOException var6) {
-                    Logger.getLogger(ImagePreviewPanel.class.getName()).log(Level.SEVERE, (String) null, var6);
+                    Logger.getLogger(ImagePreviewPanel.class.getName()).log(Level.SEVERE, null, var6);
                 }
             }
         }
@@ -49,7 +47,7 @@ public class ImagePreviewPanel extends JPanel implements PropertyChangeListener 
     private void scaleImage() {
         this.width = this.image.getWidth(this);
         this.height = this.image.getHeight(this);
-        double ratio = 1.0D;
+        double ratio;
         if (this.width >= this.height) {
             ratio = 150.0D / (double) this.width;
             this.width = 150;
@@ -77,6 +75,6 @@ public class ImagePreviewPanel extends JPanel implements PropertyChangeListener 
         ImagePreviewPanel preview = new ImagePreviewPanel();
         chooser.setAccessory(preview);
         chooser.addPropertyChangeListener(preview);
-        chooser.showOpenDialog((Component) null);
+        chooser.showOpenDialog(null);
     }
 }

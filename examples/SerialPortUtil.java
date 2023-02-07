@@ -13,12 +13,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SerialPortUtil {
-    static Object lock = new Object();
+    static final Object lock = new Object();
 
     /**
      * Get all serial ports
      *
-     * @return a list of string
+     * @return a list of all available ports
      */
     public static List<String> getSerialPortList() {
         List<String> systemPorts = new ArrayList<>();
@@ -48,7 +48,7 @@ public class SerialPortUtil {
     }
 
     public static SerialPort openSerialPort(SerialPortParameter parameter) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException {
-        return openSerialPort((SerialPortParameter) parameter, 2000);
+        return openSerialPort(parameter, 2000);
     }
 
     public static SerialPort openSerialPort(SerialPortParameter parameter, int timeout) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException {
@@ -72,79 +72,71 @@ public class SerialPortUtil {
 
     }
 
+    /**
+     * send data to serial port
+     *
+     * @param serialPort port object
+     * @param data bytes to send
+     */
     public static void sendData(SerialPort serialPort, byte[] data) {
         synchronized (lock) {
-            OutputStream os = null;
-
             try {
-                os = serialPort.getOutputStream();
+                OutputStream os = serialPort.getOutputStream();
                 os.write(data);
                 os.flush();
+                os.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    if (os != null)
-                        os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
 
+    /**
+     * read data from serial port
+     *
+     * @param serialPort port object
+     * @return data in bytes
+     */
     public static byte[] readData(SerialPort serialPort) {
-        InputStream is = null;
         byte[] bytes = null;
-
         try {
-            is = serialPort.getInputStream();
-
-            for (int bufflenth = is.available(); bufflenth != 0; bufflenth = is.available()) {
-                bytes = new byte[bufflenth];
+            InputStream is = serialPort.getInputStream();
+            int buffLength;
+            do {
+                buffLength = is.available();
+                bytes = new byte[buffLength];
                 is.read(bytes);
-            }
+            } while (buffLength != 0);
+
+            is.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (is != null)
-                    is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         return bytes;
     }
 
+    /**
+     * read a line end by <code>\r</code> or <code>\uffff</code>
+     *
+     * @param serialPort port object
+     * @return data in string
+     */
     public static String readLine(SerialPort serialPort) {
-        InputStream is = null;
         StringBuilder sb = new StringBuilder();
-
         try {
-            is = serialPort.getInputStream();
+            char c;
 
-            char bt;
+            InputStream is = serialPort.getInputStream();
             do {
-                bt = (char) is.read();
-                if (bt == '\uffff') {
+                c = (char) is.read();
+                if (c == '\uffff')
                     break;
-                }
-
-                sb.append(bt);
-            } while (bt != '\r');
+                sb.append(c);
+            } while (c != '\r');
+            is.close();
         } catch (IOException e) {
             Logger.getLogger("SerialPortUtil").log(Level.SEVERE, null, e);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                Logger.getLogger("SerialPortUtil").log(Level.SEVERE, null, e);
-            }
         }
-
         return sb.toString();
     }
 

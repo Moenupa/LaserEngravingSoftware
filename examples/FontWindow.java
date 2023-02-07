@@ -135,7 +135,7 @@ public class FontWindow extends JFrame {
     }
 
     private void jButton1ActionPerformed(ActionEvent evt) {
-        BElement.chuang_jian_wen_zi(this.wen_zi.getText(), fontset, false);
+        BElement.createText(this.wen_zi.getText(), fontset, false);
         this.setVisible(false);
     }
 }

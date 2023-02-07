@@ -47,10 +47,10 @@ class FileTransferHandler extends TransferHandler {
 
                         for (int i = 0; i < Board.bElements.size(); ++i) {
                             if (Board.bElements.get(i).type == 1) {
-                                Board.bElements.get(i).wei_tu = new BufferedImage(Board.bElements.get(i).wt_w, Board.bElements.get(i).wt_g, 2);
-                                Board.bElements.get(i).wei_tu_yuan = new BufferedImage(Board.bElements.get(i).wty_w, Board.bElements.get(i).wty_g, 2);
-                                Board.bElements.get(i).wei_tu.setRGB(0, 0, Board.bElements.get(i).wt_w, Board.bElements.get(i).wt_g, Board.bElements.get(i).wei_tu_, 0, Board.bElements.get(i).wt_w);
-                                Board.bElements.get(i).wei_tu_yuan.setRGB(0, 0, Board.bElements.get(i).wty_w, Board.bElements.get(i).wty_g, Board.bElements.get(i).wei_tu_yuan_, 0, Board.bElements.get(i).wty_w);
+                                Board.bElements.get(i).bitMapImg = new BufferedImage(Board.bElements.get(i).bitMapW, Board.bElements.get(i).bitMapH, 2);
+                                Board.bElements.get(i).bitMapImg2 = new BufferedImage(Board.bElements.get(i).bitMap2W, Board.bElements.get(i).bitMap2H, 2);
+                                Board.bElements.get(i).bitMapImg.setRGB(0, 0, Board.bElements.get(i).bitMapW, Board.bElements.get(i).bitMapH, Board.bElements.get(i).bitMap, 0, Board.bElements.get(i).bitMapW);
+                                Board.bElements.get(i).bitMapImg2.setRGB(0, 0, Board.bElements.get(i).bitMap2W, Board.bElements.get(i).bitMap2H, Board.bElements.get(i).bitMap2, 0, Board.bElements.get(i).bitMap2W);
                             }
                         }
 
@@ -58,14 +58,14 @@ class FileTransferHandler extends TransferHandler {
                             hb.repaint();
                         }
                     } else if (suffix.equals("PLT")) {
-                        jie_xi_PLT plt = new jie_xi_PLT();
-                        plt.analyzePLT(f);
+                        PLT plt = new PLT();
+                        plt.analyze(f);
                         hb.updateUI();
                     }
                 } else {
                     try {
                         img = ImageIO.read(new File(fileName));
-                        Board.bElements.add(BElement.chuang_jian(1, img));
+                        Board.bElements.add(BElement.create(1, img));
                         Board.selectLast();
                         BElement.center(Board.bElements);
                         if (hb != null) {

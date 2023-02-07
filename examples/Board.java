@@ -18,19 +18,15 @@ public class Board extends JPanel {
 
     public static int quan_x = 0;
     public static int quan_y = 0;
-    public static double quan_beishu = 1.0D;
+    public static double quan_scale = 1.0D;
     public static int quan_x2 = 0;
     public static int quan_y2 = 0;
-    public static double quan_beishu2 = 1.0D;
+    public static double quan_scale2 = 1.0D;
 
     // parent and child window/panels
     public mainJFrame window = null;
     public JPanel pn_settings;
     public JPanel pn_inlay_hint;
-    // public static int dang_qian2 = -1;
-    // public AffineTransform Tx = new AffineTransform();
-    // public JPanel jp2;
-    // public JLabel wb;
 
     // text fields and values for inlay hint
     public JTextField tf_x;
@@ -49,7 +45,6 @@ public class Board extends JPanel {
 
         for (int i = 0; i < bElements.size(); ++i) {
             GeneralPath newPath = new GeneralPath(bElements.get(i).path);
-
             newPath.transform(bElements.get(i).Tx);
             Rectangle rect = newPath.getBounds();
             double mm = (double) bWidth / 10.0D / (double) rect.width;
@@ -61,15 +56,15 @@ public class Board extends JPanel {
             if (i != 0) {
                 g2D.setPaint(Color.BLACK);
                 newPath.setWindingRule(0);
-                if (bElements.get(i).fill) {
+                if (bElements.get(i).filled) {
                     g2D.fill(newPath);
                 }
 
                 g2D.setColor(Color.BLUE);
                 g2D.draw(newPath);
                 g2D.setColor(Color.BLUE);
-                if (BElement.tuo) {
-                    g2D.draw(BElement.shu_biao);
+                if (BElement.dragged) {
+                    g2D.draw(BElement.mouse);
                 }
 
                 g2D.setColor(Color.RED);
@@ -95,7 +90,7 @@ public class Board extends JPanel {
             }
 
             if (bElements.get(i).type == 1) {
-                g2D.drawImage(bElements.get(i).wei_tu, bElements.get(i).Tx, null);
+                g2D.drawImage(bElements.get(i).bitMapImg, bElements.get(i).Tx, null);
             }
 
             if (bElements.get(i).selected) {
@@ -103,8 +98,8 @@ public class Board extends JPanel {
             }
         }
 
-        if (selected && !BElement.tuo) {
-            Rectangle rect = BElement.qu_jv_xing(bElements);
+        if (selected && !BElement.dragged) {
+            Rectangle rect = BElement.getBounds(bElements);
             g2D.setColor(Color.GREEN);
             g2D.draw(rect);
             g2D.drawImage((new ImageIcon(this.getClass().getResource("/tu/ic_icon_delete.png"))).getImage(), rect.x - 15, rect.y - 15, 30, 30, null);
@@ -156,16 +151,16 @@ public class Board extends JPanel {
 
         AffineTransform sf = AffineTransform.getTranslateInstance(-rect.x, -rect.y);
         sf.transform(m, m);
-        sf = AffineTransform.getScaleInstance(1.0D / quan_beishu, 1.0D / quan_beishu);
+        sf = AffineTransform.getScaleInstance(1.0D / quan_scale, 1.0D / quan_scale);
         sf.transform(m, m);
         return m;
     }
 
     public void di_tu() {
-        BElement.hui_fu();
+        BElement.backup();
         BElement element = new BElement();
         element.type = 0;
-        quan_beishu = 1.0D;
+        quan_scale = 1.0D;
         quan_x = 0;
         quan_y = 0;
 
@@ -185,7 +180,7 @@ public class Board extends JPanel {
 
         bElements.set(0, element);
         this.repaint();
-        BElement.hui_fu_xian_chang();
+        BElement.restore();
     }
 
     public void version(byte[] bytes, int accuracy) {
@@ -342,7 +337,26 @@ public class Board extends JPanel {
     }
 
     public static void selectLast() {
-        for (BElement bElement : bElements) bElement.selected = false;
+        Board.unselectAll();
         bElements.get(bElements.size() - 1).selected = true;
+    }
+
+    public static void unselectAll() {
+        for (var e : bElements) e.selected = false;
+    }
+
+    public static BElement getFirstBE() {
+        return bElements.get(0);
+    }
+
+    public static void backup(int x, int y) {
+        Board.quan_x2 = x;
+        Board.quan_y2 = y;
+        Board.quan_scale2 = Board.quan_scale;
+    }
+    public static void restore() {
+        Board.quan_x = Board.quan_x2;
+        Board.quan_y = Board.quan_y2;
+        Board.quan_scale = Board.quan_scale2;
     }
 }

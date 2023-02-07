@@ -94,15 +94,22 @@ public class BImage {
         return mBitmap;
     }
 
-    public static BufferedImage blackAndWhite(BufferedImage bb, int zhi) {
-        BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
-        int[] pixels = new int[bb.getWidth() * bb.getHeight()];
+    /**
+     * Black and white
+     *
+     * @param image original image
+     * @param val value
+     * @return image (B&W)
+     */
+    public static BufferedImage blackAndWhite(BufferedImage image, int val) {
+        BufferedImage nb = image.getSubimage(0, 0, image.getWidth(), image.getHeight());
+        int[] pixels = new int[image.getWidth() * image.getHeight()];
         nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
 
         for (int i = 0; i < pixels.length; ++i) {
             int clr = pixels[i];
             int red = (clr & 16711680) >> 16;
-            if (red < zhi) {
+            if (red < val) {
                 pixels[i] = -16777216;
             } else {
                 pixels[i] = 33554431;
@@ -114,9 +121,15 @@ public class BImage {
         return mBitmap;
     }
 
-    public static BufferedImage fanse(BufferedImage bb) {
-        BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
-        int[] pixels = new int[bb.getWidth() * bb.getHeight()];
+    /**
+     * invert color
+     *
+     * @param image original image
+     * @return image (inverted)
+     */
+    public static BufferedImage invertColor(BufferedImage image) {
+        BufferedImage nb = image.getSubimage(0, 0, image.getWidth(), image.getHeight());
+        int[] pixels = new int[image.getWidth() * image.getHeight()];
         nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
 
         for (int i = 0; i < pixels.length; ++i) {

@@ -60,7 +60,7 @@ public class Firmware extends JFrame {
 
     private void formWindowOpened(WindowEvent evt) {
         SerialPort com = null;
-        mainJFrame.handler = new Com((SerialPort) com);
+        mainJFrame.handler = new Com(com);
         this.jLabel1.setText(mainJFrame.str_model);
         this.jButton1.setText(mainJFrame.str_update);
         this.setBounds(500, 300, this.getWidth(), this.getHeight());
@@ -103,7 +103,7 @@ public class Firmware extends JFrame {
         try {
             Thread.sleep(600L);
         } catch (InterruptedException var2) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var2);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var2);
         }
 
     }
@@ -136,7 +136,7 @@ public class Firmware extends JFrame {
         int jiao = 0;
 
         for (int i = 0; i < m.size(); ++i) {
-            jiao += (Byte) m.get(i);
+            jiao += m.get(i);
         }
 
         if (jiao > 255) {
@@ -170,7 +170,7 @@ public class Firmware extends JFrame {
         try {
             Thread.sleep(6000L);
         } catch (InterruptedException var10) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var10);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var10);
         }
 
         String filepath = System.getProperty("user.dir");
@@ -178,10 +178,10 @@ public class Firmware extends JFrame {
         try {
             byData = this.getContent(filepath + "/bin.bin");
         } catch (IOException var9) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var9);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var9);
         }
 
-        if (!byData.equals((Object) null)) {
+        if (!byData.equals(null)) {
             List<Byte> bao = new ArrayList();
             int l;
             if (byData.length % 1024 > 0) {
@@ -208,7 +208,7 @@ public class Firmware extends JFrame {
                     try {
                         Thread.sleep(100L);
                     } catch (InterruptedException var8) {
-                        Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var8);
+                        Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var8);
                     }
                 } while (!mainJFrame.handler.send(listTobyte1(bao), 1));
 
@@ -231,10 +231,10 @@ public class Firmware extends JFrame {
                         Firmware.this.sheng();
                         mainJFrame.handler.send(new byte[]{4, 0, 4, 0}, 1);
                     } else {
-                        JOptionPane.showMessageDialog((Component) null, mainJFrame.str_download_fail);
+                        JOptionPane.showMessageDialog(null, mainJFrame.str_download_fail);
                     }
                 } catch (MalformedURLException var2) {
-                    Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var2);
+                    Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var2);
                 }
 
             }
@@ -291,13 +291,13 @@ public class Firmware extends JFrame {
                 }
             }
         } catch (ClassNotFoundException var5) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var5);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var5);
         } catch (InstantiationException var6) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var6);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var6);
         } catch (IllegalAccessException var7) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var7);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var7);
         } catch (UnsupportedLookAndFeelException var8) {
-            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, (String) null, var8);
+            Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var8);
         }
 
         EventQueue.invokeLater(new Runnable() {

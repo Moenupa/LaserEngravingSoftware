@@ -43,14 +43,14 @@ public class Wifi2 {
                         try {
                             Thread.sleep(100L);
                         } catch (InterruptedException var4) {
-                            Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var4);
+                            Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, null, var4);
                         }
 
                         if (!Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                             try {
                                 Thread.sleep(100L);
                             } catch (InterruptedException var3) {
-                                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var3);
+                                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, null, var3);
                             }
 
                             if (!Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
@@ -63,7 +63,7 @@ public class Wifi2 {
                     try {
                         Thread.sleep(6000L);
                     } catch (InterruptedException var2) {
-                        Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var2);
+                        Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, null, var2);
                     }
                 }
             }
@@ -338,7 +338,7 @@ public class Wifi2 {
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException var3) {
-            Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var3);
+            Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, null, var3);
         }
 
         return ip;
@@ -371,7 +371,7 @@ public class Wifi2 {
             try {
                 this.fu_wu.close();
             } catch (IOException var3) {
-                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var3);
+                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, null, var3);
             }
 
             this.fu_wu = null;
@@ -381,7 +381,7 @@ public class Wifi2 {
             try {
                 this.ke_hu.close();
             } catch (IOException var2) {
-                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, (String) null, var2);
+                Logger.getLogger(Wifi2.class.getName()).log(Level.SEVERE, null, var2);
             }
 
             this.ke_hu = null;
@@ -482,7 +482,7 @@ public class Wifi2 {
 
                         if (Wifi2.this.fanhui.length == 4) {
                             if (Wifi2.this.fanhui[0] == -1 && Wifi2.this.fanhui[1] == -1 && Wifi2.this.fanhui[2] == 0) {
-                                if (Wifi2.this.win != null && !Wifi2.this.win.com_isOpened && Wifi2.this.lian_jie) {
+                                if (Wifi2.this.win != null && !Wifi2.this.win.comOpened && Wifi2.this.lian_jie) {
                                 }
                             } else if (Wifi2.this.fanhui[0] == -1 && Wifi2.this.fanhui[1] == -1 && Wifi2.this.fanhui[2] == -1 && Wifi2.this.fanhui[3] == -1) {
                                 Wifi2.this.jdt.setValue(0);

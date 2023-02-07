@@ -30,11 +30,11 @@ public class NewClass2 extends JFrame {
    class TextureFillPanel extends JPanel {
       public void paint(Graphics g) {
          Image image2 = (new ImageIcon(this.getClass().getResource("/tu/3.png"))).getImage();
-         int kk = image2.getWidth((ImageObserver)null);
-         int gg = image2.getHeight((ImageObserver)null);
+         int kk = image2.getWidth(null);
+         int gg = image2.getHeight(null);
          BufferedImage image = new BufferedImage(kk, gg, 1);
          Graphics2D g2 = (Graphics2D)image.getGraphics();
-         g2.drawImage(image2, 0, 0, kk, gg, (ImageObserver)null);
+         g2.drawImage(image2, 0, 0, kk, gg, null);
          Float rect = new Float(0.0F, 0.0F, (float)kk, (float)gg);
          TexturePaint textPaint = new TexturePaint(image, rect);
          Graphics2D graphics2 = (Graphics2D)g;

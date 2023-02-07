@@ -43,7 +43,7 @@ public class Wifi {
     }
 
     public void xin_tiao() {
-        Runnable runnable2 = () -> {
+        new Thread(() -> {
             while (true) {
                 if (!Board.boundingBox && !mainJFrame.kai_shi && !Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                     try {
@@ -72,9 +72,7 @@ public class Wifi {
                     Logger.getLogger("WIFI").log(Level.SEVERE, null, var2);
                 }
             }
-        };
-        Thread thread2 = new Thread(runnable2);
-        thread2.start();
+        }).start();
     }
 
     public boolean connect(byte[] data, int chao) {
@@ -111,19 +109,19 @@ public class Wifi {
         }
     }
 
-    public boolean xie2(byte[] data, int chao) {
+    public boolean xie2(byte[] bytes, int timeout) {
         this.ret_val = null;
         int m = 0;
         if (!this.connected) {
             return false;
         } else {
-            this.data_w = data;
+            this.data_w = bytes;
             Wifi.WriteRead writeRead = new Wifi.WriteRead();
             writeRead.start();
             this.recv_count = 0;
             this.zhu_dong = true;
 
-            while (this.recv_count < 1 && m++ <= chao) {
+            while (this.recv_count < 1 && m++ <= timeout) {
                 try {
                     Thread.sleep(10L);
                 } catch (InterruptedException var8) {
@@ -160,8 +158,8 @@ public class Wifi {
             while (this.recv_count < 3 && m++ <= chao) {
                 try {
                     Thread.sleep(10L);
-                } catch (InterruptedException var9) {
-                    var9.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -179,23 +177,23 @@ public class Wifi {
         }
     }
 
-    public boolean kaishi(byte[] data, int chao) {
+    public boolean kaishi(byte[] bytes, int timeout) {
         this.ret_val = null;
         int m = 0;
         if (!this.connected) {
             return false;
         } else {
-            this.data_w = data;
+            this.data_w = bytes;
             Wifi.WriteRead writeRead = new Wifi.WriteRead();
             writeRead.start();
             this.recv_count = 0;
             this.zhu_dong = true;
 
-            while (this.recv_count < 4 && m++ <= chao) {
+            while (this.recv_count < 4 && m++ <= timeout) {
                 try {
                     Thread.sleep(10L);
-                } catch (InterruptedException var8) {
-                    var8.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -213,36 +211,43 @@ public class Wifi {
         }
     }
 
-    public boolean xie_shuju(byte[] data, int chao) {
+    /**
+     * write data
+     *
+     * @param data
+     * @param timeout
+     * @return
+     */
+    public boolean write(byte[] data, int timeout) {
         this.ret_val = null;
         int m = 0;
-        if (!this.connected) {
+
+        if (!this.connected)
             return false;
-        } else {
-            this.data_w = data;
-            Wifi.WriteRead writeRead = new Wifi.WriteRead();
-            writeRead.start();
-            this.recv_count = 0;
-            this.zhu_dong = true;
 
-            while (this.recv_count < 1 && m++ <= chao) {
-                try {
-                    Thread.sleep(10L);
-                } catch (InterruptedException var8) {
-                    var8.printStackTrace();
-                }
+        this.data_w = data;
+        Wifi.WriteRead writeRead = new Wifi.WriteRead();
+        writeRead.start();
+        this.recv_count = 0;
+        this.zhu_dong = true;
+
+        while (this.recv_count < 1 && m++ <= timeout) {
+            try {
+                Thread.sleep(10L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+        }
 
-            synchronized (this.recv_lock) {
-                this.zhu_dong = false;
-                if (this.recv_count < 1) {
-                    return false;
-                } else if (this.recv[0] == 9) {
-                    return true;
-                } else {
-                    this.recv_count = 0;
-                    return false;
-                }
+        synchronized (this.recv_lock) {
+            this.zhu_dong = false;
+            if (this.recv_count < 1) {
+                return false;
+            } else if (this.recv[0] == 9) {
+                return true;
+            } else {
+                this.recv_count = 0;
+                return false;
             }
         }
     }
@@ -450,7 +455,7 @@ public class Wifi {
 
                             if (Wifi.this.recv2_count > 3) {
                                 Wifi.this.recv2_count = 0;
-                                if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && (Wifi.this.window.com_isOpened || Wifi.this.connected)) {
+                                if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && (Wifi.this.window.comOpened || Wifi.this.connected)) {
                                     mainJFrame.kai_shi2 = true;
                                     Wifi.this.jdt.setValue(Wifi.this.recv2[3]);
                                     Wifi.this.jdt.setVisible(true);

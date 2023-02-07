@@ -6,17 +6,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class jie_xi_PLT {
+public class PLT {
     void addPath(GeneralPath path) {
         path.setWindingRule(0);
         new BElement();
-        BElement ty = BElement.chuang_jian(0, null);
+        BElement ty = BElement.create(0, null);
         ty.path = new GeneralPath(path);
         Board.bElements.add(ty);
         Board.selectLast();
     }
 
-    void analyzePLT(File file) {
+    void analyze(File file) {
         BufferedReader reader = null;
         StringBuffer sbf = new StringBuffer();
 

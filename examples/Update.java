@@ -4,51 +4,37 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.Desktop.Action;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Properties;
-import java.util.TooManyListenersException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Update {
-    private static String openFile(String filePath) {
-        String ee = new String();
-
+    private static String openFile(String url) {
         try {
-            URL url = new URL(filePath);
-            URLConnection urlconn = url.openConnection();
-            urlconn.connect();
-            HttpURLConnection httpconn = (HttpURLConnection) urlconn;
-            int HttpResult = httpconn.getResponseCode();
+            URLConnection connection = new URL(url).openConnection();
+            connection.connect();
+            int HttpResult = ((HttpURLConnection) connection).getResponseCode();
             if (HttpResult != 200) {
-                System.out.print("无法连接到");
-            } else {
-                int filesize = urlconn.getContentLength();
-                InputStreamReader isReader = new InputStreamReader(urlconn.getInputStream(), "UTF-8");
-                BufferedReader reader = new BufferedReader(isReader);
-                StringBuffer buffer = new StringBuffer();
-
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    buffer.append(line);
-                    buffer.append("\r\n");
-                }
-
-                System.out.print(buffer.toString());
-                ee = buffer.toString();
+                System.out.println("无法连接到网络");
+                return "";
             }
-        } catch (FileNotFoundException var11) {
-            var11.printStackTrace();
-        } catch (IOException var12) {
-            var12.printStackTrace();
-        }
+            InputStreamReader isReader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
+            BufferedReader reader = new BufferedReader(isReader);
+            StringBuilder builder = new StringBuilder();
 
-        return ee;
+            reader.lines().forEach(line -> builder.append(line).append("\r\n"));
+
+            System.out.println(builder);
+            return builder.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private static void browse2(String url) throws Exception {
@@ -57,58 +43,54 @@ public class Update {
             URI uri = new URI(url);
             desktop.browse(uri);
         }
-
     }
 
-    public static int compareVersion(String version1, String version2) throws Exception {
-        if (version1 != null && version2 != null) {
-            String[] versionArray1 = version1.split("\\.");
-            String[] versionArray2 = version2.split("\\.");
-            int idx = 0;
-            int minLength = Math.min(versionArray1.length, versionArray2.length);
-
-            int diff;
-            for (diff = 0; idx < minLength && (diff = versionArray1[idx].length() - versionArray2[idx].length()) == 0 && (diff = versionArray1[idx].compareTo(versionArray2[idx])) == 0; ++idx) {
-            }
-
-            diff = diff != 0 ? diff : versionArray1.length - versionArray2.length;
-            return diff;
-        } else {
+    public static int compareVersion(String v1, String v2) throws Exception {
+        if (v1 == null || v2 == null)
             throw new Exception("compareVersion error:illegal params.");
+
+        String[] v1Arr = v1.split("\\.");
+        String[] v2Arr = v2.split("\\.");
+        int i = 0, diff = 0;
+        while (
+                i < Math.min(v1Arr.length, v2Arr.length)
+                && (diff = v1Arr[i].length() - v2Arr[i].length()) == 0
+                && (diff = v1Arr[i].compareTo(v2Arr[i])) == 0
+        ) {
+            ++i;
         }
+
+        diff = diff != 0 ? diff : v1Arr.length - v2Arr.length;
+        return diff;
     }
 
-    public static void geng_xin() {
-        Runnable runnable2 = new Runnable() {
-            public void run() {
-                String gx = Update.openFile("http://jiakuo25.0594.bftii.com/geng_xin.txt");
-                String[] strArr = gx.split("\r\n");
-                if (strArr.length > 1 && strArr[0].equals("1")) {
-                    try {
-                        if (Update.compareVersion(strArr[1].toUpperCase(), mainJFrame.software_version.toUpperCase()) > 0) {
-                            int n = JOptionPane.showConfirmDialog((Component) null, mainJFrame.str_outdated, "", 0);
-                            if (n == 0) {
-                                try {
-                                    Properties props = System.getProperties();
-                                    String osName = props.getProperty("os.name");
-                                    if (osName.contains("Win")) {
-                                        Update.browse2("http://jiakuo25.0594.bftii.com/Laser_java_win.zip");
-                                    } else {
-                                        Update.browse2("http://jiakuo25.0594.bftii.com/Laser_java_mac.zip");
-                                    }
-                                } catch (TooManyListenersException var6) {
-                                    Logger.getLogger(Com.class.getName()).log(Level.SEVERE, (String) null, var6);
-                                }
-                            }
-                        }
-                    } catch (Exception var7) {
-                        Logger.getLogger(Update.class.getName()).log(Level.SEVERE, (String) null, var7);
-                    }
-                }
-
+    public static void update() {
+        new Thread(() -> {
+            String latest = Update.openFile("http://jiakuo25.0594.bftii.com/geng_xin.txt");
+            String[] latestVer = latest.split("\r\n");
+            if (latestVer.length <= 1 || !latestVer[0].equals("1")) {
+                return;
             }
-        };
-        Thread thread2 = new Thread(runnable2);
-        thread2.start();
+            try {
+                if (
+                        Update.compareVersion(
+                                latestVer[1].toUpperCase(),
+                                mainJFrame.software_version.toUpperCase()
+                        ) <= 0
+                ) {
+                    return;
+                }
+                int n = JOptionPane.showConfirmDialog(null, mainJFrame.str_outdated, "", JOptionPane.YES_NO_OPTION);
+                if (n == 0) {
+                    String osName = System.getProperties().getProperty("os.name");
+                    if (osName.contains("Win"))
+                        Update.browse2("http://jiakuo25.0594.bftii.com/Laser_java_win.zip");
+                    else
+                        Update.browse2("http://jiakuo25.0594.bftii.com/Laser_java_mac.zip");
+                }
+            } catch (Exception e) {
+                Logger.getLogger("Update").log(Level.SEVERE, null, e);
+            }
+        }).start();
     }
 }
