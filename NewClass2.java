@@ -41,18 +41,18 @@ public class NewClass2 extends JFrame {
          graphics2.setPaint(textPaint);
          new Float(45.0F, 25.0F, 200.0F, 200.0F);
          Tu_yuan ty = new Tu_yuan();
-         ty.lu_jing.moveTo(121.0F, 0.0F);
-         ty.lu_jing.lineTo(149.0F, 93.0F);
-         ty.lu_jing.lineTo(241.0F, 94.0F);
-         ty.lu_jing.lineTo(169.0F, 149.0F);
-         ty.lu_jing.lineTo(196.0F, 241.0F);
-         ty.lu_jing.lineTo(122.0F, 188.0F);
-         ty.lu_jing.lineTo(46.0F, 241.0F);
-         ty.lu_jing.lineTo(72.0F, 149.0F);
-         ty.lu_jing.lineTo(0.0F, 94.0F);
-         ty.lu_jing.lineTo(92.0F, 93.0F);
-         ty.lu_jing.closePath();
-         graphics2.fill(ty.lu_jing);
+         ty.path.moveTo(121.0F, 0.0F);
+         ty.path.lineTo(149.0F, 93.0F);
+         ty.path.lineTo(241.0F, 94.0F);
+         ty.path.lineTo(169.0F, 149.0F);
+         ty.path.lineTo(196.0F, 241.0F);
+         ty.path.lineTo(122.0F, 188.0F);
+         ty.path.lineTo(46.0F, 241.0F);
+         ty.path.lineTo(72.0F, 149.0F);
+         ty.path.lineTo(0.0F, 94.0F);
+         ty.path.lineTo(92.0F, 93.0F);
+         ty.path.closePath();
+         graphics2.fill(ty.path);
       }
    }
 }

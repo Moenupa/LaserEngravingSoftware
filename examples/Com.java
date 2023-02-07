@@ -3,10 +3,13 @@ package examples;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEventListener;
 
-import java.util.*;
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JProgressBar;
 
 public class Com {
     public JProgressBar jdt;
@@ -167,7 +170,7 @@ public class Com {
         this.terminate_buffer.clear();
         this.ret = false;
 
-        SerialPortUtil.sendData(this.com, new byte[] {-1, 0, 4, 0});
+        SerialPortUtil.sendData(this.com, new byte[]{-1, 0, 4, 0});
         Thread t = new Thread(() -> {
             synchronized (lock) {
                 for (int i = 200; i > 0; --i) {
