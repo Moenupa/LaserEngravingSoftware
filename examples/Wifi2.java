@@ -29,7 +29,7 @@ public class Wifi2 {
     public JComboBox fbl = null;
     public JSlider rg = null;
     public JProgressBar jdt = null;
-    public mainJFrame win = null;
+    public Main win = null;
 
     public Wifi2() {
         this.fw_kai();
@@ -39,7 +39,7 @@ public class Wifi2 {
         Runnable runnable2 = new Runnable() {
             public void run() {
                 while (true) {
-                    if (!Board.boundingBox && !mainJFrame.kai_shi && !Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                    if (!Board.boundingBox && !Main.kai_shi && !Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                         try {
                             Thread.sleep(100L);
                         } catch (InterruptedException var4) {
@@ -487,7 +487,7 @@ public class Wifi2 {
                             } else if (Wifi2.this.fanhui[0] == -1 && Wifi2.this.fanhui[1] == -1 && Wifi2.this.fanhui[2] == -1 && Wifi2.this.fanhui[3] == -1) {
                                 Wifi2.this.jdt.setValue(0);
                                 Wifi2.this.jdt.setVisible(false);
-                                mainJFrame.kai_shi = false;
+                                Main.kai_shi = false;
                             }
                         } else {
                             Wifi2.this.fan_hui_ma = f;

@@ -65,13 +65,13 @@ public class Com {
                         ) {
                             this.jdt.setValue(this.terminate_buffer.get(size - 1));
                             this.jdt.setVisible(true);
-                            mainJFrame.kai_shi = true;
-                            mainJFrame.kai_shi2 = true;
+                            Main.kai_shi = true;
+                            Main.kai_shi2 = true;
                             this.terminate_buffer.clear();
                         }
 
                         System.out.println(data.length);
-                        mainJFrame.timeout = 0;
+                        Main.timeout = 0;
                         return;
                     case 1:
                     default:
@@ -97,16 +97,16 @@ public class Com {
                         if (fh[0] == -1 && fh[1] == -1 && fh[2] == 0) {
                             this.jdt.setValue(fh[3]);
                             this.jdt.setVisible(true);
-                            mainJFrame.kai_shi = true;
-                            mainJFrame.kai_shi2 = true;
-                            mainJFrame.timeout = 0;
+                            Main.kai_shi = true;
+                            Main.kai_shi2 = true;
+                            Main.timeout = 0;
                         } else {
                             if (fh[0] == -1 && fh[1] == -1 && fh[2] == -1 && fh[3] == -1) {
                                 this.jdt.setValue(0);
                                 this.jdt.setVisible(false);
-                                mainJFrame.kai_shi = false;
-                                mainJFrame.kai_shi2 = false;
-                                mainJFrame.timeout = 0;
+                                Main.kai_shi = false;
+                                Main.kai_shi2 = false;
+                                Main.timeout = 0;
                             } else {
                                 this.ret = true;
                                 this.ret_val = fh;

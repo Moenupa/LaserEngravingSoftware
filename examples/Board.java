@@ -24,7 +24,7 @@ public class Board extends JPanel {
     public static double quan_scale2 = 1.0D;
 
     // parent and child window/panels
-    public mainJFrame window = null;
+    public Main window = null;
     public JPanel pn_settings;
     public JPanel pn_inlay_hint;
 

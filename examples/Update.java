@@ -75,12 +75,12 @@ public class Update {
                 if (
                         Update.compareVersion(
                                 latestVer[1].toUpperCase(),
-                                mainJFrame.software_version.toUpperCase()
+                                Main.software_version.toUpperCase()
                         ) <= 0
                 ) {
                     return;
                 }
-                int n = JOptionPane.showConfirmDialog(null, mainJFrame.str_outdated, "", JOptionPane.YES_NO_OPTION);
+                int n = JOptionPane.showConfirmDialog(null, Main.str_outdated, "", JOptionPane.YES_NO_OPTION);
                 if (n == 0) {
                     String osName = System.getProperties().getProperty("os.name");
                     if (osName.contains("Win"))

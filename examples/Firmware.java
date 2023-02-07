@@ -60,9 +60,9 @@ public class Firmware extends JFrame {
 
     private void formWindowOpened(WindowEvent evt) {
         SerialPort com = null;
-        mainJFrame.handler = new Com(com);
-        this.jLabel1.setText(mainJFrame.str_model);
-        this.jButton1.setText(mainJFrame.str_update);
+        Main.handler = new Com(com);
+        this.jLabel1.setText(Main.str_model);
+        this.jButton1.setText(Main.str_update);
         this.setBounds(500, 300, this.getWidth(), this.getHeight());
         this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
     }
@@ -98,7 +98,7 @@ public class Firmware extends JFrame {
     }
 
     void fu_wei() {
-        mainJFrame.handler.send(new byte[]{-2, 0, 4, 0}, 1);
+        Main.handler.send(new byte[]{-2, 0, 4, 0}, 1);
 
         try {
             Thread.sleep(600L);
@@ -165,7 +165,7 @@ public class Firmware extends JFrame {
 
     void sheng() {
         byte[] byData = null;
-        mainJFrame.handler.send(new byte[]{2, 0, 5, 0, 115}, 1);
+        Main.handler.send(new byte[]{2, 0, 5, 0, 115}, 1);
 
         try {
             Thread.sleep(6000L);
@@ -210,7 +210,7 @@ public class Firmware extends JFrame {
                     } catch (InterruptedException var8) {
                         Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var8);
                     }
-                } while (!mainJFrame.handler.send(listTobyte1(bao), 1));
+                } while (!Main.handler.send(listTobyte1(bao), 1));
 
                 bao.clear();
                 Dimension d = this.jProgressBar1.getSize();
@@ -229,9 +229,9 @@ public class Firmware extends JFrame {
                     if (Firmware.this.downloadNet(di_zhi)) {
                         Firmware.this.fu_wei();
                         Firmware.this.sheng();
-                        mainJFrame.handler.send(new byte[]{4, 0, 4, 0}, 1);
+                        Main.handler.send(new byte[]{4, 0, 4, 0}, 1);
                     } else {
-                        JOptionPane.showMessageDialog(null, mainJFrame.str_download_fail);
+                        JOptionPane.showMessageDialog(null, Main.str_download_fail);
                     }
                 } catch (MalformedURLException var2) {
                     Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var2);

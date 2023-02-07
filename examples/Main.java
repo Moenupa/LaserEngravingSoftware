@@ -2,12 +2,6 @@ package examples;
 
 import gnu.io.SerialPort;
 import net.sf.image4j.codec.bmp.BMPEncoder;
-import org.kabeja.dxf.DXFDocument;
-import org.kabeja.dxf.DXFEntity;
-import org.kabeja.dxf.DXFLayer;
-import org.kabeja.parser.ParseException;
-import org.kabeja.parser.Parser;
-import org.kabeja.parser.ParserBuilder;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
 
@@ -15,7 +9,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -29,7 +22,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class mainJFrame extends JFrame implements KeyListener {
+public class Main extends JFrame implements KeyListener {
     public final static String software_version = "v1.1.1";
 
     List<BElement> bElementsCopy = new ArrayList<>();
@@ -56,7 +49,7 @@ public class mainJFrame extends JFrame implements KeyListener {
     public static boolean kai_shi2 = false;
     public static int timeout = 0;
 
-    mainJFrame window = null;
+    Main window = null;
 
     public static String str_font = "";
     public static String str_typeface = "";
@@ -136,7 +129,7 @@ public class mainJFrame extends JFrame implements KeyListener {
 
     private final JProgressBar jdt = new JProgressBar();
 
-    public mainJFrame() {
+    public Main() {
         this.initComponents();
     }
 
@@ -152,68 +145,67 @@ public class mainJFrame extends JFrame implements KeyListener {
         this.setLocation(new Point(400, 200));
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
-                mainJFrame.this.formComponentResized(evt);
+                Main.this.formComponentResized(evt);
             }
         });
         this.addWindowListener(new WindowAdapter() {
             public void windowOpened(WindowEvent evt) {
-                mainJFrame.this.formWindowOpened(evt);
+                Main.this.formWindowOpened(evt);
             }
         });
         this.btn_openpic.setIcon(new ImageIcon(this.getClass().getResource("/tu/tupian.png")));
         this.btn_openpic.setToolTipText("打开图片");
-        this.btn_openpic.addActionListener(mainJFrame.this::evt_openpic);
+        this.btn_openpic.addActionListener(Main.this::evt_openpic);
         this.btn_text.setIcon(new ImageIcon(this.getClass().getResource("/tu/wenzi.png")));
         this.btn_text.setToolTipText("输入文字");
-        this.btn_text.addActionListener(mainJFrame.this::evt_text);
+        this.btn_text.addActionListener(Main.this::evt_text);
         this.btn_circle.setIcon(new ImageIcon(this.getClass().getResource("/tu/yuan.png")));
         this.btn_circle.setToolTipText("圆形");
-        this.btn_circle.addActionListener(mainJFrame.this::evt_circle);
+        this.btn_circle.addActionListener(Main.this::evt_circle);
         this.btn_square.setIcon(new ImageIcon(this.getClass().getResource("/tu/fang.png")));
         this.btn_square.setToolTipText("正方形");
-        this.btn_square.addActionListener(mainJFrame.this::evt_square);
+        this.btn_square.addActionListener(Main.this::evt_square);
         this.btn_heart.setIcon(new ImageIcon(this.getClass().getResource("/tu/xin.png")));
         this.btn_heart.setToolTipText("心形");
-        this.btn_heart.addActionListener(mainJFrame.this::evt_heart);
+        this.btn_heart.addActionListener(Main.this::evt_heart);
         this.btn_star.setIcon(new ImageIcon(this.getClass().getResource("/tu/5xing.png")));
         this.btn_star.setToolTipText("五角星");
-        this.btn_star.addActionListener(mainJFrame.this::evt_star);
+        this.btn_star.addActionListener(Main.this::evt_star);
 
         this.btn_preview.setIcon(new ImageIcon(this.getClass().getResource("/tu/ding_wei.png")));
         this.btn_preview.setToolTipText("预览位置");
-        this.btn_preview.addActionListener(mainJFrame.this::evt_preview_location);
+        this.btn_preview.addActionListener(Main.this::evt_preview_location);
         this.btn_engrave.setIcon(new ImageIcon(this.getClass().getResource("/tu/diaoke.png")));
         this.btn_engrave.setToolTipText("开始/暂停");
-        this.btn_engrave.addActionListener(mainJFrame.this::evt_engrave);
+        this.btn_engrave.addActionListener(Main.this::evt_engrave);
         this.btn_stop.setIcon(new ImageIcon(this.getClass().getResource("/tu/tingzhi.png")));
         this.btn_stop.setToolTipText("停止");
         this.btn_stop.addActionListener((e) -> {
             kai_shi = false;
-            Thread t = new Thread(() -> {
+            new Thread(() -> {
                 if (this.comOpened) {
                     handler.send(new byte[]{22, 0, 4, 0}, 2);
-                } else if (mainJFrame.this.wifi.connected) {
+                } else if (Main.this.wifi.connected) {
                     this.wifi.xie2(new byte[]{22, 0, 4, 0}, 200);
                 }
-            });
-            t.start();
+            }).start();
         });
 
         this.board.setBackground(new Color(255, 255, 255));
         this.board.setBorder(BorderFactory.createLineBorder(new Color(153, 153, 255)));
         this.board.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent evt) {
-                mainJFrame.this.hua_ban1MouseDragged(evt);
+                Main.this.hua_ban1MouseDragged(evt);
             }
         });
-        this.board.addMouseWheelListener(mainJFrame.this::hua_ban1MouseWheelMoved);
+        this.board.addMouseWheelListener(Main.this::hua_ban1MouseWheelMoved);
         this.board.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent evt) {
-                mainJFrame.this.hua_ban1MousePressed(evt);
+                Main.this.hua_ban1MousePressed(evt);
             }
 
             public void mouseReleased(MouseEvent evt) {
-                mainJFrame.this.hua_ban1MouseReleased(evt);
+                Main.this.hua_ban1MouseReleased(evt);
             }
         });
         this.board.setLayout(new AbsoluteLayout());
@@ -255,19 +247,19 @@ public class mainJFrame extends JFrame implements KeyListener {
         // binding connection
         this.btn_usbconnect.setIcon(new ImageIcon(this.getClass().getResource("/tu/usb2.png")));
         this.btn_usbconnect.setToolTipText("连接设备");
-        this.btn_usbconnect.addActionListener(e -> new Thread(mainJFrame.this::connect_viaUSB).start());
+        this.btn_usbconnect.addActionListener(e -> new Thread(Main.this::connect_viaUSB).start());
         this.btn_wificonnect.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi2.png")));
         this.btn_wificonnect.addActionListener(evt -> {
         });
 
         // binding settings right-panel
-        this.btn_aux_positioning.addActionListener(mainJFrame.this::jButton16ActionPerformed);
+        this.btn_aux_positioning.addActionListener(Main.this::jButton16ActionPerformed);
         this.btn_aux_positioning.setIcon(new ImageIcon(this.getClass().getResource("/tu/shi_zi.png")));
         this.btn_aux_positioning.setToolTipText("十字定位");
-        this.btn_convertbmp.addActionListener(mainJFrame.this::jButton13ActionPerformed);
+        this.btn_convertbmp.addActionListener(Main.this::jButton13ActionPerformed);
         this.btn_convertbmp.setIcon(new ImageIcon(this.getClass().getResource("/tu/bmp.png")));
         this.btn_convertbmp.setToolTipText("to bmp");
-        this.btn_save.addActionListener(mainJFrame.this::jButton12ActionPerformed);
+        this.btn_save.addActionListener(Main.this::jButton12ActionPerformed);
         this.btn_save.setIcon(new ImageIcon(this.getClass().getResource("/tu/baocun.png")));
         this.btn_save.setToolTipText("保存");
         this.btn_unknown.setFont(new Font("宋体", Font.PLAIN, 14));
@@ -300,47 +292,47 @@ public class mainJFrame extends JFrame implements KeyListener {
         this.lb_wifi.setFont(new Font("宋体", Font.PLAIN, 14));
         this.lb_wifi.setText("WIFI：");
         this.lb_wifi.setToolTipText("");
-        this.opt_accuracy.addActionListener(mainJFrame.this::changeAccuracy);
+        this.opt_accuracy.addActionListener(Main.this::changeAccuracy);
         this.opt_accuracy.setModel(new DefaultComboBoxModel(new String[]{"高", "中", "低"}));
         this.opt_accuracy.setSelectedIndex(2);
         this.opt_num_times.setModel(new DefaultComboBoxModel(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}));
         this.sd_carve_depth.addChangeListener(e -> this.lb_carve_depth.setText(bundle.getString("str_shen_du") + this.sd_carve_depth.getValue() + "%"));
         this.sd_carve_depth.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                if (kai_shi) mainJFrame.this.apply_settings_carving();
+                if (kai_shi) Main.this.apply_settings_carving();
             }
         });
         this.sd_carve_depth.setValue(10);
         this.sd_carve_power.addChangeListener(e -> this.lb_carve_power.setText(bundle.getString("str_gong_lv") + this.sd_carve_power.getValue() + "%"));
         this.sd_carve_power.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                if (kai_shi) mainJFrame.this.apply_settings_carving();
+                if (kai_shi) Main.this.apply_settings_carving();
             }
         });
         this.sd_carve_power.setValue(100);
-        this.sd_contrast.addChangeListener(mainJFrame.this::jSlider6StateChanged);
+        this.sd_contrast.addChangeListener(Main.this::jSlider6StateChanged);
         this.sd_cut_depth.addChangeListener(e -> this.lb_cut_depth.setText(bundle.getString("str_shen_du_sl") + this.sd_cut_depth.getValue() + "%"));
         this.sd_cut_depth.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                if (kai_shi) mainJFrame.this.apply_settings_cutting();
+                if (kai_shi) Main.this.apply_settings_cutting();
             }
         });
         this.sd_cut_depth.setValue(10);
         this.sd_cut_power.addChangeListener(e -> this.lb_cut_power.setText(bundle.getString("str_gong_lv_sl") + this.sd_cut_power.getValue() + "%"));
         this.sd_cut_power.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                if (kai_shi) mainJFrame.this.apply_settings_cutting();
+                if (kai_shi) Main.this.apply_settings_cutting();
             }
         });
         this.sd_cut_power.setValue(100);
-        this.sd_fill.addChangeListener(mainJFrame.this::jSlider7StateChanged);
+        this.sd_fill.addChangeListener(Main.this::jSlider7StateChanged);
         this.sd_fill.setMaximum(10);
         this.sd_fill.setToolTipText("");
         this.sd_fill.setValue(5);
         this.sd_weak_light.addChangeListener(e -> this.lb_weak_light.setText(bundle.getString("str_ruo_guang") + this.sd_weak_light.getValue() + "%"));
         this.sd_weak_light.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                mainJFrame.this.jSlider9MouseReleased(evt);
+                Main.this.jSlider9MouseReleased(evt);
             }
         });
         this.sd_weak_light.setValue(10);
@@ -576,14 +568,14 @@ public class mainJFrame extends JFrame implements KeyListener {
                             this.window = this;
                             new Thread(() -> {
                                 while (true) {
-                                    if (mainJFrame.this.wifi == null) {
-                                        mainJFrame.this.wifi = new Wifi();
-                                        mainJFrame.this.wifi.bt = mainJFrame.this.btn_wificonnect;
-                                        mainJFrame.this.wifi.board = mainJFrame.this.board;
-                                        mainJFrame.this.wifi.fbl = mainJFrame.this.opt_accuracy;
-                                        mainJFrame.this.wifi.rg = mainJFrame.this.sd_weak_light;
-                                        mainJFrame.this.wifi.jdt = mainJFrame.this.jdt;
-                                        mainJFrame.this.wifi.window = mainJFrame.this.window;
+                                    if (Main.this.wifi == null) {
+                                        Main.this.wifi = new Wifi();
+                                        Main.this.wifi.bt = Main.this.btn_wificonnect;
+                                        Main.this.wifi.board = Main.this.board;
+                                        Main.this.wifi.fbl = Main.this.opt_accuracy;
+                                        Main.this.wifi.rg = Main.this.sd_weak_light;
+                                        Main.this.wifi.jdt = Main.this.jdt;
+                                        Main.this.wifi.window = Main.this.window;
                                     }
 
                                     try {
@@ -592,16 +584,16 @@ public class mainJFrame extends JFrame implements KeyListener {
                                         Logger.getLogger("MAIN").log(Level.SEVERE, null, var2);
                                     }
 
-                                    if (mainJFrame.kai_shi2 && !mainJFrame.this.paused) {
-                                        ++mainJFrame.this.sec;
-                                        mainJFrame.this.lb_execution_time.setText(mainJFrame.this.sec / 60 + "." + mainJFrame.this.sec % 60);
-                                        if (mainJFrame.timeout++ > 3 && mainJFrame.timeout != 0) {
+                                    if (Main.kai_shi2 && !Main.this.paused) {
+                                        ++Main.this.sec;
+                                        Main.this.lb_execution_time.setText(Main.this.sec / 60 + "." + Main.this.sec % 60);
+                                        if (Main.timeout++ > 3 && Main.timeout != 0) {
                                             System.out.println("&&&");
-                                            mainJFrame.this.jdt.setValue(0);
-                                            mainJFrame.this.jdt.setVisible(false);
-                                            mainJFrame.kai_shi = false;
-                                            mainJFrame.timeout = 0;
-                                            mainJFrame.kai_shi2 = false;
+                                            Main.this.jdt.setValue(0);
+                                            Main.this.jdt.setVisible(false);
+                                            Main.kai_shi = false;
+                                            Main.timeout = 0;
+                                            Main.kai_shi2 = false;
                                         }
                                     }
                                 }
@@ -1088,33 +1080,6 @@ public class mainJFrame extends JFrame implements KeyListener {
         this.up();
     }
 
-    public void jie_xi_dxf() throws ParseException {
-        try {
-            Parser dxfParser = ParserBuilder.createDefaultParser();
-            dxfParser.parse(new FileInputStream("C:\\Users\\Administrator\\Desktop\\dxf.dxf"), "UTF-8");
-            DXFDocument doc = dxfParser.getDocument();
-            Iterator kuai_list = doc.getDXFLayerIterator();
-
-            while (kuai_list.hasNext()) {
-                DXFLayer kuai = (DXFLayer) kuai_list.next();
-                Iterator shi_ti = kuai.getDXFEntityTypeIterator();
-
-                while (shi_ti.hasNext()) {
-                    String shi_ti2 = (String) shi_ti.next();
-                    System.out.println(shi_ti2);
-                    List<DXFEntity> st = kuai.getDXFEntities(shi_ti2);
-
-                    for (int i = 0; i < st.size(); ++i) {
-                        System.out.println(st.get(i).getType());
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
-        }
-
-    }
-
     private void evt_engrave(ActionEvent evt) {
         if (this.comOpened || this.wifi.connected) {
             if (!kai_shi) {
@@ -1126,8 +1091,8 @@ public class mainJFrame extends JFrame implements KeyListener {
                 this.write(new byte[]{22, 0, 4, 0}, 2);
                 new Thread(() -> {
                     try {
-                        mainJFrame.this.btn_engrave.setEnabled(false);
-                        mainJFrame.this.goOffline();
+                        Main.this.btn_engrave.setEnabled(false);
+                        Main.this.goOffline();
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, e);
                         Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
@@ -1143,76 +1108,71 @@ public class mainJFrame extends JFrame implements KeyListener {
     private void evt_preview_location(ActionEvent evt) {
         if (kai_shi) return;
 
-        Thread t;
         if (this.comOpened) {
             if (Board.boundingBox) {
-                t = new Thread(() -> {
+                new Thread(() -> {
                     handler.send(new byte[]{33, 0, 4, 0}, 3);
                     Board.boundingBox = false;
                     this.up();
-                });
-                t.start();
+                }).start();
             } else {
-                t = new Thread(() -> {
+                new Thread(() -> {
                     BElement.getRectangle(Board.bElements);
-                    GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
-                    lu_jing2.transform((Board.bElements.get(0)).Tx);
-                    Rectangle rect = lu_jing2.getBounds();
-                    Rectangle zui_zhong_wjx2 = new Rectangle(BElement.bounds);
-                    AffineTransform sf = AffineTransform.getTranslateInstance(-rect.x, -rect.y);
-                    zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
-                    sf = AffineTransform.getScaleInstance(1.0D / Board.quan_scale, 1.0D / Board.quan_scale);
-                    zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
-                    if (zui_zhong_wjx2.width >= 2 || zui_zhong_wjx2.height >= 2) {
-                        byte kg = (byte) (zui_zhong_wjx2.width >> 8);
-                        byte kd = (byte) zui_zhong_wjx2.width;
-                        byte gg = (byte) (zui_zhong_wjx2.height >> 8);
-                        byte gd = (byte) zui_zhong_wjx2.height;
-                        byte xg = (byte) (zui_zhong_wjx2.x + 67 + zui_zhong_wjx2.width / 2 >> 8);
-                        byte xd = (byte) (zui_zhong_wjx2.x + 67 + zui_zhong_wjx2.width / 2);
-                        byte yg = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2 >> 8);
-                        byte yd = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2);
-                        if (mainJFrame.handler.send(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 1)) {
-                        }
+                    GeneralPath path = new GeneralPath((Board.bElements.get(0)).path);
+                    path.transform((Board.bElements.get(0)).Tx);
+                    Rectangle r = path.getBounds();
+                    Rectangle bound = new Rectangle(BElement.bounds);
+                    bound = AffineTransform.getTranslateInstance(-r.x, -r.y)
+                            .createTransformedShape(bound).getBounds();
+                    bound = AffineTransform.getScaleInstance(1.0D / Board.quan_scale, 1.0D / Board.quan_scale)
+                            .createTransformedShape(bound).getBounds();
+                    if (bound.width >= 2 || bound.height >= 2) {
+                        byte kg = (byte) (bound.width >> 8);
+                        byte kd = (byte) bound.width;
+                        byte gg = (byte) (bound.height >> 8);
+                        byte gd = (byte) bound.height;
+                        byte xg = (byte) (bound.x + 67 + bound.width / 2 >> 8);
+                        byte xd = (byte) (bound.x + 67 + bound.width / 2);
+                        byte yg = (byte) (bound.y + bound.height / 2 >> 8);
+                        byte yd = (byte) (bound.y + bound.height / 2);
+
+                        Main.handler.send(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 1);
 
                         Board.boundingBox = true;
-                        mainJFrame.this.up();
+                        Main.this.up();
                     }
-                });
-                t.start();
+                }).start();
             }
         } else if (this.wifi.connected) {
             if (Board.boundingBox) {
-                t = new Thread(() -> {
+                new Thread(() -> {
                     this.wifi.xie2(new byte[]{33, 0, 4, 0}, 300);
                     Board.boundingBox = false;
                     this.up();
-                });
-                t.start();
+                }).start();
             } else {
-                t = new Thread(() -> {
+                new Thread(() -> {
                     BElement.getRectangle(Board.bElements);
-                    GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
-                    lu_jing2.transform((Board.bElements.get(0)).Tx);
-                    Rectangle rect = lu_jing2.getBounds();
-                    Rectangle zui_zhong_wjx2 = new Rectangle(BElement.bounds);
-                    AffineTransform sf = AffineTransform.getTranslateInstance(-rect.x, -rect.y);
-                    zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
-                    sf = AffineTransform.getScaleInstance(1.0D / Board.quan_scale, 1.0D / Board.quan_scale);
-                    zui_zhong_wjx2 = sf.createTransformedShape(zui_zhong_wjx2).getBounds();
-                    byte kg = (byte) (zui_zhong_wjx2.width >> 8);
-                    byte kd = (byte) zui_zhong_wjx2.width;
-                    byte gg = (byte) (zui_zhong_wjx2.height >> 8);
-                    byte gd = (byte) zui_zhong_wjx2.height;
-                    byte xg = (byte) (zui_zhong_wjx2.x + 67 + zui_zhong_wjx2.width / 2 >> 8);
-                    byte xd = (byte) (zui_zhong_wjx2.x + 67 + zui_zhong_wjx2.width / 2);
-                    byte yg = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2 >> 8);
-                    byte yd = (byte) (zui_zhong_wjx2.y + zui_zhong_wjx2.height / 2);
-                    mainJFrame.this.wifi.xie2(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
+                    GeneralPath path = new GeneralPath((Board.bElements.get(0)).path);
+                    path.transform((Board.bElements.get(0)).Tx);
+                    Rectangle r = path.getBounds();
+                    Rectangle bound = new Rectangle(BElement.bounds);
+                    bound = AffineTransform.getTranslateInstance(-r.x, -r.y)
+                            .createTransformedShape(bound).getBounds();
+                    bound = AffineTransform.getScaleInstance(1.0D / Board.quan_scale, 1.0D / Board.quan_scale)
+                            .createTransformedShape(bound).getBounds();
+                    byte kg = (byte) (bound.width >> 8);
+                    byte kd = (byte) bound.width;
+                    byte gg = (byte) (bound.height >> 8);
+                    byte gd = (byte) bound.height;
+                    byte xg = (byte) (bound.x + 67 + bound.width / 2 >> 8);
+                    byte xd = (byte) (bound.x + 67 + bound.width / 2);
+                    byte yg = (byte) (bound.y + bound.height / 2 >> 8);
+                    byte yd = (byte) (bound.y + bound.height / 2);
+                    Main.this.wifi.xie2(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
                     Board.boundingBox = true;
-                    mainJFrame.this.up();
-                });
-                t.start();
+                    Main.this.up();
+                }).start();
             }
         }
 
@@ -1260,9 +1220,8 @@ public class mainJFrame extends JFrame implements KeyListener {
     private void formComponentResized(ComponentEvent evt) {
     }
 
-
     void apply_settings_carving() {
-        Thread t = new Thread(() -> {
+        new Thread(() -> {
             int sd = this.sd_carve_depth.getValue();
             int gl = this.sd_carve_power.getValue() * 10;
             if (this.comOpened) {
@@ -1271,12 +1230,11 @@ public class mainJFrame extends JFrame implements KeyListener {
                 this.wifi.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
             }
 
-        });
-        t.start();
+        }).start();
     }
 
     void apply_settings_cutting() {
-        Thread t = new Thread(() -> {
+        new Thread(() -> {
             int sd = this.sd_cut_depth.getValue();
             int gl = this.sd_cut_power.getValue() * 10;
             if (this.comOpened) {
@@ -1285,12 +1243,11 @@ public class mainJFrame extends JFrame implements KeyListener {
                 this.wifi.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
             }
 
-        });
-        t.start();
+        }).start();
     }
 
     void she_zhi_can_shu() {
-        Thread t = new Thread(() -> {
+        new Thread(() -> {
             int rg = this.sd_weak_light.getValue() * 2;
             int jd = this.opt_accuracy.getSelectedIndex();
             if (this.comOpened) {
@@ -1298,20 +1255,18 @@ public class mainJFrame extends JFrame implements KeyListener {
             } else if (this.wifi.connected) {
                 this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
             }
-        });
-        t.start();
+        }).start();
     }
 
     private void jSlider9MouseReleased(MouseEvent evt) {
         if (this.comOpened) {
             this.she_zhi_can_shu();
         } else if (this.wifi.connected) {
-            Thread t = new Thread(() -> {
-                int rg = mainJFrame.this.sd_weak_light.getValue() * 2;
-                int jd = mainJFrame.this.opt_accuracy.getSelectedIndex();
-                mainJFrame.this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
-            });
-            t.start();
+            new Thread(() -> {
+                int rg = Main.this.sd_weak_light.getValue() * 2;
+                int jd = Main.this.opt_accuracy.getSelectedIndex();
+                Main.this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
+            }).start();
         }
 
     }
@@ -1344,24 +1299,22 @@ public class mainJFrame extends JFrame implements KeyListener {
 
     private void jButton16ActionPerformed(ActionEvent evt) {
         new Thread(() -> {
-            if (mainJFrame.this.comOpened) {
-                if (mainJFrame.this.auxPositioning) {
-                    mainJFrame.handler.send(new byte[]{7, 0, 4, 0}, 2);
+            if (Main.this.comOpened) {
+                if (Main.this.auxPositioning) {
+                    Main.handler.send(new byte[]{7, 0, 4, 0}, 2);
                 } else {
-                    mainJFrame.handler.send(new byte[]{6, 0, 4, 0}, 2);
+                    Main.handler.send(new byte[]{6, 0, 4, 0}, 2);
+                }
+                Main.this.auxPositioning = !Main.this.auxPositioning;
+            } else if (Main.this.wifi.connected) {
+                if (Main.this.auxPositioning) {
+                    Main.this.wifi.xie2(new byte[]{7, 0, 4, 0}, 200);
+                } else {
+                    Main.this.wifi.xie2(new byte[]{6, 0, 4, 0}, 200);
                 }
 
-                mainJFrame.this.auxPositioning = !mainJFrame.this.auxPositioning;
-            } else if (mainJFrame.this.wifi.connected) {
-                if (mainJFrame.this.auxPositioning) {
-                    mainJFrame.this.wifi.xie2(new byte[]{7, 0, 4, 0}, 200);
-                } else {
-                    mainJFrame.this.wifi.xie2(new byte[]{6, 0, 4, 0}, 200);
-                }
-
-                mainJFrame.this.auxPositioning = !mainJFrame.this.auxPositioning;
+                Main.this.auxPositioning = !Main.this.auxPositioning;
             }
-
         }).start();
     }
 
@@ -1410,18 +1363,7 @@ public class mainJFrame extends JFrame implements KeyListener {
 
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
-
-                try {
-                    oos.writeObject(Board.bElements);
-                } catch (Throwable e) {
-                    try {
-                        oos.close();
-                    } catch (Throwable var11) {
-                        e.addSuppressed(var11);
-                    }
-                    throw e;
-                }
-
+                oos.writeObject(Board.bElements);
                 oos.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1464,13 +1406,11 @@ public class mainJFrame extends JFrame implements KeyListener {
     private void jSlider6StateChanged(ChangeEvent evt) {
         this.lb_contrast.setText(bundle.getString("str_dui_bi") + this.sd_contrast.getValue() + "%");
         if (Board.bElements.size() >= 2) {
-            for (int i = 0; i < Board.bElements.size(); ++i) {
-                if ((Board.bElements.get(i)).selected && (Board.bElements.get(i)).type == 1) {
-                    (Board.bElements.get(i)).threshold = this.sd_contrast.getValue();
-                    (Board.bElements.get(i)).process();
-                }
-            }
-
+            Board.bElements.stream().filter(e -> e.selected && e.type == 1)
+                    .forEach(e -> {
+                        e.threshold = this.sd_contrast.getValue();
+                        e.process();
+                    });
             this.up();
         }
     }
@@ -1480,12 +1420,6 @@ public class mainJFrame extends JFrame implements KeyListener {
         BElement.fillGap = this.sd_fill.getValue();
         this.up();
     }
-
-    private void jButton4ActionPerformed(ActionEvent evt) {
-        this.qu_yu();
-    }
-
-
 
     void qu_yu() {
         GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
@@ -1831,7 +1765,7 @@ public class mainJFrame extends JFrame implements KeyListener {
         } catch (Exception e) {
             Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
         }
-        EventQueue.invokeLater(() -> (new mainJFrame()).setVisible(true));
+        EventQueue.invokeLater(() -> (new Main()).setVisible(true));
     }
 
     /**

@@ -109,14 +109,14 @@ public class FontDialog extends JDialog {
     }
 
     public static int getFontStyleByCnName(String fontStyle) {
-        if (fontStyle.equals(mainJFrame.str_routine)) {
+        if (fontStyle.equals(Main.str_routine)) {
             return 0;
-        } else if (fontStyle.equals(mainJFrame.str_italic)) {
+        } else if (fontStyle.equals(Main.str_italic)) {
             return 2;
-        } else if (fontStyle.equals(mainJFrame.str_bold)) {
+        } else if (fontStyle.equals(Main.str_bold)) {
             return 1;
         } else {
-            return fontStyle.equals(mainJFrame.str_bold_italic) ? 3 : -1;
+            return fontStyle.equals(Main.str_bold_italic) ? 3 : -1;
         }
     }
 
@@ -129,7 +129,7 @@ public class FontDialog extends JDialog {
     }
 
     private void da_xiaoStateChanged(ChangeEvent evt) {
-        this.jLabel3.setText(mainJFrame.bundle.getString("str_chi_cun") + this.da_xiao.getValue());
+        this.jLabel3.setText(Main.bundle.getString("str_chi_cun") + this.da_xiao.getValue());
         daxiao = 100 + this.da_xiao.getValue() * 2;
         ziti = new Font(ziti.getName(), ziti.getStyle(), daxiao);
         this.wen_zi.setFont(ziti);
@@ -149,11 +149,11 @@ public class FontDialog extends JDialog {
     }
 
     private void formWindowOpened(WindowEvent evt) {
-        this.jLabel1.setText(mainJFrame.str_font);
-        this.jLabel2.setText(mainJFrame.str_typeface);
-        this.jLabel3.setText(mainJFrame.str_size + "10");
-        this.jCheckBox1.setText(mainJFrame.str_vertical);
-        this.jCheckBox2.setText(mainJFrame.str_vector);
+        this.jLabel1.setText(Main.str_font);
+        this.jLabel2.setText(Main.str_typeface);
+        this.jLabel3.setText(Main.str_size + "10");
+        this.jCheckBox1.setText(Main.str_vertical);
+        this.jCheckBox2.setText(Main.str_vector);
         this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         String[] fontNames = ge.getAvailableFontFamilyNames();
@@ -164,7 +164,7 @@ public class FontDialog extends JDialog {
         }
 
         this.zi_ti_Box.setModel(new DefaultComboBoxModel(fontNames2));
-        String[] fontStyles = new String[]{mainJFrame.str_routine, mainJFrame.str_italic, mainJFrame.str_bold, mainJFrame.str_bold_italic};
+        String[] fontStyles = new String[]{Main.str_routine, Main.str_italic, Main.str_bold, Main.str_bold_italic};
         this.zi_xing_Box.setModel(new DefaultComboBoxModel(fontStyles));
         if (ziti == null) {
             daxiao = 120;

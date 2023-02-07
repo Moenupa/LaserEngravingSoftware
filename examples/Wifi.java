@@ -29,7 +29,7 @@ public class Wifi {
     public JComboBox fbl = null;
     public JSlider rg = null;
     public JProgressBar jdt = null;
-    public mainJFrame window = null;
+    public Main window = null;
 
     byte[] recv = new byte[100];
     int recv_count = 0;
@@ -45,7 +45,7 @@ public class Wifi {
     public void xin_tiao() {
         new Thread(() -> {
             while (true) {
-                if (!Board.boundingBox && !mainJFrame.kai_shi && !Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                if (!Board.boundingBox && !Main.kai_shi && !Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                     try {
                         Thread.sleep(100L);
                     } catch (InterruptedException var4) {
@@ -456,11 +456,11 @@ public class Wifi {
                             if (Wifi.this.recv2_count > 3) {
                                 Wifi.this.recv2_count = 0;
                                 if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && (Wifi.this.window.comOpened || Wifi.this.connected)) {
-                                    mainJFrame.kai_shi2 = true;
+                                    Main.kai_shi2 = true;
                                     Wifi.this.jdt.setValue(Wifi.this.recv2[3]);
                                     Wifi.this.jdt.setVisible(true);
-                                    mainJFrame.kai_shi = true;
-                                    mainJFrame.timeout = 0;
+                                    Main.kai_shi = true;
+                                    Main.timeout = 0;
                                 }
                             } else {
                                 Wifi.this.ret_code = f;
