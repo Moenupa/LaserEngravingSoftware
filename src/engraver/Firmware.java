@@ -1,5 +1,6 @@
-package examples;
+package engraver;
 
+import engraver.control.Com;
 import gnu.io.SerialPort;
 
 import javax.swing.*;
@@ -64,7 +65,7 @@ public class Firmware extends JFrame {
         this.jLabel1.setText(Main.str_model);
         this.jButton1.setText(Main.str_update);
         this.setBounds(500, 300, this.getWidth(), this.getHeight());
-        this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
+        this.setIconImage((new ImageIcon(this.getClass().getResource("/res/tu_biao.png"))).getImage());
     }
 
     public boolean downloadNet(String di_zhi) throws MalformedURLException {

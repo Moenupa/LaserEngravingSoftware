@@ -1,8 +1,7 @@
-package examples;
+package engraver;
 
-import examples.model.BElement;
-import examples.model.BPoint;
-import examples.model.Board;
+import engraver.control.*;
+import engraver.model.*;
 import gnu.io.SerialPort;
 import net.sf.image4j.codec.bmp.BMPEncoder;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -151,32 +150,32 @@ public class Main extends JFrame implements KeyListener {
                 Main.this.formWindowOpened(evt);
             }
         });
-        this.btn_openpic.setIcon(new ImageIcon(this.getClass().getResource("/tu/tupian.png")));
+        this.btn_openpic.setIcon(new ImageIcon(this.getClass().getResource("/res/tupian.png")));
         this.btn_openpic.setToolTipText("打开图片");
         this.btn_openpic.addActionListener(Main.this::evt_openpic);
-        this.btn_text.setIcon(new ImageIcon(this.getClass().getResource("/tu/wenzi.png")));
+        this.btn_text.setIcon(new ImageIcon(this.getClass().getResource("/res/wenzi.png")));
         this.btn_text.setToolTipText("输入文字");
         this.btn_text.addActionListener(Main.this::evt_text);
-        this.btn_circle.setIcon(new ImageIcon(this.getClass().getResource("/tu/yuan.png")));
+        this.btn_circle.setIcon(new ImageIcon(this.getClass().getResource("/res/yuan.png")));
         this.btn_circle.setToolTipText("圆形");
         this.btn_circle.addActionListener(Main.this::evt_circle);
-        this.btn_square.setIcon(new ImageIcon(this.getClass().getResource("/tu/fang.png")));
+        this.btn_square.setIcon(new ImageIcon(this.getClass().getResource("/res/fang.png")));
         this.btn_square.setToolTipText("正方形");
         this.btn_square.addActionListener(Main.this::evt_square);
-        this.btn_heart.setIcon(new ImageIcon(this.getClass().getResource("/tu/xin.png")));
+        this.btn_heart.setIcon(new ImageIcon(this.getClass().getResource("/res/xin.png")));
         this.btn_heart.setToolTipText("心形");
         this.btn_heart.addActionListener(Main.this::evt_heart);
-        this.btn_star.setIcon(new ImageIcon(this.getClass().getResource("/tu/5xing.png")));
+        this.btn_star.setIcon(new ImageIcon(this.getClass().getResource("/res/5xing.png")));
         this.btn_star.setToolTipText("五角星");
         this.btn_star.addActionListener(Main.this::evt_star);
 
-        this.btn_preview.setIcon(new ImageIcon(this.getClass().getResource("/tu/ding_wei.png")));
+        this.btn_preview.setIcon(new ImageIcon(this.getClass().getResource("/res/ding_wei.png")));
         this.btn_preview.setToolTipText("预览位置");
         this.btn_preview.addActionListener(Main.this::evt_preview_location);
-        this.btn_engrave.setIcon(new ImageIcon(this.getClass().getResource("/tu/diaoke.png")));
+        this.btn_engrave.setIcon(new ImageIcon(this.getClass().getResource("/res/diaoke.png")));
         this.btn_engrave.setToolTipText("开始/暂停");
         this.btn_engrave.addActionListener(Main.this::evt_engrave);
-        this.btn_stop.setIcon(new ImageIcon(this.getClass().getResource("/tu/tingzhi.png")));
+        this.btn_stop.setIcon(new ImageIcon(this.getClass().getResource("/res/tingzhi.png")));
         this.btn_stop.setToolTipText("停止");
         this.btn_stop.addActionListener((e) -> {
             engraveStarted = false;
@@ -250,22 +249,22 @@ public class Main extends JFrame implements KeyListener {
         this.board.add(this.pn_inlay_hint, new AbsoluteConstraints(30, 20, 20, 10));
 
         // binding connection
-        this.btn_usbconnect.setIcon(new ImageIcon(this.getClass().getResource("/tu/usb2.png")));
+        this.btn_usbconnect.setIcon(new ImageIcon(this.getClass().getResource("/res/usb2.png")));
         this.btn_usbconnect.setToolTipText("连接设备");
         this.btn_usbconnect.addActionListener(e -> new Thread(Main.this::connect_viaUSB).start());
-        this.btn_wificonnect.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi2.png")));
+        this.btn_wificonnect.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
         this.btn_wificonnect.addActionListener(evt -> {
         });
 
         // binding settings right-panel
         this.btn_aux_positioning.addActionListener(Main.this::jButton16ActionPerformed);
-        this.btn_aux_positioning.setIcon(new ImageIcon(this.getClass().getResource("/tu/shi_zi.png")));
+        this.btn_aux_positioning.setIcon(new ImageIcon(this.getClass().getResource("/res/shi_zi.png")));
         this.btn_aux_positioning.setToolTipText("十字定位");
         this.btn_convertbmp.addActionListener(Main.this::jButton13ActionPerformed);
-        this.btn_convertbmp.setIcon(new ImageIcon(this.getClass().getResource("/tu/bmp.png")));
+        this.btn_convertbmp.setIcon(new ImageIcon(this.getClass().getResource("/res/bmp.png")));
         this.btn_convertbmp.setToolTipText("to bmp");
         this.btn_save.addActionListener(Main.this::jButton12ActionPerformed);
-        this.btn_save.setIcon(new ImageIcon(this.getClass().getResource("/tu/baocun.png")));
+        this.btn_save.setIcon(new ImageIcon(this.getClass().getResource("/res/baocun.png")));
         this.btn_save.setToolTipText("保存");
         this.btn_unknown.setFont(new Font("宋体", Font.PLAIN, 14));
         this.btn_unknown.setText("写入");
@@ -301,14 +300,14 @@ public class Main extends JFrame implements KeyListener {
         this.opt_accuracy.setModel(new DefaultComboBoxModel(new String[]{"高", "中", "低"}));
         this.opt_accuracy.setSelectedIndex(2);
         this.opt_num_times.setModel(new DefaultComboBoxModel(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}));
-        this.sd_carve_depth.addChangeListener(e -> this.lb_carve_depth.setText(bundle.getString("str_shen_du") + this.sd_carve_depth.getValue() + "%"));
+        this.sd_carve_depth.addChangeListener(e -> this.lb_carve_depth.setText(bundle.getString("carve_depth") + this.sd_carve_depth.getValue() + "%"));
         this.sd_carve_depth.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 if (engraveStarted) Main.this.apply_settings_carving();
             }
         });
         this.sd_carve_depth.setValue(10);
-        this.sd_carve_power.addChangeListener(e -> this.lb_carve_power.setText(bundle.getString("str_gong_lv") + this.sd_carve_power.getValue() + "%"));
+        this.sd_carve_power.addChangeListener(e -> this.lb_carve_power.setText(bundle.getString("carve_power") + this.sd_carve_power.getValue() + "%"));
         this.sd_carve_power.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 if (engraveStarted) Main.this.apply_settings_carving();
@@ -316,14 +315,14 @@ public class Main extends JFrame implements KeyListener {
         });
         this.sd_carve_power.setValue(100);
         this.sd_contrast.addChangeListener(Main.this::jSlider6StateChanged);
-        this.sd_cut_depth.addChangeListener(e -> this.lb_cut_depth.setText(bundle.getString("str_shen_du_sl") + this.sd_cut_depth.getValue() + "%"));
+        this.sd_cut_depth.addChangeListener(e -> this.lb_cut_depth.setText(bundle.getString("cut_depth") + this.sd_cut_depth.getValue() + "%"));
         this.sd_cut_depth.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 if (engraveStarted) Main.this.apply_settings_cutting();
             }
         });
         this.sd_cut_depth.setValue(10);
-        this.sd_cut_power.addChangeListener(e -> this.lb_cut_power.setText(bundle.getString("str_gong_lv_sl") + this.sd_cut_power.getValue() + "%"));
+        this.sd_cut_power.addChangeListener(e -> this.lb_cut_power.setText(bundle.getString("cut_power") + this.sd_cut_power.getValue() + "%"));
         this.sd_cut_power.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 if (engraveStarted) Main.this.apply_settings_cutting();
@@ -334,7 +333,7 @@ public class Main extends JFrame implements KeyListener {
         this.sd_fill.setMaximum(10);
         this.sd_fill.setToolTipText("");
         this.sd_fill.setValue(5);
-        this.sd_weak_light.addChangeListener(e -> this.lb_weak_light.setText(bundle.getString("str_ruo_guang") + this.sd_weak_light.getValue() + "%"));
+        this.sd_weak_light.addChangeListener(e -> this.lb_weak_light.setText(bundle.getString("weak_light") + this.sd_weak_light.getValue() + "%"));
         this.sd_weak_light.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 Main.this.jSlider9MouseReleased(evt);
@@ -457,59 +456,57 @@ public class Main extends JFrame implements KeyListener {
     void setLocale() {
         Locale locale = Locale.getDefault();
         if (locale == Locale.CHINA) {
-            bundle = ResourceBundle.getBundle("examples.diao_zh_CN");
-        } else if (locale == Locale.US) {
-            bundle = ResourceBundle.getBundle("examples.diao_en_US");
+            bundle = ResourceBundle.getBundle("examples.ui_zh_CN");
         } else {
-            bundle = ResourceBundle.getBundle("examples.diao_");
+            bundle = ResourceBundle.getBundle("examples.ui_en_US");
         }
 
-        this.btn_openpic.setToolTipText(bundle.getString("str_da_kai"));
-        this.btn_text.setToolTipText(bundle.getString("str_wen_zi"));
-        this.btn_circle.setToolTipText(bundle.getString("str_yuan"));
-        this.btn_square.setToolTipText(bundle.getString("str_fang"));
-        this.btn_heart.setToolTipText(bundle.getString("str_xin"));
-        this.btn_star.setToolTipText(bundle.getString("str_xing"));
+        this.btn_openpic.setToolTipText(bundle.getString("open_pic"));
+        this.btn_text.setToolTipText(bundle.getString("enter_text"));
+        this.btn_circle.setToolTipText(bundle.getString("circle"));
+        this.btn_square.setToolTipText(bundle.getString("square"));
+        this.btn_heart.setToolTipText(bundle.getString("heart"));
+        this.btn_star.setToolTipText(bundle.getString("star"));
 
-        this.btn_save.setToolTipText(bundle.getString("str_bao_cun"));
-        this.btn_convertbmp.setToolTipText(bundle.getString("str_bmp"));
-        this.btn_aux_positioning.setToolTipText(bundle.getString("str_shi_zi"));
-        this.btn_preview.setToolTipText(bundle.getString("str_yu_lan"));
-        this.btn_engrave.setToolTipText(bundle.getString("str_kai_shi"));
-        this.btn_stop.setToolTipText(bundle.getString("str_ting_zhi"));
-        this.btn_usbconnect.setToolTipText(bundle.getString("str_lian_jie"));
+        this.btn_save.setToolTipText(bundle.getString("save"));
+        this.btn_convertbmp.setToolTipText(bundle.getString("convert_bmp"));
+        this.btn_aux_positioning.setToolTipText(bundle.getString("aux_position"));
+        this.btn_preview.setToolTipText(bundle.getString("preview_location"));
+        this.btn_engrave.setToolTipText(bundle.getString("start_pause"));
+        this.btn_stop.setToolTipText(bundle.getString("stop"));
+        this.btn_usbconnect.setToolTipText(bundle.getString("connecting"));
 
-        this.lb_weak_light.setText(bundle.getString("str_ruo_guang") + "10%");
-        this.lb_carve_power.setText(bundle.getString("str_gong_lv") + "100%");
-        this.lb_carve_depth.setText(bundle.getString("str_shen_du") + "10%");
-        this.lb_cut_power.setText(bundle.getString("str_gong_lv_sl") + "100%");
-        this.lb_cut_depth.setText(bundle.getString("str_shen_du_sl") + "10%");
-        this.lb_num_times.setText(bundle.getString("str_ci_shu"));
-        this.lb_accuracy.setText(bundle.getString("str_jing_du"));
+        this.lb_weak_light.setText(bundle.getString("weak_light") + "10%");
+        this.lb_carve_power.setText(bundle.getString("carve_power") + "100%");
+        this.lb_carve_depth.setText(bundle.getString("carve_depth") + "10%");
+        this.lb_cut_power.setText(bundle.getString("cut_power") + "100%");
+        this.lb_cut_depth.setText(bundle.getString("cut_depth") + "10%");
+        this.lb_num_times.setText(bundle.getString("num_times"));
+        this.lb_accuracy.setText(bundle.getString("accuracy"));
         this.opt_accuracy.removeAllItems();
-        this.opt_accuracy.addItem(bundle.getString("str_gao"));
-        this.opt_accuracy.addItem(bundle.getString("str_zhong"));
-        this.opt_accuracy.addItem(bundle.getString("str_di"));
+        this.opt_accuracy.addItem(bundle.getString("lv_hi"));
+        this.opt_accuracy.addItem(bundle.getString("lv_mid"));
+        this.opt_accuracy.addItem(bundle.getString("lv_low"));
 
-        this.lb_contrast.setText(bundle.getString("str_dui_bi") + "50%");
-        this.lb_fill.setText(bundle.getString("str_tian_chong") + "5");
-        this.setTitle(bundle.getString("str_ji_guang") + " " + software_version);
+        this.lb_contrast.setText(bundle.getString("contrast") + "50%");
+        this.lb_fill.setText(bundle.getString("fill") + "5");
+        this.setTitle(bundle.getString("project") + " " + software_version);
 
-        str_font = bundle.getString("str_zi_ti");
-        str_typeface = bundle.getString("str_zi_xing");
-        str_size = bundle.getString("str_chi_cun");
-        str_routine = bundle.getString("str_chang_gui");
-        str_italic = bundle.getString("str_xie_ti");
-        str_bold = bundle.getString("str_cu_ti");
-        str_bold_italic = bundle.getString("str_cu_xie");
-        str_vertical = bundle.getString("str_shu");
-        str_vector = bundle.getString("str_shi_liang");
-        str_outdated = bundle.getString("str_geng_xin");
-        str_set = bundle.getString("str_shi_zhi");
-        str_firmware = bundle.getString("str_gu_jian");
-        str_model = bundle.getString("str_xing_hao");
-        str_update = bundle.getString("str_kai_shi_geng_xin");
-        str_download_fail = bundle.getString("str_xia_zai_shi_bai");
+        str_font = bundle.getString("font");
+        str_typeface = bundle.getString("typeface");
+        str_size = bundle.getString("size");
+        str_routine = bundle.getString("routine");
+        str_italic = bundle.getString("text_it");
+        str_bold = bundle.getString("text_bold");
+        str_bold_italic = bundle.getString("text_bold_it");
+        str_vertical = bundle.getString("vertical");
+        str_vector = bundle.getString("vector");
+        str_outdated = bundle.getString("outdated");
+        str_set = bundle.getString("set");
+        str_firmware = bundle.getString("firmware_update");
+        str_model = bundle.getString("model");
+        str_update = bundle.getString("update");
+        str_download_fail = bundle.getString("downlaod_failed");
     }
 
     private void formWindowOpened(WindowEvent evt) {
@@ -532,7 +529,7 @@ public class Main extends JFrame implements KeyListener {
                         if (i >= Board.BOARD_WIDTH / 10 + 1) {
                             Board.bElements.add(ty);
                             this.updateBoard();
-                            this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
+                            this.setIconImage((new ImageIcon(this.getClass().getResource("/res/tu_biao.png"))).getImage());
                             this.lb_wifi.setVisible(false);
                             this.lb_pwd.setVisible(false);
                             this.btn_unknown.setVisible(false);
@@ -1196,7 +1193,7 @@ public class Main extends JFrame implements KeyListener {
     }
 
     private void jSlider6StateChanged(ChangeEvent evt) {
-        this.lb_contrast.setText(bundle.getString("str_dui_bi") + this.sd_contrast.getValue() + "%");
+        this.lb_contrast.setText(bundle.getString("contrast") + this.sd_contrast.getValue() + "%");
         if (Board.bElements.size() >= 2) {
             Board.bElements.stream().filter(e -> e.selected && e.type == 1)
                     .forEach(e -> {
@@ -1208,7 +1205,7 @@ public class Main extends JFrame implements KeyListener {
     }
 
     private void jSlider7StateChanged(ChangeEvent evt) {
-        this.lb_fill.setText(bundle.getString("str_tian_chong") + this.sd_fill.getValue());
+        this.lb_fill.setText(bundle.getString("fill") + this.sd_fill.getValue());
         Board.FILL_WIDTH = this.sd_fill.getValue();
         this.updateBoard();
     }
@@ -1538,7 +1535,7 @@ public class Main extends JFrame implements KeyListener {
             this.btn_usbconnect.setIcon(
                     new ImageIcon(
                             Objects.requireNonNull(
-                                    this.getClass().getResource("/tu/usb.png")
+                                    this.getClass().getResource("/res/usb.png")
                             )
                     )
             );
@@ -1546,7 +1543,7 @@ public class Main extends JFrame implements KeyListener {
             this.btn_usbconnect.setIcon(
                     new ImageIcon(
                             Objects.requireNonNull(
-                                    this.getClass().getResource("/tu/usb2.png")
+                                    this.getClass().getResource("/res/usb2.png")
                             )
                     )
             );

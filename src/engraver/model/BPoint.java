@@ -1,4 +1,4 @@
-package examples.model;
+package engraver.model;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

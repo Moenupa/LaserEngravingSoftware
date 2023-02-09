@@ -1,6 +1,7 @@
-package examples;
+package engraver.control;
 
-import examples.model.Board;
+import engraver.Main;
+import engraver.model.Board;
 
 import javax.swing.*;
 import java.io.BufferedInputStream;
@@ -282,7 +283,7 @@ public class Wifi {
                     }
 
                     Thread.sleep(500L);
-                    Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi.png")));
+                    Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi.png")));
                     int rg2 = Wifi.this.rg.getValue() * 2;
                     int jd = Wifi.this.fbl.getSelectedIndex();
                     Board.RESOLUTION = 0.05D + (double) Wifi.this.fbl.getSelectedIndex() * 0.0125D;
@@ -293,7 +294,7 @@ public class Wifi {
                 e.printStackTrace();
                 Wifi.this.connected = false;
                 if (Wifi.this.bt != null) {
-                    Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi2.png")));
+                    Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
                 }
             }
         }).start();
@@ -345,7 +346,7 @@ public class Wifi {
     }
 
     public void close() {
-        this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi2.png")));
+        this.bt.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
         this.connected = false;
         if (this.bis != null) {
             this.bis = null;
@@ -457,7 +458,7 @@ public class Wifi {
 
                             if (Wifi.this.recv2_count > 3) {
                                 Wifi.this.recv2_count = 0;
-                                if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && (Wifi.this.window.comOpened || Wifi.this.connected)) {
+                                if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && Wifi.this.connected) {
                                     Main.engraveFinished = true;
                                     Wifi.this.jdt.setValue(Wifi.this.recv2[3]);
                                     Wifi.this.jdt.setVisible(true);

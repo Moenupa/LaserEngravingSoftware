@@ -1,4 +1,4 @@
-package examples;
+package engraver;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

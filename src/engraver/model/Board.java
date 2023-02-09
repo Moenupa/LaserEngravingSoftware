@@ -1,4 +1,4 @@
-package examples.model;
+package engraver.model;
 
 import javax.swing.*;
 import java.awt.*;
@@ -464,48 +464,48 @@ public class Board extends JPanel {
             g2D.setColor(Color.GREEN);
             g2D.draw(rect);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/ic_icon_delete.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/ic_icon_delete.png")).getImage(),
                 rect.x - 15, rect.y - 15, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/ic_icon_rotate.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/ic_icon_rotate.png")).getImage(),
                 rect.x + rect.width - 15, rect.y - 15, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/ic_icon_scale.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/ic_icon_scale.png")).getImage(),
                 rect.x + rect.width - 15, rect.y + rect.height - 15, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/zhong_xin.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/zhong_xin.png")).getImage(),
                 rect.x + rect.width - 15, rect.y + rect.height + 20, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/hei_bai.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/hei_bai.png")).getImage(),
                 rect.x + rect.width + 25, rect.y - 20, 60, 65, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/hui_du.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/hui_du.png")).getImage(),
                 rect.x + rect.width + 25, rect.y + 45, 60, 65, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/lun_kuo.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/lun_kuo.png")).getImage(),
                 rect.x + rect.width + 25, rect.y + 110, 60, 65, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/su_miao.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/su_miao.png")).getImage(),
                 rect.x + rect.width + 25, rect.y + 175, 60, 65, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/jing_xiang_y.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/jing_xiang_y.png")).getImage(),
                 rect.x + rect.width - 50, rect.y + rect.height + 20, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/jing_xiang_x.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/jing_xiang_x.png")).getImage(),
                 rect.x + rect.width - 85, rect.y + rect.height + 20, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/fan_se.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/fan_se.png")).getImage(),
                 rect.x + rect.width - 120, rect.y + rect.height + 20, 30, 30, null);
             g2D.drawImage(
-                new ImageIcon(this.getClass().getResource("/tu/tian_chong.png")).getImage(),
+                new ImageIcon(this.getClass().getResource("/res/tian_chong.png")).getImage(),
                 rect.x + rect.width - 155, rect.y + rect.height + 20, 30, 30, null);
             if (lock) {
                 g2D.drawImage(
-                    new ImageIcon(this.getClass().getResource("/tu/suo1.png")).getImage(),
+                    new ImageIcon(this.getClass().getResource("/res/suo1.png")).getImage(),
                     rect.x - 15, rect.y + rect.height - 15, 30, 30, null);
             } else {
                 g2D.drawImage(
-                    new ImageIcon(this.getClass().getResource("/tu/suo2.png")).getImage(),
+                    new ImageIcon(this.getClass().getResource("/res/suo2.png")).getImage(),
                     rect.x - 15, rect.y + rect.height - 15, 30, 30, null);
             }
 

@@ -1,4 +1,4 @@
-package examples;
+package engraver;
 
 import javax.swing.*;
 import java.awt.*;

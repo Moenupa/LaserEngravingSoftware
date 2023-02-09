@@ -1,7 +1,7 @@
-package examples;
+package engraver;
 
-import examples.model.BElement;
-import examples.model.Board;
+import engraver.model.BElement;
+import engraver.model.Board;
 
 import java.util.ArrayList;
 import java.util.List;

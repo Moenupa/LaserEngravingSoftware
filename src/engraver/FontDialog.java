@@ -1,7 +1,7 @@
-package examples;
+package engraver;
 
-import examples.model.BElement;
-import examples.model.Board;
+import engraver.model.BElement;
+import engraver.model.Board;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
@@ -132,7 +132,7 @@ public class FontDialog extends JDialog {
     }
 
     private void da_xiaoStateChanged(ChangeEvent evt) {
-        this.jLabel3.setText(Main.bundle.getString("str_chi_cun") + this.da_xiao.getValue());
+        this.jLabel3.setText(Main.bundle.getString("size") + this.da_xiao.getValue());
         daxiao = 100 + this.da_xiao.getValue() * 2;
         ziti = new Font(ziti.getName(), ziti.getStyle(), daxiao);
         this.wen_zi.setFont(ziti);
@@ -157,7 +157,7 @@ public class FontDialog extends JDialog {
         this.jLabel3.setText(Main.str_size + "10");
         this.jCheckBox1.setText(Main.str_vertical);
         this.jCheckBox2.setText(Main.str_vector);
-        this.setIconImage((new ImageIcon(this.getClass().getResource("/tu/tu_biao.png"))).getImage());
+        this.setIconImage((new ImageIcon(this.getClass().getResource("/res/tu_biao.png"))).getImage());
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         String[] fontNames = ge.getAvailableFontFamilyNames();
         String[] fontNames2 = new String[fontNames.length];

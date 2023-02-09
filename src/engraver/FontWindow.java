@@ -1,6 +1,6 @@
-package examples;
+package engraver;
 
-import examples.model.BElement;
+import engraver.model.BElement;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;

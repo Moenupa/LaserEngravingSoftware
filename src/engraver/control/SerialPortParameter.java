@@ -1,4 +1,4 @@
-package examples;
+package engraver.control;
 
 public final class SerialPortParameter {
     private String serialPortName;
