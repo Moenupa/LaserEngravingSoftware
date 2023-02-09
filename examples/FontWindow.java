@@ -1,5 +1,7 @@
 package examples;
 
+import examples.model.BElement;
+
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;

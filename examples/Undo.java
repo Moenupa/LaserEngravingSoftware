@@ -1,5 +1,8 @@
 package examples;
 
+import examples.model.BElement;
+import examples.model.Board;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;

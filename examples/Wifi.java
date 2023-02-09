@@ -1,5 +1,7 @@
 package examples;
 
+import examples.model.Board;
+
 import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -45,7 +47,7 @@ public class Wifi {
     public void xin_tiao() {
         new Thread(() -> {
             while (true) {
-                if (!Board.boundingBox && !Main.kai_shi && !Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                if (!Board.inPreview && !Main.engraveStarted && !Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                     try {
                         Thread.sleep(100L);
                     } catch (InterruptedException var4) {
@@ -283,8 +285,8 @@ public class Wifi {
                     Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi.png")));
                     int rg2 = Wifi.this.rg.getValue() * 2;
                     int jd = Wifi.this.fbl.getSelectedIndex();
-                    Board.resolution = 0.05D + (double) Wifi.this.fbl.getSelectedIndex() * 0.0125D;
-                    Wifi.this.board.di_tu();
+                    Board.RESOLUTION = 0.05D + (double) Wifi.this.fbl.getSelectedIndex() * 0.0125D;
+                    Wifi.this.board.boardSetup();
                     Wifi.this.connect(new byte[]{40, 0, 11, (byte) rg2, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
                 }
             } catch (Exception e) {
@@ -456,10 +458,10 @@ public class Wifi {
                             if (Wifi.this.recv2_count > 3) {
                                 Wifi.this.recv2_count = 0;
                                 if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && (Wifi.this.window.comOpened || Wifi.this.connected)) {
-                                    Main.kai_shi2 = true;
+                                    Main.engraveFinished = true;
                                     Wifi.this.jdt.setValue(Wifi.this.recv2[3]);
                                     Wifi.this.jdt.setVisible(true);
-                                    Main.kai_shi = true;
+                                    Main.engraveStarted = true;
                                     Main.timeout = 0;
                                 }
                             } else {

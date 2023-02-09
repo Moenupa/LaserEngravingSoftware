@@ -1,5 +1,7 @@
 package examples;
 
+import examples.model.Board;
+
 import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -39,7 +41,7 @@ public class Wifi2 {
         Runnable runnable2 = new Runnable() {
             public void run() {
                 while (true) {
-                    if (!Board.boundingBox && !Main.kai_shi && !Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
+                    if (!Board.inPreview && !Main.engraveStarted && !Wifi2.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
                         try {
                             Thread.sleep(100L);
                         } catch (InterruptedException var4) {
@@ -274,8 +276,8 @@ public class Wifi2 {
                                 Wifi2.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/tu/wifi.png")));
                                 int rg2 = Wifi2.this.rg.getValue() * 2;
                                 int jd = Wifi2.this.fbl.getSelectedIndex();
-                                Board.resolution = 0.05D + (double) Wifi2.this.fbl.getSelectedIndex() * 0.0125D;
-                                Wifi2.this.hb.di_tu();
+                                Board.RESOLUTION = 0.05D + (double) Wifi2.this.fbl.getSelectedIndex() * 0.0125D;
+                                Wifi2.this.hb.boardSetup();
                                 Wifi2.this.lianjie(new byte[]{40, 0, 11, (byte) rg2, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
                                 break;
                             }
@@ -487,7 +489,7 @@ public class Wifi2 {
                             } else if (Wifi2.this.fanhui[0] == -1 && Wifi2.this.fanhui[1] == -1 && Wifi2.this.fanhui[2] == -1 && Wifi2.this.fanhui[3] == -1) {
                                 Wifi2.this.jdt.setValue(0);
                                 Wifi2.this.jdt.setVisible(false);
-                                Main.kai_shi = false;
+                                Main.engraveStarted = false;
                             }
                         } else {
                             Wifi2.this.fan_hui_ma = f;

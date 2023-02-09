@@ -1,5 +1,8 @@
 package examples;
 
+import examples.model.BElement;
+import examples.model.Board;
+
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -142,7 +145,7 @@ public class FontDialog extends JDialog {
             Board.bElements.add(BElement.createText(this.wen_zi.getText(), ziti, this.jCheckBox2.isSelected()));
         }
         Board.selectLast();
-        BElement.center(Board.bElements);
+        Board.center();
         Undo.add();
         this.fu.repaint();
         this.setVisible(false);

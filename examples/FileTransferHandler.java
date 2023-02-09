@@ -1,86 +1,140 @@
 package examples;
 
+import examples.model.BElement;
+import examples.model.Board;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 class FileTransferHandler extends TransferHandler {
-    public static Board hb = null;
+    public static final Set<String> EXT_IMG = Set.of("BMP", "JPG", "PNG", "JPEG", "GIF");
+    public static final Set<String> EXT_ENGRAVE = Set.of("XJ");
+    private static final Set<String> PLT_INSTR = Set.of("PU", "PD", "PA", "PR");
+    public static Board board = null;
+
+    public static Optional<String> getFileExtension(String filename) {
+        return Optional.ofNullable(filename)
+            .filter(f -> f.contains("."))
+            .map(f -> f.substring(filename.lastIndexOf(".") + 1).toUpperCase());
+    }
+    public static String getFileExtension(File f) {
+        return getFileExtension(f.getName()).orElse("");
+    }
 
     public boolean importData(JComponent comp, Transferable t) {
         try {
-            List<File> list = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
-
-            for (File f : list) {
-                System.out.println(f.getAbsolutePath());
-                String fileName = f.getAbsolutePath();
-                String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-                suffix = suffix.toUpperCase();
-                BufferedImage img;
-                if (!suffix.equals("BMP") && !suffix.equals("JPG") && !suffix.equals("PNG") && !suffix.equals("JPEG") && !suffix.equals("GIF")) {
-                    if (suffix.equals("XJ")) {
-                        try {
-                            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName));
-
-                            try {
-                                Board.bElements = (List) ois.readObject();
-                            } catch (Throwable e) {
-                                try {
-                                    ois.close();
-                                } catch (Throwable var11) {
-                                    e.addSuppressed(var11);
-                                }
-                                throw e;
-                            }
-
-                            ois.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        for (int i = 0; i < Board.bElements.size(); ++i) {
-                            if (Board.bElements.get(i).type == 1) {
-                                Board.bElements.get(i).bitMapImg = new BufferedImage(Board.bElements.get(i).bitMapW, Board.bElements.get(i).bitMapH, 2);
-                                Board.bElements.get(i).bitMapImg2 = new BufferedImage(Board.bElements.get(i).bitMap2W, Board.bElements.get(i).bitMap2H, 2);
-                                Board.bElements.get(i).bitMapImg.setRGB(0, 0, Board.bElements.get(i).bitMapW, Board.bElements.get(i).bitMapH, Board.bElements.get(i).bitMap, 0, Board.bElements.get(i).bitMapW);
-                                Board.bElements.get(i).bitMapImg2.setRGB(0, 0, Board.bElements.get(i).bitMap2W, Board.bElements.get(i).bitMap2H, Board.bElements.get(i).bitMap2, 0, Board.bElements.get(i).bitMap2W);
-                            }
-                        }
-
-                        if (hb != null) {
-                            hb.repaint();
-                        }
-                    } else if (suffix.equals("PLT")) {
-                        PLT plt = new PLT();
-                        plt.analyze(f);
-                        hb.updateUI();
-                    }
-                } else {
-                    try {
-                        img = ImageIO.read(new File(fileName));
-                        Board.bElements.add(BElement.create(1, img));
-                        Board.selectLast();
-                        BElement.center(Board.bElements);
-                        if (hb != null) {
-                            hb.repaint();
-                        }
-                    } catch (IOException e) {
-                    }
-                }
+            List<File> files = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
+            for (File file : files) {
+                importFile(file);
             }
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
-            return true;
+            return false;
         }
+    }
+
+    public static void importFile(File file, Runnable boardUpdate) {
+        try {
+            String ext = getFileExtension(file);
+            if (EXT_IMG.contains(ext)) {
+                Board.bElements.add(BElement.create(1, ImageIO.read(file)));
+                Board.selectLast();
+                Board.center();
+                Undo.add();
+                boardUpdate.run();
+            } else if (EXT_ENGRAVE.contains(ext)) {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                Board.bElements = (List) ois.readObject();
+                ois.close();
+
+                Board.bElements.stream().filter(e -> e.type == 1).forEach(e -> {
+                    e.bitMapImg = new BufferedImage(e.bitMapW, e.bitMapH, 2);
+                    e.bitMapImg2 = new BufferedImage(e.bitMap2W, e.bitMap2H, 2);
+                    e.bitMapImg.setRGB(0, 0, e.bitMapW, e.bitMapH, e.bitMap, 0, e.bitMapW);
+                    e.bitMapImg2.setRGB(0, 0, e.bitMap2W, e.bitMap2H, e.bitMap2, 0, e.bitMap2W);
+                });
+                Undo.add();
+                boardUpdate.run();
+            } else if (ext.equals("PLT")) {
+                FileTransferHandler.importPLT(file);
+                Undo.add();
+                boardUpdate.run();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void importFile(File file) {
+        importFile(file, () -> {if (board != null) board.repaint();});
+    }
+
+    public static void importPLT(File file) {
+        String content = "";
+        try {
+            content = Files.readString(file.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String[] strArr = content.replaceAll("[\r\n]", "").split(";");
+
+        GeneralPath path = new GeneralPath();
+        boolean isMoving = true;
+        boolean isAbsolute = true;
+        double d_x = 0.0D;
+        double d_y = 0.0D;
+
+        for (String s : strArr) {
+            String instr = s.substring(0, 2);
+            String[] val = s.substring(2).split(" ");
+
+            if (val.length != 2) continue;
+            if (!PLT_INSTR.contains(instr)) continue;
+
+            double x = Double.parseDouble(val[0]) / 40.0D / Board.RESOLUTION;
+            double y = - Double.parseDouble(val[1]) / 40.0D / Board.RESOLUTION;
+
+            switch (instr) {
+                case "PU" -> isMoving = true;
+                case "PA" -> isAbsolute = true;
+                case "PR" -> isAbsolute = false;
+                case "PD" -> {}
+            }
+
+            if (isAbsolute) {
+                d_x = x;
+                d_y = y;
+            } else {
+                d_x += x;
+                d_y += y;
+            }
+            if (isMoving) {
+                path.moveTo(d_x, d_y);
+                isMoving = false;
+            } else {
+                Board.addPath(path);
+                path = new GeneralPath();
+                path.moveTo(d_x, d_y);
+            }
+
+            path.lineTo(d_x, d_y);
+        }
+
+        Board.addPath(path);
     }
 
     public boolean canImport(TransferSupport support) {

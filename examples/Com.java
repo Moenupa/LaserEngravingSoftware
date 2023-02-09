@@ -65,8 +65,8 @@ public class Com {
                         ) {
                             this.jdt.setValue(this.terminate_buffer.get(size - 1));
                             this.jdt.setVisible(true);
-                            Main.kai_shi = true;
-                            Main.kai_shi2 = true;
+                            Main.engraveStarted = true;
+                            Main.engraveFinished = true;
                             this.terminate_buffer.clear();
                         }
 
@@ -97,15 +97,15 @@ public class Com {
                         if (fh[0] == -1 && fh[1] == -1 && fh[2] == 0) {
                             this.jdt.setValue(fh[3]);
                             this.jdt.setVisible(true);
-                            Main.kai_shi = true;
-                            Main.kai_shi2 = true;
+                            Main.engraveStarted = true;
+                            Main.engraveFinished = true;
                             Main.timeout = 0;
                         } else {
                             if (fh[0] == -1 && fh[1] == -1 && fh[2] == -1 && fh[3] == -1) {
                                 this.jdt.setValue(0);
                                 this.jdt.setVisible(false);
-                                Main.kai_shi = false;
-                                Main.kai_shi2 = false;
+                                Main.engraveStarted = false;
+                                Main.engraveFinished = false;
                                 Main.timeout = 0;
                             } else {
                                 this.ret = true;

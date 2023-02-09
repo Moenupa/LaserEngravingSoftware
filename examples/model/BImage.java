@@ -1,6 +1,8 @@
-package examples;
+package examples.model;
 
+import java.awt.*;
 import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.util.Arrays;
@@ -27,7 +29,16 @@ public class BImage {
         return (((alpha << 8) + red << 8) + green << 8) + blue;
     }
 
-    public static BufferedImage greyScale(BufferedImage image) {
+    private static int rgbToGray(int rgba) {
+        return (((rgba & 0xff0000) >> 16) * 3 + ((rgba & 0xff00) >> 8) * 6 + (rgba & 0xff)) / 10;
+    }
+
+    private static int rgbBound(int p) {
+        if (p > 255) return 255;
+        return Math.max(p, 0);
+    }
+
+    public static BufferedImage toGreyScale(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
         BufferedImage grayImage = new BufferedImage(width, height, image.getType());
@@ -46,11 +57,6 @@ public class BImage {
         return grayImage;
     }
 
-    public static int limitBound(int p) {
-        if (p > 255) return 255;
-        return Math.max(p, 0);
-    }
-
     public static BufferedImage convertGreyImgByFloyd(BufferedImage img, int zhi) {
         int width = img.getWidth();
         int height = img.getHeight();
@@ -63,7 +69,7 @@ public class BImage {
             for (int w = 0; w < width; ++w) {
                 p1 = pixels[width * h + w];
                 p2 = ((p1 & 0xff0000) >> 16) + (128 - zhi);
-                gray[width * h + w] = limitBound(p2);
+                gray[width * h + w] = rgbBound(p2);
             }
         }
         for (int h = 0; h < height; ++h) {
@@ -101,7 +107,7 @@ public class BImage {
      * @param val value
      * @return image (B&W)
      */
-    public static BufferedImage blackAndWhite(BufferedImage image, int val) {
+    public static BufferedImage toBlackAndWhite(BufferedImage image, int val) {
         BufferedImage nb = image.getSubimage(0, 0, image.getWidth(), image.getHeight());
         int[] pixels = new int[image.getWidth() * image.getHeight()];
         nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
@@ -127,65 +133,49 @@ public class BImage {
      * @param image original image
      * @return image (inverted)
      */
-    public static BufferedImage invertColor(BufferedImage image) {
-        BufferedImage nb = image.getSubimage(0, 0, image.getWidth(), image.getHeight());
-        int[] pixels = new int[image.getWidth() * image.getHeight()];
-        nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
+    public static BufferedImage toInverted(BufferedImage image) {
+        int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
         for (int i = 0; i < pixels.length; ++i) {
-            int clr = pixels[i];
-            int red = (clr & 16711680) >> 16;
-            if (red == 255) {
-                pixels[i] = -16777216;
+            if ((pixels[i] & 0xff0000) == 0xff0000) {
+                pixels[i] = 0xff000000;
             } else {
-                pixels[i] = 33554431;
+                pixels[i] = 0x01ffffff;
             }
         }
 
-        BufferedImage mBitmap = new BufferedImage(nb.getWidth(), nb.getHeight(), 2);
-        mBitmap.setRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
+        BufferedImage mBitmap = new BufferedImage(image.getWidth(), image.getHeight(), 2);
+        mBitmap.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
         return mBitmap;
     }
 
-    public static BufferedImage mirror_x(BufferedImage bb) {
-        BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
-        int[] pixels = new int[bb.getWidth() * bb.getHeight()];
-        int[] pixels2 = new int[bb.getWidth() * bb.getHeight()];
-        nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
-        int k = nb.getWidth();
-        int g = nb.getHeight();
-
-        for (int i = 0; i < g; ++i) {
-            for (int j = 0; j < k; ++j) {
-                pixels2[i * k + j] = pixels[i * k + (k - j - 1)];
-            }
-        }
-
-        BufferedImage mBitmap = new BufferedImage(nb.getWidth(), nb.getHeight(), 2);
-        mBitmap.setRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels2, 0, nb.getWidth());
-        return mBitmap;
+    private static BufferedImage createTransformed(BufferedImage image, AffineTransform at)
+    {
+        BufferedImage newImage = new BufferedImage(
+            image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB
+        );
+        Graphics2D g = newImage.createGraphics();
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
     }
 
-    public static BufferedImage mirror_y(BufferedImage bb) {
-        BufferedImage nb = bb.getSubimage(0, 0, bb.getWidth(), bb.getHeight());
-        int[] pixels = new int[bb.getWidth() * bb.getHeight()];
-        int[] pixels2 = new int[bb.getWidth() * bb.getHeight()];
-        nb.getRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels, 0, nb.getWidth());
-        int k = nb.getWidth();
-        int g = nb.getHeight();
-
-        for (int i = 0; i < k; ++i) {
-            for (int j = 0; j < g; ++j) {
-                pixels2[j * k + i] = pixels[(g - j - 1) * k + i];
-            }
-        }
-
-        BufferedImage mBitmap = new BufferedImage(nb.getWidth(), nb.getHeight(), 2);
-        mBitmap.setRGB(0, 0, nb.getWidth(), nb.getHeight(), pixels2, 0, nb.getWidth());
-        return mBitmap;
+    public static BufferedImage mirror_x(BufferedImage src) {
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(-src.getWidth(), 0));
+        return createTransformed(src, at);
     }
 
-    public static BufferedImage qu_lunkuo(BufferedImage img, int zhi) {
+    public static BufferedImage mirror_y(BufferedImage src) {
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(0, -src.getHeight()));
+        return createTransformed(src, at);
+    }
+
+    public static BufferedImage getEdges(BufferedImage img, int zhi) {
         int width = img.getWidth();
         int height = img.getHeight();
         int[] pixels = new int[width * height];
@@ -240,30 +230,12 @@ public class BImage {
         return mBitmap;
     }
 
-    static int[] getGray(int[] pixels, int width, int height) {
-        int[] gray = new int[width * height];
-
-        for (int i = 0; i < width - 1; ++i) {
-            for (int j = 0; j < height - 1; ++j) {
-                int index = width * j + i;
-                int rgba = pixels[index];
-                int g = ((rgba & 0xff0000) >> 16) * 3 + ((rgba & '\uff00') >> 8) * 6 + (rgba & 255);
-                gray[index] = g / 10;
-            }
-        }
-
-        return gray;
+    static int[] getGray(int[] pixels) {
+        return Arrays.stream(pixels).map(BImage::rgbToGray).toArray();
     }
 
-    static int[] getInverse(int[] gray) {
-        int[] inverse = new int[gray.length];
-        int i = 0;
-
-        for (int size = gray.length; i < size; ++i) {
-            inverse[i] = 255 - gray[i];
-        }
-
-        return inverse;
+    static int[] getGrayInverse(int[] pixels) {
+        return Arrays.stream(pixels).map(i -> 0xff - i).toArray();
     }
 
     static int[] guassBlur(int[] inverse, int width, int height) {
@@ -332,14 +304,14 @@ public class BImage {
         int height = bitmap.getHeight();
         int[] pixels = new int[width * height];
         bitmap.getRGB(0, 0, width, height, pixels, 0, width);
-        int[] gray = getGray(pixels, width, height);
-        int[] inverse = getInverse(gray);
+        int[] gray = getGray(pixels);
+        int[] inverse = getGrayInverse(gray);
         int[] guassBlur = guassBlur(inverse, width, height);
         int[] output = deceasecolorCompound(guassBlur, gray, width, height);
         return create(pixels, output, width, height);
     }
 
-    public static BufferedImage su_miao2(BufferedImage old) {
+    public static BufferedImage sketch(BufferedImage old) {
         BufferedImage b1 = discolor(old);
         b1 = invert(b1);
         float[][] matric = gaussian2DKernel(3, 3.0F);
@@ -376,27 +348,16 @@ public class BImage {
         return retImage;
     }
 
-    public static BufferedImage invert(BufferedImage sourceImage) {
-        int width = sourceImage.getWidth();
-        int height = sourceImage.getHeight();
-        BufferedImage retImage = new BufferedImage(width, height, 2);
-
+    public static BufferedImage invert(BufferedImage src) {
+        int width = src.getWidth();
+        int height = src.getHeight();
+        BufferedImage ret = new BufferedImage(width, height, 2);
         for (int i = 0; i < width; ++i) {
             for (int j = 0; j < height; ++j) {
-                int color1 = sourceImage.getRGB(i, j);
-                int a1 = color1 >> 24 & 255;
-                int r1 = color1 >> 16 & 255;
-                int g1 = color1 >> 8 & 255;
-                int b1 = color1 & 255;
-                int r = 255 - r1;
-                int g = 255 - g1;
-                int b = 255 - b1;
-
-                retImage.setRGB(i, j, limitBound(a1 << 24 | r << 16 | g << 8 | b));
+                ret.setRGB(i, j, src.getRGB(i, j) ^ 0x00ffffff);
             }
         }
-
-        return retImage;
+        return ret;
     }
 
     public static BufferedImage deceaseColorCompound(BufferedImage sourceImage, BufferedImage targetImage) {
