@@ -1,36 +1,22 @@
-package engraver;
+package engraver.control;
+
+import engraver.Main;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Desktop.Action;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Update {
-    private static String openFile(String url) {
-        try {
-            URLConnection connection = new URL(url).openConnection();
-            connection.connect();
-            int HttpResult = ((HttpURLConnection) connection).getResponseCode();
-            if (HttpResult != 200) {
-                System.out.println("无法连接到网络");
-                return "";
-            }
-            InputStreamReader isReader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
-            BufferedReader reader = new BufferedReader(isReader);
-            StringBuilder builder = new StringBuilder();
-
-            reader.lines().forEach(line -> builder.append(line).append("\r\n"));
-
-            System.out.println(builder);
-            return builder.toString();
+    private static String getURLContents(String urlStr) throws Exception {
+        URL url = new URL(urlStr);
+        try (InputStream in = url.openStream()) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,12 +52,12 @@ public class Update {
 
     public static void update() {
         new Thread(() -> {
-            String latest = Update.openFile("http://jiakuo25.0594.bftii.com/geng_xin.txt");
-            String[] latestVer = latest.split("\r\n");
-            if (latestVer.length <= 1 || !latestVer[0].equals("1")) {
-                return;
-            }
             try {
+                String latest = getURLContents("http://jiakuo25.0594.bftii.com/geng_xin.txt");
+                String[] latestVer = latest.split("\r\n");
+                if (latestVer.length <= 1 || !latestVer[0].equals("1")) {
+                    return;
+                }
                 if (
                         Update.compareVersion(
                                 latestVer[1].toUpperCase(),

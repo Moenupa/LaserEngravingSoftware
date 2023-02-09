@@ -2,6 +2,8 @@ package engraver;
 
 import engraver.control.*;
 import engraver.model.*;
+import engraver.view.FontDialog;
+import engraver.view.ImagePreviewPanel;
 import gnu.io.SerialPort;
 import net.sf.image4j.codec.bmp.BMPEncoder;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;

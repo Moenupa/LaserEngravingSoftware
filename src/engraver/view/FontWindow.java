@@ -1,4 +1,4 @@
-package engraver;
+package engraver.view;
 
 import engraver.model.BElement;
 

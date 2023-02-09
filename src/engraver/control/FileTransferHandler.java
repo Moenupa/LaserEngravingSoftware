@@ -1,5 +1,6 @@
-package engraver;
+package engraver.control;
 
+import engraver.Undo;
 import engraver.model.BElement;
 import engraver.model.Board;
 
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-class FileTransferHandler extends TransferHandler {
+public class FileTransferHandler extends TransferHandler {
     public static final Set<String> EXT_IMG = Set.of("BMP", "JPG", "PNG", "JPEG", "GIF");
     public static final Set<String> EXT_ENGRAVE = Set.of("XJ");
     private static final Set<String> PLT_INSTR = Set.of("PU", "PD", "PA", "PR");

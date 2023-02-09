@@ -1,5 +1,7 @@
-package engraver;
+package engraver.view;
 
+import engraver.Main;
+import engraver.Undo;
 import engraver.model.BElement;
 import engraver.model.Board;
 
