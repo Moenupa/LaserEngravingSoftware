@@ -185,7 +185,7 @@ public class Main extends JFrame implements KeyListener {
                 if (this.comOpened) {
                     handler.send(new byte[]{22, 0, 4, 0}, 2);
                 } else if (Main.this.wifi.connected) {
-                    this.wifi.xie2(new byte[]{22, 0, 4, 0}, 200);
+                    this.wifi.send(new byte[]{22, 0, 4, 0}, 200);
                 }
             }).start();
         });
@@ -552,10 +552,10 @@ public class Main extends JFrame implements KeyListener {
                                 while (true) {
                                     if (Main.this.wifi == null) {
                                         Main.this.wifi = new Wifi();
-                                        Main.this.wifi.bt = Main.this.btn_wificonnect;
+                                        Main.this.wifi.btn_wificonnect = Main.this.btn_wificonnect;
                                         Main.this.wifi.board = Main.this.board;
-                                        Main.this.wifi.fbl = Main.this.opt_accuracy;
-                                        Main.this.wifi.rg = Main.this.sd_weak_light;
+                                        Main.this.wifi.sd_accuracy = Main.this.opt_accuracy;
+                                        Main.this.wifi.sd_weak_light = Main.this.sd_weak_light;
                                         Main.this.wifi.jdt = Main.this.jdt;
                                         Main.this.wifi.window = Main.this.window;
                                     }
@@ -894,7 +894,7 @@ public class Main extends JFrame implements KeyListener {
                 new Thread(() -> {
                     try {
                         Main.this.btn_engrave.setEnabled(false);
-                        Main.this.goOffline();
+                        Main.this.engrave();
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, e);
                         Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
@@ -946,7 +946,7 @@ public class Main extends JFrame implements KeyListener {
         } else if (this.wifi.connected) {
             if (Board.inPreview) {
                 new Thread(() -> {
-                    this.wifi.xie2(new byte[]{33, 0, 4, 0}, 300);
+                    this.wifi.send(new byte[]{33, 0, 4, 0}, 300);
                     Board.inPreview = false;
                     this.updateBoard();
                 }).start();
@@ -969,7 +969,7 @@ public class Main extends JFrame implements KeyListener {
                     byte xd = (byte) (bound.x + 67 + bound.width / 2);
                     byte yg = (byte) (bound.y + bound.height / 2 >> 8);
                     byte yd = (byte) (bound.y + bound.height / 2);
-                    Main.this.wifi.xie2(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
+                    Main.this.wifi.send(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
                     Board.inPreview = true;
                     Main.this.updateBoard();
                 }).start();
@@ -1019,12 +1019,12 @@ public class Main extends JFrame implements KeyListener {
 
     void apply_settings_carving() {
         new Thread(() -> {
-            int sd = this.sd_carve_depth.getValue();
-            int gl = this.sd_carve_power.getValue() * 10;
+            int dp = this.sd_carve_depth.getValue();
+            int pw = this.sd_carve_power.getValue() * 10;
             if (this.comOpened) {
-                handler.send_settings(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 2);
+                handler.send_offline(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 2);
             } else if (this.wifi.connected) {
-                this.wifi.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
+                this.wifi.send(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 200);
             }
 
         }).start();
@@ -1032,37 +1032,37 @@ public class Main extends JFrame implements KeyListener {
 
     void apply_settings_cutting() {
         new Thread(() -> {
-            int sd = this.sd_cut_depth.getValue();
-            int gl = this.sd_cut_power.getValue() * 10;
+            int dp = this.sd_cut_depth.getValue();
+            int pw = this.sd_cut_power.getValue() * 10;
             if (this.comOpened) {
-                handler.send_settings(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 2);
+                handler.send_offline(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 2);
             } else if (this.wifi.connected) {
-                this.wifi.xie2(new byte[]{37, 0, 11, (byte) (sd >> 8), (byte) sd, (byte) (gl >> 8), (byte) gl, 0, 0, 0, 0}, 200);
+                this.wifi.send(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 200);
             }
 
         }).start();
     }
 
-    void she_zhi_can_shu() {
+    void apply_settings_general() {
         new Thread(() -> {
-            int rg = this.sd_weak_light.getValue() * 2;
-            int jd = this.opt_accuracy.getSelectedIndex();
+            int weak_light = this.sd_weak_light.getValue() * 2;
+            int accuracy = this.opt_accuracy.getSelectedIndex();
             if (this.comOpened) {
-                handler.send(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 2);
+                handler.send(new byte[]{40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 2);
             } else if (this.wifi.connected) {
-                this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
+                this.wifi.send(new byte[]{40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 200);
             }
         }).start();
     }
 
     private void jSlider9MouseReleased(MouseEvent evt) {
         if (this.comOpened) {
-            this.she_zhi_can_shu();
+            this.apply_settings_general();
         } else if (this.wifi.connected) {
             new Thread(() -> {
                 int rg = Main.this.sd_weak_light.getValue() * 2;
                 int jd = Main.this.opt_accuracy.getSelectedIndex();
-                Main.this.wifi.xie2(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
+                Main.this.wifi.send(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
             }).start();
         }
 
@@ -1088,7 +1088,7 @@ public class Main extends JFrame implements KeyListener {
                 }
 
                 this.board.boardSetup();
-                this.she_zhi_can_shu();
+                this.apply_settings_general();
             }
 
         }
@@ -1105,9 +1105,9 @@ public class Main extends JFrame implements KeyListener {
                 Main.this.auxPositioning = !Main.this.auxPositioning;
             } else if (Main.this.wifi.connected) {
                 if (Main.this.auxPositioning) {
-                    Main.this.wifi.xie2(new byte[]{7, 0, 4, 0}, 200);
+                    Main.this.wifi.send(new byte[]{7, 0, 4, 0}, 200);
                 } else {
-                    Main.this.wifi.xie2(new byte[]{6, 0, 4, 0}, 200);
+                    Main.this.wifi.send(new byte[]{6, 0, 4, 0}, 200);
                 }
 
                 Main.this.auxPositioning = !Main.this.auxPositioning;
@@ -1275,7 +1275,7 @@ public class Main extends JFrame implements KeyListener {
      * @param nTimes        number of times
      * @return true if successful
      */
-    boolean goOffline(
+    boolean engrave(
             int shan_qu, int version,
             int carveWidth, int carveHeight, int carvePosition, int carvePower, int carveDepth,
             int cutWidth, int cutHeight, int cutPosition, int cutPower, int cutDepth,
@@ -1308,7 +1308,7 @@ public class Main extends JFrame implements KeyListener {
     }
 
     boolean write(byte[] data, int timeout) {
-        return !this.comOpened ? this.wifi.write(data, timeout * 100) : handler.send(data, timeout);
+        return !this.comOpened ? this.wifi.send(data, timeout * 100) : handler.send(data, timeout);
     }
 
     static byte checksum(byte[] bytes) {
@@ -1323,7 +1323,7 @@ public class Main extends JFrame implements KeyListener {
         return (byte) (sum & 255);
     }
 
-    void goOffline() {
+    void engrave() {
         int carveWidth = 0;
         int carveHeight = 0;
         boolean doCarving, doCutting;
@@ -1361,7 +1361,7 @@ public class Main extends JFrame implements KeyListener {
 
         engraveStarted = true;
         long shan_qu = (33 + (long) data_len * carveHeight + bPoints.size() * 4L) / 4094 + 1;
-        this.goOffline(
+        this.engrave(
                 (int) shan_qu,
                 1,
                 carveWidth, carveHeight, 33,
@@ -1473,9 +1473,7 @@ public class Main extends JFrame implements KeyListener {
 
         engraveFinished = true;
         if (handler != null) {
-            handler.terminate_count = 0;
-            handler.terminate_type = 3;
-            handler.terminate_buffer.clear();
+            handler.terminateWith(3, 0);
         }
 
         this.jdt.setVisible(false);

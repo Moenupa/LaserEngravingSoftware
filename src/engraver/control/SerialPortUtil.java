@@ -107,7 +107,6 @@ public class SerialPortUtil {
                 bytes = new byte[buffLength];
                 is.read(bytes);
             } while (buffLength != 0);
-
             is.close();
         } catch (IOException e) {
             e.printStackTrace();

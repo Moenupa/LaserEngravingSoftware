@@ -17,148 +17,41 @@ public class Wifi {
     Wifi.ReadThread readThread;
     DatagramSocket udp;
     InetAddress serverAddress;
-    public byte[] data_r = new byte[100];
-    public byte[] data_w = new byte[2000];
+
     public byte[] ret_val = null;
     public int ret_code = 0;
     public boolean connected = false;
     public boolean occupied = false;
     public ServerSocket serverSocket = null;
     Socket socket;
-    public int xin_tiao = 0;
 
-    public JButton bt = null;
+    public JButton btn_wificonnect = null;
     public Board board = null;
-    public JComboBox fbl = null;
-    public JSlider rg = null;
+    public JComboBox<String> sd_accuracy = null;
+    public JSlider sd_weak_light = null;
     public JProgressBar jdt = null;
     public Main window = null;
 
-    byte[] recv = new byte[100];
-    int recv_count = 0;
-    boolean zhu_dong = true;
-    final Object recv_lock = new Object();
-    byte[] recv2 = new byte[100];
-    int recv2_count = 0;
+    private final Object lock = new Object();
+    boolean listeningForResponse = true;
+    byte[] buff = new byte[100];
+    int buff_len = 0;
 
     public Wifi() {
-        this.fw_kai();
+        this.open();
     }
 
-    public void xin_tiao() {
-        new Thread(() -> {
-            while (true) {
-                if (!Board.inPreview && !Main.engraveStarted && !Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException var4) {
-                        Logger.getLogger(Wifi.class.getName()).log(Level.SEVERE, null, var4);
-                    }
-
-                    if (!Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
-                        try {
-                            Thread.sleep(100L);
-                        } catch (InterruptedException var3) {
-                            Logger.getLogger("WIFI").log(Level.SEVERE, null, var3);
-                        }
-
-                        if (!Wifi.this.xie2(new byte[]{11, 0, 4, 0}, 100)) {
-                            Wifi.this.close();
-                            return;
-                        }
-                    }
-                }
-
-                try {
-                    Thread.sleep(6000L);
-                } catch (InterruptedException var2) {
-                    Logger.getLogger("WIFI").log(Level.SEVERE, null, var2);
-                }
-            }
-        }).start();
-    }
-
-    public boolean connect(byte[] data, int chao) {
+    public boolean connect(byte[] data, int timeout) {
         this.ret_val = null;
         int m = 0;
         if (!this.connected) {
             return false;
         } else {
-            this.data_w = data;
-            Wifi.WriteRead writeRead = new Wifi.WriteRead();
-            writeRead.start();
-            this.recv_count = 0;
-            this.zhu_dong = true;
+            buff_len = 0;
+            new WriteThread(data).start();
+            this.listeningForResponse = true;
 
-            while (this.recv_count < 1 && m++ <= chao) {
-                try {
-                    Thread.sleep(10L);
-                } catch (InterruptedException var8) {
-                    var8.printStackTrace();
-                }
-            }
-
-            synchronized (this.recv_lock) {
-                this.zhu_dong = false;
-                if (this.recv_count < 1) {
-                    return false;
-                } else if (this.recv[0] == 9) {
-                    return true;
-                } else {
-                    this.recv_count = 0;
-                    return false;
-                }
-            }
-        }
-    }
-
-    public boolean xie2(byte[] bytes, int timeout) {
-        this.ret_val = null;
-        int m = 0;
-        if (!this.connected) {
-            return false;
-        } else {
-            this.data_w = bytes;
-            Wifi.WriteRead writeRead = new Wifi.WriteRead();
-            writeRead.start();
-            this.recv_count = 0;
-            this.zhu_dong = true;
-
-            while (this.recv_count < 1 && m++ <= timeout) {
-                try {
-                    Thread.sleep(10L);
-                } catch (InterruptedException var8) {
-                    var8.printStackTrace();
-                }
-            }
-
-            synchronized (this.recv_lock) {
-                this.zhu_dong = false;
-                if (this.recv_count < 1) {
-                    return false;
-                } else if (this.recv[0] == 9) {
-                    return true;
-                } else {
-                    this.recv_count = 0;
-                    return false;
-                }
-            }
-        }
-    }
-
-    public byte[] version(byte[] data, int chao) {
-        this.ret_val = null;
-        int m = 0;
-        if (!this.connected) {
-            return null;
-        } else {
-            this.data_w = data;
-            Wifi.WriteRead writeRead = new Wifi.WriteRead();
-            writeRead.start();
-            this.recv_count = 0;
-            this.zhu_dong = true;
-
-            while (this.recv_count < 3 && m++ <= chao) {
+            while (buff_len < 1 && m++ <= timeout) {
                 try {
                     Thread.sleep(10L);
                 } catch (InterruptedException e) {
@@ -166,75 +59,31 @@ public class Wifi {
                 }
             }
 
-            synchronized (this.recv_lock) {
-                this.zhu_dong = false;
-                if (this.recv_count < 3) {
-                    this.recv_count = 0;
-                    return null;
-                } else {
-                    byte[] fh = new byte[]{this.recv[0], this.recv[1], this.recv[2]};
-                    this.recv_count = 0;
-                    return fh;
-                }
-            }
-        }
-    }
-
-    public boolean kaishi(byte[] bytes, int timeout) {
-        this.ret_val = null;
-        int m = 0;
-        if (!this.connected) {
-            return false;
-        } else {
-            this.data_w = bytes;
-            Wifi.WriteRead writeRead = new Wifi.WriteRead();
-            writeRead.start();
-            this.recv_count = 0;
-            this.zhu_dong = true;
-
-            while (this.recv_count < 4 && m++ <= timeout) {
-                try {
-                    Thread.sleep(10L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            synchronized (this.recv_lock) {
-                this.zhu_dong = false;
-                if (this.recv_count < 4) {
+            synchronized (lock) {
+                this.listeningForResponse = false;
+                if (buff_len < 1) {
                     return false;
-                } else if (this.recv[0] == -1 && this.recv[1] == -1 && this.recv[2] == -1 && this.recv[3] == -2) {
+                } else if (this.buff[0] == 9) {
                     return true;
                 } else {
-                    this.recv_count = 0;
+                    buff_len = 0;
                     return false;
                 }
             }
         }
     }
 
-    /**
-     * write data
-     *
-     * @param data
-     * @param timeout
-     * @return
-     */
-    public boolean write(byte[] data, int timeout) {
+    public boolean send(byte[] data, int timeout) {
         this.ret_val = null;
         int m = 0;
 
-        if (!this.connected)
-            return false;
+        if (!this.connected) return false;
 
-        this.data_w = data;
-        Wifi.WriteRead writeRead = new Wifi.WriteRead();
-        writeRead.start();
-        this.recv_count = 0;
-        this.zhu_dong = true;
+        new WriteThread(data).start();
+        buff_len = 0;
+        this.listeningForResponse = true;
 
-        while (this.recv_count < 1 && m++ <= timeout) {
+        while (buff_len < 1 && m++ <= timeout) {
             try {
                 Thread.sleep(10L);
             } catch (InterruptedException e) {
@@ -242,133 +91,177 @@ public class Wifi {
             }
         }
 
-        synchronized (this.recv_lock) {
-            this.zhu_dong = false;
-            if (this.recv_count < 1) {
+        synchronized (lock) {
+            this.listeningForResponse = false;
+            if (buff_len < 1) {
                 return false;
-            } else if (this.recv[0] == 9) {
+            } else if (this.buff[0] == 9) {
                 return true;
             } else {
-                this.recv_count = 0;
+                buff_len = 0;
                 return false;
             }
         }
     }
 
-    private void fw_kai() {
-        new Thread(() -> {
-            try {
-                Wifi.this.serverSocket = new ServerSocket(12346);
-                Wifi.this.socket = Wifi.this.serverSocket.accept();
-                Wifi.this.bis = new BufferedInputStream(Wifi.this.socket.getInputStream());
-                Wifi.this.bos = new BufferedOutputStream(Wifi.this.socket.getOutputStream());
-                Wifi.this.readThread = Wifi.this.new ReadThread();
-                Wifi.this.readThread.start();
-                Wifi.this.connected = true;
-                if (Wifi.this.bt != null) {
-                    int count = 0;
+    public byte[] version(byte[] data, int timeout) {
+        this.ret_val = null;
+        int m = 0;
+        if (!this.connected) {
+            return null;
+        } else {
+            new WriteThread(data).start();
+            new ReadThread().start();
+            buff_len = 0;
+            this.listeningForResponse = true;
 
-                    do {
-                        if (count++ > 3) {
-                            Wifi.this.close();
-                            return;
-                        }
-
-                        Thread.sleep(500L);
-                    } while (!Wifi.this.connect(new byte[]{10, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100));
-
-                    byte[] fhx = Wifi.this.version(new byte[]{-1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100);
-                    if (fhx != null) {
-                        Wifi.this.board.version(fhx, 2);
-                    }
-
-                    Thread.sleep(500L);
-                    Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi.png")));
-                    int rg2 = Wifi.this.rg.getValue() * 2;
-                    int jd = Wifi.this.fbl.getSelectedIndex();
-                    Board.RESOLUTION = 0.05D + (double) Wifi.this.fbl.getSelectedIndex() * 0.0125D;
-                    Wifi.this.board.boardSetup();
-                    Wifi.this.connect(new byte[]{40, 0, 11, (byte) rg2, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Wifi.this.connected = false;
-                if (Wifi.this.bt != null) {
-                    Wifi.this.bt.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
-                }
-            }
-        }).start();
-        new Thread(() -> {
-            while (!Wifi.this.connected) {
+            while (buff_len < 3 && m++ <= timeout) {
                 try {
-                    Wifi.this.udp = new DatagramSocket();
-                    Wifi.this.serverAddress = InetAddress.getByName("255.255.255.255");
-                    byte[] data = ("IPjiakuo\"" + Wifi.this.qu_ip() + "\",12346\r\n").getBytes();
-                    byte[] data2 = new byte[data.length + 3];
-                    data2[0] = 2;
-                    data2[1] = (byte) (data2.length >> 8);
-                    data2[2] = (byte) data2.length;
-
-                    for (int i = 0; i < data.length; ++i) {
-                        data2[i + 3] = data[i];
-                    }
-
-                    DatagramPacket packet = new DatagramPacket(data2, data2.length);
-                    packet.setSocketAddress(new InetSocketAddress("255.255.255.255", 12345));
-                    Wifi.this.udp.setBroadcast(true);
-                    Wifi.this.udp.send(packet);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    Thread.sleep(2000L);
+                    Thread.sleep(10L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
 
+            synchronized (lock) {
+                this.listeningForResponse = false;
+                if (buff_len < 3) {
+                    buff_len = 0;
+                    return null;
+                } else {
+                    byte[] ret = new byte[]{this.buff[0], this.buff[1], this.buff[2]};
+                    buff_len = 0;
+                    return ret;
+                }
+            }
+        }
+    }
+
+    public boolean kaishi(byte[] data, int timeout) {
+        this.ret_val = null;
+        int m = 0;
+        if (!this.connected) {
+            return false;
+        } else {
+            new WriteThread(data).start();
+            buff_len = 0;
+            this.listeningForResponse = true;
+
+            while (buff_len < 4 && m++ <= timeout) {
+                try {
+                    Thread.sleep(10L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            synchronized (lock) {
+                this.listeningForResponse = false;
+                if (buff_len < 4) {
+                    return false;
+                } else if (this.buff[0] == -1 && this.buff[1] == -1 && this.buff[2] == -1 && this.buff[3] == -2) {
+                    return true;
+                } else {
+                    buff_len = 0;
+                    return false;
+                }
+            }
+        }
+    }
+
+    private void open() {
+        new Thread(() -> {
+            try {
+                serverSocket = new ServerSocket(12346);
+                socket = serverSocket.accept();
+                bis = new BufferedInputStream(socket.getInputStream());
+                bos = new BufferedOutputStream(socket.getOutputStream());
+                new ReadThread().start();
+                connected = true;
+                if (btn_wificonnect != null) {
+                    int count = 0;
+
+                    do {
+                        if (count++ > 3) {
+                            close();
+                            return;
+                        }
+
+                        Thread.sleep(500L);
+                    } while (!connect(new byte[] {10, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100));
+
+                    byte[] ret = version(new byte[] {-1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100);
+                    if (ret != null) {
+                        board.version(ret, 2);
+                    }
+
+                    Thread.sleep(500L);
+                    btn_wificonnect.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi.png")));
+                    int weak_light = sd_weak_light.getValue() * 2;
+                    int accuracy = sd_accuracy.getSelectedIndex();
+                    Board.RESOLUTION = 0.05D + accuracy * 0.0125D;
+                    board.boardSetup();
+                    connect(new byte[] {40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 200);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                connected = false;
+                if (btn_wificonnect != null) {
+                    btn_wificonnect.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
+                }
+            }
+        }).start();
+        new Thread(() -> {
+            while (!connected) {
+                try {
+                    udp = new DatagramSocket();
+                    serverAddress = InetAddress.getByName("255.255.255.255");
+                    byte[] data = ("IPjiakuo\"" + getIP() + "\",12346\r\n").getBytes();
+                    byte[] data2 = new byte[data.length + 3];
+                    data2[0] = 2;
+                    data2[1] = (byte) (data2.length >> 8);
+                    data2[2] = (byte) data2.length;
+
+                    System.arraycopy(data, 0, data2, 3, data.length);
+
+                    DatagramPacket packet = new DatagramPacket(data2, data2.length);
+                    packet.setSocketAddress(new InetSocketAddress("255.255.255.255", 12345));
+                    udp.setBroadcast(true);
+                    udp.send(packet);
+
+                    Thread.sleep(2000L);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
         }).start();
     }
 
-    String qu_ip() {
+    String getIP() {
         String ip = "";
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException var3) {
-            Logger.getLogger("WIFI").log(Level.SEVERE, null, var3);
+        } catch (UnknownHostException e) {
+            Logger.getLogger("WIFI").log(Level.SEVERE, null, e);
         }
         return ip;
     }
 
-    private String intToIp(int i) {
-        return (i & 255) + "." + (i >> 8 & 255) + "." + (i >> 16 & 255) + "." + (i >> 24 & 255);
-    }
-
     public void close() {
-        this.bt.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
+        this.btn_wificonnect.setIcon(new ImageIcon(this.getClass().getResource("/res/wifi2.png")));
         this.connected = false;
-        if (this.bis != null) {
-            this.bis = null;
-        }
-
-        if (this.bos != null) {
-            this.bos = null;
-        }
-
-        if (this.readThread != null) {
-            this.readThread = null;
-        }
-
-        if (this.udp != null) {
-            this.udp = null;
-        }
+        this.bis = null;
+        this.bos = null;
+        this.readThread = null;
+        this.udp = null;
+        this.window.wifi = null;
 
         if (this.serverSocket != null) {
             try {
                 this.serverSocket.close();
-            } catch (IOException var3) {
-                Logger.getLogger("WIFI").log(Level.SEVERE, null, var3);
+            } catch (IOException e) {
+                Logger.getLogger("WIFI").log(Level.SEVERE, null, e);
             }
 
             this.serverSocket = null;
@@ -377,49 +270,34 @@ public class Wifi {
         if (this.socket != null) {
             try {
                 this.socket.close();
-            } catch (IOException var2) {
-                Logger.getLogger("WIFI").log(Level.SEVERE, null, var2);
+            } catch (IOException e) {
+                Logger.getLogger("WIFI").log(Level.SEVERE, null, e);
             }
 
             this.socket = null;
         }
-
-        if (this.window.wifi != null) {
-            this.window.wifi = null;
-        }
-
     }
 
-    private class WriteRead extends Thread {
-        private WriteRead() {
+    private class WriteThread extends Thread {
+        byte[] bytes;
+
+        WriteThread(byte[] bytes) {
+            this.bytes = bytes;
         }
 
         public void run() {
-            if (!Wifi.this.occupied) {
-                Wifi.this.occupied = true;
-                Wifi.this.xin_tiao = 0;
-
-                try {
-                    Wifi.this.bos.write(Wifi.this.data_w);
-                    Wifi.this.bos.flush();
-                } catch (Exception var3) {
-                    var3.printStackTrace();
-                }
-
-                Wifi.this.occupied = false;
-            } else {
-                try {
+            try {
+                if (!occupied) {
+                    occupied = true;
+                    bos.write(this.bytes);
+                    bos.flush();
+                    occupied = false;
+                } else {
                     Thread.sleep(500L);
-                } catch (InterruptedException var2) {
-                    var2.printStackTrace();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        }
-
-        // $FF: synthetic method
-        WriteRead(Object x1) {
-            this();
         }
     }
 
@@ -430,58 +308,38 @@ public class Wifi {
         public void run() {
             while (true) {
                 try {
-                    int count = 0;
-                    if (Wifi.this.bis != null) {
-                        count = Wifi.this.bis.available();
-                    }
-
-                    if (count > 0) {
-                        int i;
-                        if (Wifi.this.zhu_dong) {
-                            synchronized (Wifi.this.recv_lock) {
-                                i = Wifi.this.bis.read(Wifi.this.data_r);
-
-                                for (int ix = 0; ix < i; ++ix) {
-                                    Wifi.this.recv[Wifi.this.recv_count++] = Wifi.this.data_r[ix];
-                                }
+                    if (bis != null && bis.available() > 0) {
+                        if (listeningForResponse) {
+                            synchronized (lock) {
+                                buff_len = bis.read(buff);
                             }
-                        } else {
-                            if (Wifi.this.socket.isClosed()) {
-                                return;
-                            }
+                            return;
+                        }
+                        if (socket.isClosed()) {
+                            return;
+                        }
 
-                            int f = Wifi.this.bis.read(Wifi.this.data_r);
+                        buff_len = bis.read(buff);
 
-                            for (i = 0; i < f; ++i) {
-                                Wifi.this.recv2[Wifi.this.recv2_count++] = Wifi.this.data_r[i];
-                            }
+                        if (buff_len <= 3) {
+                            ret_code = buff_len;
+                            return;
+                        }
 
-                            if (Wifi.this.recv2_count > 3) {
-                                Wifi.this.recv2_count = 0;
-                                if (Wifi.this.recv2[0] == -1 && Wifi.this.recv2[1] == -1 && Wifi.this.recv2[2] == 0 && Wifi.this.window != null && Wifi.this.connected) {
-                                    Main.engraveFinished = true;
-                                    Wifi.this.jdt.setValue(Wifi.this.recv2[3]);
-                                    Wifi.this.jdt.setVisible(true);
-                                    Main.engraveStarted = true;
-                                    Main.timeout = 0;
-                                }
-                            } else {
-                                Wifi.this.ret_code = f;
-                                Wifi.this.xin_tiao = 0;
-                            }
+                        buff_len = 0;
+                        if (buff[0] == -1 && buff[1] == -1 && buff[2] == 0 && window != null && connected) {
+                            Main.engraveFinished = true;
+                            jdt.setValue(buff[3]);
+                            jdt.setVisible(true);
+                            Main.engraveStarted = true;
+                            Main.timeout = 0;
                         }
                     }
-
                     Thread.sleep(10L);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }
-
-        // $FF: synthetic method
-        ReadThread(Object x1) {
-            this();
         }
     }
 }

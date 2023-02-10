@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class Firmware extends JFrame {
         });
         this.btn_update.addActionListener((e) -> {
             if (this.opt_model.getSelectedIndex() == 0) {
-                this.downloadPkg("http://jiakuo25.0594.bftii.com/K6.bin");
+                this.updateFirmware("http://jiakuo25.0594.bftii.com/K6.bin");
             } else {
                 System.out.print(this.opt_model.getSelectedIndex());
             }
@@ -80,11 +79,9 @@ public class Firmware extends JFrame {
         this.setIconImage((new ImageIcon(this.getClass().getResource("/res/tu_biao.png"))).getImage());
     }
 
-    public boolean downloadNet(String di_zhi) throws MalformedURLException {
-        int bytesum = 0;
-        URL url = new URL(di_zhi);
-
+    public static boolean downloadPkg(String url_str) {
         try {
+            URL url = new URL(url_str);
             URLConnection conn = url.openConnection();
             InputStream inStream = conn.getInputStream();
             String filepath = System.getProperty("user.dir");
@@ -93,8 +90,6 @@ public class Firmware extends JFrame {
 
             int byteread;
             while ((byteread = inStream.read(buffer)) != -1) {
-                bytesum += byteread;
-                System.out.println(bytesum);
                 fs.write(buffer, 0, byteread);
             }
 
@@ -108,8 +103,11 @@ public class Firmware extends JFrame {
         return false;
     }
 
-    void resetStatus() {
-        Main.handler.send(new byte[]{-2, 0, 4, 0}, 1);
+    public static void toggleUpdateStatus(boolean start) {
+        if (start)
+            Main.handler.send(new byte[]{-2, 0, 4, 0}, 1);
+        else
+            Main.handler.send(new byte[]{4, 0, 4, 0}, 1);
         try {
             Thread.sleep(600L);
         } catch (Exception e) {
@@ -117,10 +115,10 @@ public class Firmware extends JFrame {
         }
     }
 
-    public byte[] getContent(String filePath) throws IOException {
+    public static byte[] readBytes(String filePath) throws IOException {
         File file = new File(filePath);
         long fileSize = file.length();
-        if (fileSize > 2147483647L) {
+        if (fileSize > Integer.MAX_VALUE) {
             System.out.println("file too big...");
             return null;
         } else {
@@ -142,11 +140,11 @@ public class Firmware extends JFrame {
         }
     }
 
-    int checkSum(List<Byte> m) {
+    static int checkSum(List<Byte> bytes) {
         int sum = 0;
 
-        for (int i = 0; i < m.size(); ++i) {
-            sum += m.get(i);
+        for (Byte b : bytes) {
+            sum += b;
         }
 
         if (sum > 255) {
@@ -171,8 +169,8 @@ public class Firmware extends JFrame {
         return bytes;
     }
 
-    void update() {
-        byte[] byData = null;
+    public void transferPkg() {
+        byte[] bytesData = null;
         Main.handler.send(new byte[]{2, 0, 5, 0, 115}, 1);
 
         try {
@@ -184,28 +182,28 @@ public class Firmware extends JFrame {
         String filepath = System.getProperty("user.dir");
 
         try {
-            byData = this.getContent(filepath + "/bin.bin");
+            bytesData = readBytes(filepath + "/bin.bin");
         } catch (IOException e) {
             Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, e);
         }
 
-        if (byData != null) {
-            List<Byte> bao = new ArrayList<>();
-            int l = (int) Math.ceil(byData.length / 1024.0);
+        if (bytesData != null) {
+            List<Byte> packets = new ArrayList<>();
+            int l = (int) Math.ceil(bytesData.length / 1024.0);
 
             for (int j = 0; j < l; ++j) {
                 for (int i = 0; i < 1024; ++i) {
-                    if (j * 1024 + i < byData.length) {
-                        bao.add(byData[j * 1024 + i]);
+                    if (j * 1024 + i < bytesData.length) {
+                        packets.add(bytesData[j * 1024 + i]);
                     } else {
-                        bao.add((byte) -1);
+                        packets.add((byte) -1);
                     }
                 }
 
-                bao.add(0, (byte) 4);
-                bao.add(0, (byte) 4);
-                bao.add(0, (byte) 3);
-                bao.add((byte) this.checkSum(bao));
+                packets.add(0, (byte) 4);
+                packets.add(0, (byte) 4);
+                packets.add(0, (byte) 3);
+                packets.add((byte) checkSum(packets));
 
                 do {
                     try {
@@ -213,9 +211,9 @@ public class Firmware extends JFrame {
                     } catch (InterruptedException e) {
                         Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, e);
                     }
-                } while (!Main.handler.send(toBytes(bao), 1));
+                } while (!Main.handler.send(toBytes(packets), 1));
 
-                bao.clear();
+                packets.clear();
                 Dimension d = this.progressBar.getSize();
                 Rectangle rect = new Rectangle(0, 0, d.width, d.height);
                 this.progressBar.setValue((int) ((double) (j / l) * 100.0D));
@@ -225,18 +223,14 @@ public class Firmware extends JFrame {
         }
     }
 
-    void downloadPkg(final String url) {
+    void updateFirmware(final String url) {
         new Thread(() -> {
-            try {
-                if (Firmware.this.downloadNet(url)) {
-                    Firmware.this.resetStatus();
-                    Firmware.this.update();
-                    Main.handler.send(new byte[]{4, 0, 4, 0}, 1);
-                } else {
-                    JOptionPane.showMessageDialog(null, Main.str_download_fail);
-                }
-            } catch (MalformedURLException var2) {
-                Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, var2);
+            if (downloadPkg(url)) {
+                toggleUpdateStatus(true);
+                this.transferPkg();
+                toggleUpdateStatus(false);
+            } else {
+                JOptionPane.showMessageDialog(null, Main.str_download_fail);
             }
         }).start();
     }

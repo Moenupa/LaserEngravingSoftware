@@ -89,20 +89,20 @@ public class Com {
         synchronized (this) {
             try {
                 if (this.com != null) {
-                    byte[] fh2 = SerialPortUtil.readData(this.com);
-                    byte[] fh = new byte[this.ret_code];
+                    byte[] data = SerialPortUtil.readData(this.com);
+                    byte[] ret = new byte[this.ret_code];
 
-                    System.arraycopy(fh2, 0, fh, 0, fh.length);
+                    System.arraycopy(data, 0, ret, 0, ret.length);
 
-                    if (fh.length == 4) {
-                        if (fh[0] == -1 && fh[1] == -1 && fh[2] == 0) {
-                            this.jdt.setValue(fh[3]);
+                    if (ret.length == 4) {
+                        if (ret[0] == -1 && ret[1] == -1 && ret[2] == 0) {
+                            this.jdt.setValue(ret[3]);
                             this.jdt.setVisible(true);
                             Main.engraveStarted = true;
                             Main.engraveFinished = true;
                             Main.timeout = 0;
                         } else {
-                            if (fh[0] == -1 && fh[1] == -1 && fh[2] == -1 && fh[3] == -1) {
+                            if (ret[0] == -1 && ret[1] == -1 && ret[2] == -1 && ret[3] == -1) {
                                 this.jdt.setValue(0);
                                 this.jdt.setVisible(false);
                                 Main.engraveStarted = false;
@@ -110,12 +110,12 @@ public class Com {
                                 Main.timeout = 0;
                             } else {
                                 this.ret = true;
-                                this.ret_val = fh;
+                                this.ret_val = ret;
                             }
                         }
                     } else {
                         this.ret = true;
-                        this.ret_val = fh;
+                        this.ret_val = ret;
                     }
                 }
             } catch (Exception e) {
@@ -157,9 +157,7 @@ public class Com {
     public boolean read_version() {
         final Object lock = new Object();
         this.ret_code = 3;
-        this.terminate_count = 0;
-        this.terminate_type = 2;
-        this.terminate_buffer.clear();
+        this.terminateWith(2, 0);
         this.ret = false;
 
         SerialPortUtil.sendData(this.com, new byte[]{-1, 0, 4, 0});
@@ -208,9 +206,7 @@ public class Com {
     public boolean send(byte[] data, final int timeout) {
         final Object lock = new Object();
         this.ret_code = 1;
-        this.terminate_count = 0;
-        this.terminate_type = 0;
-        this.terminate_buffer.clear();
+        this.terminateWith(0, 0);
         this.ret = false;
 
         SerialPortUtil.sendData(this.com, data);
@@ -257,20 +253,14 @@ public class Com {
     public boolean send_offline(byte[] data, int timeout) {
         this.ret_code = 4;
         this.ret = false;
-        this.terminate_count = 0;
-        this.terminate_type = 3;
-        this.terminate_buffer.clear();
+        this.terminateWith(3, 0);
         SerialPortUtil.sendData(this.com, data);
         return true;
     }
 
-    public boolean send_settings(byte[] data, int timeout) {
-        this.ret_code = 4;
-        this.ret = false;
-        this.terminate_count = 0;
-        this.terminate_type = 3;
+    public void terminateWith(int type, int count) {
+        this.terminate_type = type;
+        this.terminate_count = count;
         this.terminate_buffer.clear();
-        SerialPortUtil.sendData(this.com, data);
-        return true;
     }
 }
