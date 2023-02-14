@@ -156,9 +156,8 @@ public class Com {
      */
     public boolean read_version() {
         final Object lock = new Object();
-        this.ret_code = 3;
         this.terminateWith(2, 0);
-        this.ret = false;
+        this.returnWith(3, false);
 
         SerialPortUtil.sendData(this.com, new byte[]{-1, 0, 4, 0});
         new Thread(() -> {
@@ -205,9 +204,8 @@ public class Com {
      */
     public boolean send(byte[] data, final int timeout) {
         final Object lock = new Object();
-        this.ret_code = 1;
         this.terminateWith(0, 0);
-        this.ret = false;
+        this.returnWith(1, false);
 
         SerialPortUtil.sendData(this.com, data);
         new Thread(() -> {
@@ -251,9 +249,8 @@ public class Com {
      * @return true
      */
     public boolean send_offline(byte[] data, int timeout) {
-        this.ret_code = 4;
-        this.ret = false;
         this.terminateWith(3, 0);
+        this.returnWith(4, false);
         SerialPortUtil.sendData(this.com, data);
         return true;
     }
@@ -262,5 +259,10 @@ public class Com {
         this.terminate_type = type;
         this.terminate_count = count;
         this.terminate_buffer.clear();
+    }
+
+    public void returnWith(int ret_code, boolean ret) {
+        this.ret = ret;
+        this.ret_code = ret_code;
     }
 }

@@ -1,6 +1,7 @@
 package engraver.view;
 
 import engraver.Main;
+import engraver.Utils;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
@@ -140,22 +141,6 @@ public class Firmware extends JFrame {
         }
     }
 
-    static int checkSum(List<Byte> bytes) {
-        int sum = 0;
-
-        for (Byte b : bytes) {
-            sum += b;
-        }
-
-        if (sum > 255) {
-            sum = ~sum;
-            ++sum;
-        }
-
-        sum &= 255;
-        return sum;
-    }
-
     private static byte[] toBytes(List<Byte> list) {
         if (list == null) return null;
 
@@ -203,7 +188,7 @@ public class Firmware extends JFrame {
                 packets.add(0, (byte) 4);
                 packets.add(0, (byte) 4);
                 packets.add(0, (byte) 3);
-                packets.add((byte) checkSum(packets));
+                packets.add(Utils.checksum(packets));
 
                 do {
                     try {

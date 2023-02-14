@@ -44,7 +44,7 @@ public class Main extends JFrame implements KeyListener {
     int clickY = 0;
     int clickY1 = 0;
     int sec = 0;
-    private boolean kuang = false;
+    private boolean selection = false;
     public Wifi wifi = null;
     public byte[] driver_version = new byte[]{0, 0, 0, 0};
     public static Com handler = null;
@@ -182,11 +182,7 @@ public class Main extends JFrame implements KeyListener {
         this.btn_stop.addActionListener((e) -> {
             engraveStarted = false;
             new Thread(() -> {
-                if (this.comOpened) {
-                    handler.send(new byte[]{22, 0, 4, 0}, 2);
-                } else if (Main.this.wifi.connected) {
-                    this.wifi.send(new byte[]{22, 0, 4, 0}, 200);
-                }
+                Main.this.send(new byte[] {22, 0, 4, 0}, 2);
             }).start();
         });
 
@@ -194,13 +190,13 @@ public class Main extends JFrame implements KeyListener {
         this.board.setBorder(BorderFactory.createLineBorder(new Color(153, 153, 255)));
         this.board.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent evt) {
-                Main.this.shu_yi_dong2(evt);
+                Main.this.evt_mouse_dragged(evt);
             }
         });
         this.board.addMouseWheelListener(Main.this::boardZoom);
         this.board.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent evt) {
-                Main.this.shu_an_xia2(evt);
+                Main.this.evt_mouse_pressed(evt);
                 Main.this.tf_inlay_x.requestFocus(true);
             }
 
@@ -259,13 +255,13 @@ public class Main extends JFrame implements KeyListener {
         });
 
         // binding settings right-panel
-        this.btn_aux_positioning.addActionListener(Main.this::jButton16ActionPerformed);
+        this.btn_aux_positioning.addActionListener(Main.this::evt_aux_positioning);
         this.btn_aux_positioning.setIcon(new ImageIcon(this.getClass().getResource("/res/shi_zi.png")));
         this.btn_aux_positioning.setToolTipText("十字定位");
-        this.btn_convertbmp.addActionListener(Main.this::jButton13ActionPerformed);
+        this.btn_convertbmp.addActionListener(Main.this::evt_convertBMP);
         this.btn_convertbmp.setIcon(new ImageIcon(this.getClass().getResource("/res/bmp.png")));
         this.btn_convertbmp.setToolTipText("to bmp");
-        this.btn_save.addActionListener(Main.this::jButton12ActionPerformed);
+        this.btn_save.addActionListener(Main.this::evt_save);
         this.btn_save.setIcon(new ImageIcon(this.getClass().getResource("/res/baocun.png")));
         this.btn_save.setToolTipText("保存");
         this.btn_unknown.setFont(new Font("宋体", Font.PLAIN, 14));
@@ -338,7 +334,7 @@ public class Main extends JFrame implements KeyListener {
         this.sd_weak_light.addChangeListener(e -> this.lb_weak_light.setText(bundle.getString("weak_light") + this.sd_weak_light.getValue() + "%"));
         this.sd_weak_light.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                Main.this.jSlider9MouseReleased(evt);
+                Main.this.apply_settings_general();
             }
         });
         this.sd_weak_light.setValue(10);
@@ -641,7 +637,7 @@ public class Main extends JFrame implements KeyListener {
         }
     }
 
-    void shu_an_xia2(MouseEvent evt) {
+    void evt_mouse_pressed(MouseEvent evt) {
         this.clicked = true;
         this.clickX = evt.getX();
         this.clickY = evt.getY();
@@ -725,7 +721,7 @@ public class Main extends JFrame implements KeyListener {
                 default:
                     Rectangle rect_q = BElement.getBounds(Board.bElements);
                     if (this.clickX > rect_q.x && this.clickX < rect_q.x + rect_q.width && this.clickY > rect_q.y && this.clickY < rect_q.y + rect_q.height) {
-                        this.kuang = false;
+                        this.selection = false;
                         this.updateBoard();
                     } else {
                         for (var e: Board.bElements) {
@@ -741,13 +737,13 @@ public class Main extends JFrame implements KeyListener {
                                     Board.bElements.add(1, e);
                                     this.sd_contrast.setValue(e.threshold);
                                     this.updateBoard();
-                                    this.kuang = false;
+                                    this.selection = false;
                                     return;
                                 }
                             }
 
                             Board.unselectAll();
-                            this.kuang = true;
+                            this.selection = true;
                             this.updateBoard();
                         }
                     }
@@ -757,14 +753,14 @@ public class Main extends JFrame implements KeyListener {
         }
     }
 
-    void shu_yi_dong2(MouseEvent evt) {
+    void evt_mouse_dragged(MouseEvent evt) {
         if (this.clicked) {
             int dx = evt.getX();
             int dy = evt.getY();
             if (this.btnActive == 1) {
                 Rectangle rect = BElement.getBounds(Board.bElements);
                 if (this.an == 0) {
-                    if (this.kuang) {
+                    if (this.selection) {
                         Board.dragged = true;
                         Board.mouse = new Rectangle(
                             Math.min(dx, this.clickX1),
@@ -886,11 +882,11 @@ public class Main extends JFrame implements KeyListener {
         if (this.comOpened || this.wifi.connected) {
             if (!engraveStarted) {
                 if (Board.inPreview) {
-                    handler.send(new byte[]{33, 0, 4, 0}, 3);
+                    this.send(new byte[]{33, 0, 4, 0}, 3);
                     Board.inPreview = false;
                 }
 
-                this.write(new byte[]{22, 0, 4, 0}, 2);
+                this.send(new byte[]{22, 0, 4, 0}, 2);
                 new Thread(() -> {
                     try {
                         Main.this.btn_engrave.setEnabled(false);
@@ -909,74 +905,36 @@ public class Main extends JFrame implements KeyListener {
     private void evt_preview_location(ActionEvent evt) {
         if (engraveStarted) return;
 
-        if (this.comOpened) {
-            if (Board.inPreview) {
-                new Thread(() -> {
-                    handler.send(new byte[]{33, 0, 4, 0}, 3);
-                    Board.inPreview = false;
-                    this.updateBoard();
-                }).start();
-                return;
-            }
+        if (Board.inPreview) {
             new Thread(() -> {
-                GeneralPath path = new GeneralPath((Board.bElements.get(0)).path);
-                path.transform((Board.bElements.get(0)).Tx);
-                Rectangle r = path.getBounds();
-                Rectangle bound = new Rectangle(Board.bounds);
-                bound = AffineTransform.getTranslateInstance(-r.x, -r.y)
-                        .createTransformedShape(bound).getBounds();
-                bound = AffineTransform.getScaleInstance(1.0D / Board.scale, 1.0D / Board.scale)
-                        .createTransformedShape(bound).getBounds();
-                if (bound.width >= 2 || bound.height >= 2) {
-                    byte w2 = (byte) (bound.width >> 8);
-                    byte w1 = (byte) bound.width;
-                    byte h2 = (byte) (bound.height >> 8);
-                    byte h1 = (byte) bound.height;
-                    byte x2 = (byte) (bound.x + 67 + bound.width / 2 >> 8);
-                    byte x1 = (byte) (bound.x + 67 + bound.width / 2);
-                    byte y2 = (byte) (bound.y + bound.height / 2 >> 8);
-                    byte y1 = (byte) (bound.y + bound.height / 2);
-
-                    Main.handler.send(new byte[]{32, 0, 11, w2, w1, h2, h1, x2, x1, y2, y1}, 1);
-
-                    Board.inPreview = true;
-                    Main.this.updateBoard();
-                }
+                this.send(new byte[] {33, 0, 4, 0}, 3);
+                Board.inPreview = false;
+                this.updateBoard();
             }).start();
-        } else if (this.wifi.connected) {
-            if (Board.inPreview) {
-                new Thread(() -> {
-                    this.wifi.send(new byte[]{33, 0, 4, 0}, 300);
-                    Board.inPreview = false;
-                    this.updateBoard();
-                }).start();
-            } else {
-                new Thread(() -> {
-                    Board.resetBoundingBox();
-                    GeneralPath path = new GeneralPath((Board.bElements.get(0)).path);
-                    path.transform((Board.bElements.get(0)).Tx);
-                    Rectangle r = path.getBounds();
-                    Rectangle bound = new Rectangle(Board.bounds);
-                    bound = AffineTransform.getTranslateInstance(-r.x, -r.y)
-                            .createTransformedShape(bound).getBounds();
-                    bound = AffineTransform.getScaleInstance(1.0D / Board.scale, 1.0D / Board.scale)
-                            .createTransformedShape(bound).getBounds();
-                    byte kg = (byte) (bound.width >> 8);
-                    byte kd = (byte) bound.width;
-                    byte gg = (byte) (bound.height >> 8);
-                    byte gd = (byte) bound.height;
-                    byte xg = (byte) (bound.x + 67 + bound.width / 2 >> 8);
-                    byte xd = (byte) (bound.x + 67 + bound.width / 2);
-                    byte yg = (byte) (bound.y + bound.height / 2 >> 8);
-                    byte yd = (byte) (bound.y + bound.height / 2);
-                    Main.this.wifi.send(new byte[]{32, 0, 11, kg, kd, gg, gd, xg, xd, yg, yd}, 100);
-                    Board.inPreview = true;
-                    Main.this.updateBoard();
-                }).start();
-            }
+            return;
         }
 
-
+        GeneralPath path = new GeneralPath((Board.getBG().path));
+        path.transform(Board.getBG().Tx);
+        Rectangle r = path.getBounds();
+        Rectangle bound = new Rectangle(Board.bounds);
+        bound = AffineTransform.getTranslateInstance(-r.x, -r.y)
+            .createTransformedShape(bound).getBounds();
+        bound = AffineTransform.getScaleInstance(1.0D / Board.scale, 1.0D / Board.scale)
+            .createTransformedShape(bound).getBounds();
+        byte w2 = (byte) (bound.width >> 8);
+        byte w1 = (byte) bound.width;
+        byte h2 = (byte) (bound.height >> 8);
+        byte h1 = (byte) bound.height;
+        byte x2 = (byte) (bound.x + 67 + bound.width / 2 >> 8);
+        byte x1 = (byte) (bound.x + 67 + bound.width / 2);
+        byte y2 = (byte) (bound.y + bound.height / 2 >> 8);
+        byte y1 = (byte) (bound.y + bound.height / 2);
+        new Thread(() -> {
+            this.send(new byte[] {32, 0, 11, w2, w1, h2, h1, x2, x1, y2, y1}, 1);
+            Board.inPreview = true;
+            this.updateBoard();
+        }).start();
     }
 
     private void evt_circle(ActionEvent evt) {
@@ -1021,12 +979,7 @@ public class Main extends JFrame implements KeyListener {
         new Thread(() -> {
             int dp = this.sd_carve_depth.getValue();
             int pw = this.sd_carve_power.getValue() * 10;
-            if (this.comOpened) {
-                handler.send_offline(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 2);
-            } else if (this.wifi.connected) {
-                this.wifi.send(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 200);
-            }
-
+            this.send_offline(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 2);
         }).start();
     }
 
@@ -1034,12 +987,7 @@ public class Main extends JFrame implements KeyListener {
         new Thread(() -> {
             int dp = this.sd_cut_depth.getValue();
             int pw = this.sd_cut_power.getValue() * 10;
-            if (this.comOpened) {
-                handler.send_offline(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 2);
-            } else if (this.wifi.connected) {
-                this.wifi.send(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 200);
-            }
-
+            this.send_offline(new byte[]{37, 0, 11, (byte) (dp >> 8), (byte) dp, (byte) (pw >> 8), (byte) pw, 0, 0, 0, 0}, 2);
         }).start();
     }
 
@@ -1047,25 +995,8 @@ public class Main extends JFrame implements KeyListener {
         new Thread(() -> {
             int weak_light = this.sd_weak_light.getValue() * 2;
             int accuracy = this.opt_accuracy.getSelectedIndex();
-            if (this.comOpened) {
-                handler.send(new byte[]{40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 2);
-            } else if (this.wifi.connected) {
-                this.wifi.send(new byte[]{40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 200);
-            }
+            Main.this.send(new byte[] {40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 2);
         }).start();
-    }
-
-    private void jSlider9MouseReleased(MouseEvent evt) {
-        if (this.comOpened) {
-            this.apply_settings_general();
-        } else if (this.wifi.connected) {
-            new Thread(() -> {
-                int rg = Main.this.sd_weak_light.getValue() * 2;
-                int jd = Main.this.opt_accuracy.getSelectedIndex();
-                Main.this.wifi.send(new byte[]{40, 0, 11, (byte) rg, (byte) jd, 0, 0, 0, 0, 0, 0}, 200);
-            }).start();
-        }
-
     }
 
     private void changeAccuracy(ActionEvent evt) {
@@ -1094,28 +1025,18 @@ public class Main extends JFrame implements KeyListener {
         }
     }
 
-    private void jButton16ActionPerformed(ActionEvent evt) {
+    private void evt_aux_positioning(ActionEvent evt) {
         new Thread(() -> {
-            if (Main.this.comOpened) {
-                if (Main.this.auxPositioning) {
-                    Main.handler.send(new byte[]{7, 0, 4, 0}, 2);
-                } else {
-                    Main.handler.send(new byte[]{6, 0, 4, 0}, 2);
-                }
-                Main.this.auxPositioning = !Main.this.auxPositioning;
-            } else if (Main.this.wifi.connected) {
-                if (Main.this.auxPositioning) {
-                    Main.this.wifi.send(new byte[]{7, 0, 4, 0}, 200);
-                } else {
-                    Main.this.wifi.send(new byte[]{6, 0, 4, 0}, 200);
-                }
-
-                Main.this.auxPositioning = !Main.this.auxPositioning;
+            if (Main.this.auxPositioning) {
+                Main.this.send(new byte[]{7, 0, 4, 0}, 2);
+            } else {
+                Main.this.send(new byte[]{6, 0, 4, 0}, 2);
             }
+            Main.this.auxPositioning = !Main.this.auxPositioning;
         }).start();
     }
 
-    private void jButton12ActionPerformed(ActionEvent evt) {
+    private void evt_save(ActionEvent evt) {
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Picture Files (.xj)", "xj");
         chooser.setFileFilter(filter);
@@ -1169,7 +1090,7 @@ public class Main extends JFrame implements KeyListener {
 
     }
 
-    private void jButton13ActionPerformed(ActionEvent evt) {
+    private void evt_convertBMP(ActionEvent evt) {
         JFileChooser fc = new JFileChooser();
         ImagePreviewPanel preview = new ImagePreviewPanel();
         fc.setAccessory(preview);
@@ -1257,7 +1178,7 @@ public class Main extends JFrame implements KeyListener {
     /**
      * tells the machine to go offline
      *
-     * @param shan_qu
+     * @param length        length of packet
      * @param version       version
      * @param carveWidth    carving width
      * @param carveHeight   carving height
@@ -1276,14 +1197,14 @@ public class Main extends JFrame implements KeyListener {
      * @return true if successful
      */
     boolean engrave(
-            int shan_qu, int version,
+            int length, int version,
             int carveWidth, int carveHeight, int carvePosition, int carvePower, int carveDepth,
             int cutWidth, int cutHeight, int cutPosition, int cutPower, int cutDepth,
             int cutNumPts, int z, int s, int nTimes
     ) {
         byte[] data = new byte[] {
                 35, 0, 38,
-                (byte) (shan_qu >> 8), (byte) shan_qu,
+                (byte) (length >> 8), (byte) length,
                 (byte) version,
                 (byte) (carveWidth >> 8), (byte) carveWidth,
                 (byte) (carveHeight >> 8), (byte) carveHeight,
@@ -1307,20 +1228,12 @@ public class Main extends JFrame implements KeyListener {
         }
     }
 
-    boolean write(byte[] data, int timeout) {
-        return !this.comOpened ? this.wifi.send(data, timeout * 100) : handler.send(data, timeout);
+    boolean send(byte[] data, int timeout) {
+        return this.comOpened ? handler.send(data, timeout) : this.wifi.send(data, timeout * 100);
     }
 
-    static byte checksum(byte[] bytes) {
-        int sum = 0;
-        for (byte b : bytes)
-            sum += (255 & b);
-
-        if (sum > 255) {
-            sum = ~sum;
-            ++sum;
-        }
-        return (byte) (sum & 255);
+    boolean send_offline(byte[] data, int timeout) {
+        return this.comOpened ? handler.send_offline(data, timeout) : this.wifi.send(data, timeout * 100);
     }
 
     void engrave() {
@@ -1329,8 +1242,7 @@ public class Main extends JFrame implements KeyListener {
         boolean doCarving, doCutting;
         int cutPosition;
         byte bl = 0;
-        byte[] data;
-        int data_len = 0;
+        int carveWidthInByte = 0;
 
         Board.backup();
         BufferedImage image = Board.toImage();
@@ -1347,9 +1259,10 @@ public class Main extends JFrame implements KeyListener {
         if (doCarving) {
             carveWidth = image.getWidth();
             carveHeight = image.getHeight();
-            data_len = (carveWidth % 8 == 0) ? carveWidth / 8 : carveWidth / 8 + 1;
+            carveWidthInByte = (carveWidth % 8 == 0) ? carveWidth / 8 : carveWidth / 8 + 1;
         }
-        cutPosition = 33 + carveHeight * data_len;
+        int carve_bytes = carveHeight * carveWidthInByte;
+        cutPosition = 33 + carve_bytes;
 
         if (bPoints == null) {
             bPoints = new ArrayList<>();
@@ -1357,12 +1270,12 @@ public class Main extends JFrame implements KeyListener {
 
         int cutX2 = Board.bounds.x + Board.bounds.width / 2 + 67;
         int cutY2 = Board.bounds.y + Board.bounds.height / 2;
-        data = new byte[cutPosition - 33 + bPoints.size() * 4];
+        byte[] points_data = new byte[carve_bytes + bPoints.size() * 4];
 
         engraveStarted = true;
-        long shan_qu = (33 + (long) data_len * carveHeight + bPoints.size() * 4L) / 4094 + 1;
+        int packet_len = (33 + carve_bytes + bPoints.size() * 4) / 4094 + 1;
         this.engrave(
-                (int) shan_qu,
+            packet_len,
                 1,
                 carveWidth, carveHeight, 33,
                 this.sd_carve_power.getValue() * 10,
@@ -1379,13 +1292,13 @@ public class Main extends JFrame implements KeyListener {
         );
 
         try {
-            Thread.sleep(40 * shan_qu);
+            Thread.sleep(40 * packet_len);
         } catch (InterruptedException e) {
             Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
         }
 
         for (int i = 0; i < 2; i++) {
-            this.write(new byte[] {10, 0, 4, 0}, 1);
+            this.send(new byte[] {10, 0, 4, 0}, 1);
             try {
                 Thread.sleep(500L);
             } catch (InterruptedException e) {
@@ -1393,78 +1306,81 @@ public class Main extends JFrame implements KeyListener {
             }
         }
 
-        byte[] yi;
+        byte[] bitVals = new byte[] {(byte) 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+
         boolean doResend;
         int count = 0;
         if (doCarving) {
             int[] pixels = new int[carveWidth * carveHeight];
             image.getRGB(0, 0, carveWidth, carveHeight, pixels, 0, carveWidth);
-            yi = new byte[] {(byte) 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
             for (int i = 0; i < carveHeight; ++i) {
-                // each row
-                for (int j = 0; j < data_len; ++j) {
-                    for (int ba = 0; ba < 8; ++ba) {
-                        int p = i * carveWidth + j * 8 + ba;
-                        if (p < pixels.length) {
-                            int clr = (pixels[p] & 0xff0000) >> 16;
-                            if (clr < 10) {
-                                bl |= yi[ba];
-                            }
+                // do for each row
+                for (int j = 0; j < carveWidthInByte; ++j) {
+                    for (int bit = 0; bit < 8; ++bit) {
+                        // merge horizontally
+                        // 8 pixels into 1 byte
+                        int p = i * carveWidth + j * 8 + bit;
+                        if (p < pixels.length && (pixels[p] & 0xff0000) < 0x0a0000) {
+                            bl |= bitVals[bit] + 0x80 >> bit;
                         }
                     }
-                    data[count++] = bl;
+                    points_data[count++] = bl;
                 }
             }
         }
 
         if (doCutting) {
             for (BPoint p : bPoints) {
-                data[count++] = (byte) p.x;
-                data[count++] = (byte) (p.x >> 8);
-                data[count++] = (byte) p.y;
-                data[count++] = (byte) (p.y >> 8);
+                points_data[count++] = (byte) p.x;
+                points_data[count++] = (byte) (p.x >> 8);
+                points_data[count++] = (byte) p.y;
+                points_data[count++] = (byte) (p.y >> 8);
             }
         }
 
-        int packet_size = 1900;
-        yi = new byte[packet_size + 4];
-        for (int i = 0; i < data.length / packet_size; ++i) {
-            for (int j = 0; j < packet_size; ++j) {
-                yi[j + 3] = data[i * packet_size + j];
-            }
+        int MAX_PACKET_SIZE = 1900;
+        byte[] engrave_data = new byte[MAX_PACKET_SIZE + 4];
+        for (int i = 0; i < points_data.length / MAX_PACKET_SIZE; ++i) {
+            System.arraycopy(
+                points_data, i * MAX_PACKET_SIZE,
+                engrave_data, 3,
+                MAX_PACKET_SIZE
+            );
 
             do {
-                yi[0] = 34;
-                yi[1] = (byte) (yi.length >> 8);
-                yi[2] = (byte) yi.length;
-                yi[yi.length - 1] = Main.checksum(yi);
-                doResend = !this.write(yi, 2);
+                engrave_data[0] = 34;
+                engrave_data[1] = (byte) (engrave_data.length >> 8);
+                engrave_data[2] = (byte) engrave_data.length;
+                engrave_data[engrave_data.length - 1] = Utils.checksum(engrave_data);
+                doResend = !this.send(engrave_data, 2);
             } while (doResend);
 
             this.jdt.setVisible(true);
-            this.jdt.setValue((int) (i / data.length * packet_size * 100.0F));
+            this.jdt.setValue((int) (i / points_data.length * MAX_PACKET_SIZE * 100.0F));
         }
 
-        yi = new byte[data.length % packet_size + 4];
-        if (data.length % packet_size > 0) {
-            for (int i = 0; i < data.length % packet_size; ++i) {
-                yi[i + 3] = data[data.length / packet_size * packet_size + i];
-            }
+        engrave_data = new byte[points_data.length % MAX_PACKET_SIZE + 4];
+        if (points_data.length % MAX_PACKET_SIZE > 0) {
+            System.arraycopy(
+                points_data, points_data.length / MAX_PACKET_SIZE * MAX_PACKET_SIZE,
+                engrave_data, 3,
+                points_data.length % MAX_PACKET_SIZE
+            );
 
             do {
-                yi[0] = 34;
-                yi[1] = (byte) (yi.length >> 8);
-                yi[2] = (byte) yi.length;
-                yi[yi.length - 1] = Main.checksum(yi);
-                doResend = !this.write(yi, 2);
+                engrave_data[0] = 34;
+                engrave_data[1] = (byte) (engrave_data.length >> 8);
+                engrave_data[2] = (byte) engrave_data.length;
+                engrave_data[engrave_data.length - 1] = Utils.checksum(engrave_data);
+                doResend = !this.send(engrave_data, 2);
             } while (doResend);
         }
 
         try {
             for (int i = 0; i < 2; i++) {
                 Thread.sleep(200L);
-                this.write(new byte[]{36, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 1);
+                this.send(new byte[]{36, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 1);
             }
             Thread.sleep(500L);
         } catch (Exception e) {
