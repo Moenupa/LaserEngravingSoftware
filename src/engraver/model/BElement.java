@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class BElement implements Serializable {
     public boolean filled = false;
-
     public int type = 0;
     public boolean selected = false;
     public GeneralPath path = new GeneralPath();
@@ -152,24 +151,20 @@ public class BElement implements Serializable {
     }
 
     public static BElement create(int type, BufferedImage image) {
-        final BElement e0 = Board.bElements.get(0);
-        BElement ele = new BElement();
-        GeneralPath path = new GeneralPath(e0.path);
-        path.transform(e0.Tx);
-        Rectangle rect = path.getBounds();
+        BElement e = new BElement();
+        Rectangle rect = getBounds(Board.getBG());
 
-        ele.Tx.translate(rect.x, rect.y);
-        AffineTransform sf = AffineTransform.getScaleInstance(Board.scale, Board.scale);
-        ele.Tx.concatenate(sf);
+        e.Tx.translate(rect.x, rect.y);
+        e.Tx.concatenate(AffineTransform.getScaleInstance(Board.scale, Board.scale));
 
         switch (type) {
             case 0 -> {
-                ele.type = 0;
-                ele.path.moveTo(0.0F, 0.0F);
-                ele.path.lineTo(400.0F, 0.0F);
-                ele.path.lineTo(400.0F, 400.0F);
-                ele.path.lineTo(0.0F, 400.0F);
-                ele.path.closePath();
+                e.type = 0;
+                e.path.moveTo(0.0F, 0.0F);
+                e.path.lineTo(400.0F, 0.0F);
+                e.path.lineTo(400.0F, 400.0F);
+                e.path.lineTo(0.0F, 400.0F);
+                e.path.closePath();
             }
             case 1 -> {
                 double bi;
@@ -182,73 +177,73 @@ public class BElement implements Serializable {
                     bi = 1600.0D / (double) image.getHeight();
                     image = BImage.zoomImage(image, bi);
                 }
-                ele.bitMapImg2 = image;
-                ele.type = 1;
-                ele.process_code = 1;
-                ele.bitMapImg = BImage.toGreyScale(image);
-                ele.bitMapImg = BImage.toBlackAndWhite(ele.bitMapImg, 128);
-                ele.path.moveTo(0.0F, 0.0F);
-                ele.path.lineTo((float) image.getWidth(), 0.0F);
-                ele.path.lineTo((float) image.getWidth(), (float) image.getHeight());
-                ele.path.lineTo(0.0F, (float) image.getHeight());
-                ele.path.closePath();
+                e.bitMapImg2 = image;
+                e.type = 1;
+                e.process_code = 1;
+                e.bitMapImg = BImage.toGreyScale(image);
+                e.bitMapImg = BImage.toBlackAndWhite(e.bitMapImg, 128);
+                e.path.moveTo(0.0F, 0.0F);
+                e.path.lineTo((float) image.getWidth(), 0.0F);
+                e.path.lineTo((float) image.getWidth(), (float) image.getHeight());
+                e.path.lineTo(0.0F, (float) image.getHeight());
+                e.path.closePath();
             }
             case 2 -> {
-                ele.type = 0;
+                e.type = 0;
                 Float d = new Float(1.0F, 1.0F, 400.0F, 400.0F);
-                ele.path.append(d, false);
+                e.path.append(d, false);
             }
             case 3 -> {
-                ele.type = 0;
-                ele.path.moveTo(197.0F, 102.0F);
-                ele.path.lineTo(212.0F, 69.0F);
-                ele.path.lineTo(224.0F, 48.0F);
-                ele.path.lineTo(242.0F, 27.0F);
-                ele.path.lineTo(266.0F, 10.0F);
-                ele.path.lineTo(304.0F, 0.0F);
-                ele.path.lineTo(343.0F, 10.0F);
-                ele.path.lineTo(363.0F, 27.0F);
-                ele.path.lineTo(378.0F, 48.0F);
-                ele.path.lineTo(387.0F, 69.0F);
-                ele.path.lineTo(393.0F, 102.0F);
-                ele.path.lineTo(390.0F, 150.0F);
-                ele.path.lineTo(372.0F, 208.0F);
-                ele.path.lineTo(343.0F, 264.0F);
-                ele.path.lineTo(295.0F, 322.0F);
-                ele.path.lineTo(197.0F, 394.0F);
-                ele.path.lineTo(98.0F, 322.0F);
-                ele.path.lineTo(50.0F, 264.0F);
-                ele.path.lineTo(20.0F, 208.0F);
-                ele.path.lineTo(3.0F, 150.0F);
-                ele.path.lineTo(0.0F, 102.0F);
-                ele.path.lineTo(6.0F, 69.0F);
-                ele.path.lineTo(15.0F, 48.0F);
-                ele.path.lineTo(29.0F, 27.0F);
-                ele.path.lineTo(50.0F, 10.0F);
-                ele.path.lineTo(88.0F, 0.0F);
-                ele.path.lineTo(128.0F, 10.0F);
-                ele.path.lineTo(151.0F, 27.0F);
-                ele.path.lineTo(170.0F, 48.0F);
-                ele.path.lineTo(183.0F, 69.0F);
-                ele.path.closePath();
+                e.type = 0;
+                e.path.moveTo(197.0F, 102.0F);
+                e.path.lineTo(212.0F, 69.0F);
+                e.path.lineTo(224.0F, 48.0F);
+                e.path.lineTo(242.0F, 27.0F);
+                e.path.lineTo(266.0F, 10.0F);
+                e.path.lineTo(304.0F, 0.0F);
+                e.path.lineTo(343.0F, 10.0F);
+                e.path.lineTo(363.0F, 27.0F);
+                e.path.lineTo(378.0F, 48.0F);
+                e.path.lineTo(387.0F, 69.0F);
+                e.path.lineTo(393.0F, 102.0F);
+                e.path.lineTo(390.0F, 150.0F);
+                e.path.lineTo(372.0F, 208.0F);
+                e.path.lineTo(343.0F, 264.0F);
+                e.path.lineTo(295.0F, 322.0F);
+                e.path.lineTo(197.0F, 394.0F);
+                e.path.lineTo(98.0F, 322.0F);
+                e.path.lineTo(50.0F, 264.0F);
+                e.path.lineTo(20.0F, 208.0F);
+                e.path.lineTo(3.0F, 150.0F);
+                e.path.lineTo(0.0F, 102.0F);
+                e.path.lineTo(6.0F, 69.0F);
+                e.path.lineTo(15.0F, 48.0F);
+                e.path.lineTo(29.0F, 27.0F);
+                e.path.lineTo(50.0F, 10.0F);
+                e.path.lineTo(88.0F, 0.0F);
+                e.path.lineTo(128.0F, 10.0F);
+                e.path.lineTo(151.0F, 27.0F);
+                e.path.lineTo(170.0F, 48.0F);
+                e.path.lineTo(183.0F, 69.0F);
+                e.path.closePath();
             }
             case 4 -> {
-                ele.type = 0;
-                ele.path.moveTo(121.0F, 0.0F);
-                ele.path.lineTo(149.0F, 93.0F);
-                ele.path.lineTo(241.0F, 94.0F);
-                ele.path.lineTo(169.0F, 149.0F);
-                ele.path.lineTo(196.0F, 241.0F);
-                ele.path.lineTo(122.0F, 188.0F);
-                ele.path.lineTo(46.0F, 241.0F);
-                ele.path.lineTo(72.0F, 149.0F);
-                ele.path.lineTo(0.0F, 94.0F);
-                ele.path.lineTo(92.0F, 93.0F);
-                ele.path.closePath();
+                e.type = 0;
+                e.path.moveTo(121.0F, 0.0F);
+                e.path.lineTo(149.0F, 93.0F);
+                e.path.lineTo(241.0F, 94.0F);
+                e.path.lineTo(169.0F, 149.0F);
+                e.path.lineTo(196.0F, 241.0F);
+                e.path.lineTo(122.0F, 188.0F);
+                e.path.lineTo(46.0F, 241.0F);
+                e.path.lineTo(72.0F, 149.0F);
+                e.path.lineTo(0.0F, 94.0F);
+                e.path.lineTo(92.0F, 93.0F);
+                e.path.closePath();
             }
         }
 
-        return ele;
+        return e;
     }
 
     public static List<BPoint> getFill(BufferedImage image, int gap) {

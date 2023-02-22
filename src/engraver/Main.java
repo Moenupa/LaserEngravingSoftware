@@ -903,27 +903,29 @@ public class Main extends JFrame implements KeyListener {
     }
 
     private void evt_engrave(ActionEvent evt) {
-        if (this.comOpened || this.wifi.connected) {
-            if (!engraveStarted) {
-                if (Board.inPreview) {
-                    this.send(new byte[]{33, 0, 4, 0}, 3);
-                    Board.inPreview = false;
-                }
-
-                this.send(new byte[]{22, 0, 4, 0}, 2);
-                new Thread(() -> {
-                    try {
-                        Main.this.btn_engrave.setEnabled(false);
-                        Main.this.engrave();
-                    } catch (Exception e) {
-                        JOptionPane.showMessageDialog(null, e);
-                        Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
-                    }
-                }).start();
-                this.sec = 0;
-                timeout = 0;
-            }
+        if (!this.comOpened && !this.wifi.connected) {
+            return;
         }
+
+        if (engraveStarted) return;
+
+        if (Board.inPreview) {
+            this.send(new byte[]{33, 0, 4, 0}, 3);
+            Board.inPreview = false;
+        }
+
+        this.send(new byte[]{22, 0, 4, 0}, 2);
+        new Thread(() -> {
+            try {
+                Main.this.btn_engrave.setEnabled(false);
+                Main.this.engrave();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, e);
+                Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
+            }
+        }).start();
+        this.sec = 0;
+        timeout = 0;
     }
 
     private void evt_preview_location(ActionEvent evt) {
@@ -1256,8 +1258,9 @@ public class Main extends JFrame implements KeyListener {
             Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
         }
 
+        // begin transmitting packets
         for (int i = 0; i < 2; i++) {
-            this.send(new byte[]{10, 0, 4, 0}, 1);
+            this.send(new byte[] {10, 0, 4, 0}, 1);
             try {
                 Thread.sleep(500L);
             } catch (InterruptedException e) {
@@ -1265,6 +1268,7 @@ public class Main extends JFrame implements KeyListener {
             }
         }
 
+        // forming all data to send, carving parts
         boolean doResend;
         int count = 0;
         if (doCarving) {
@@ -1286,7 +1290,7 @@ public class Main extends JFrame implements KeyListener {
                 }
             }
         }
-
+        // forming all data to send, cutting parts
         if (doCutting) {
             for (BPoint p : bPoints) {
                 points_data[count++] = (byte) p.x;
@@ -1298,7 +1302,7 @@ public class Main extends JFrame implements KeyListener {
 
         // send all data with max packet size: 1904
         // where 1900 is the original,
-        // and extra 4 for [instr_type, length, length, ..., checksum]
+        // and extra 4 for [instr_type, length, length, ...data..., checksum]
         int MAX_PACKET_SIZE = 1900;
         byte[] packet = new byte[MAX_PACKET_SIZE + 4];
         for (int i = 0; i < points_data.length / MAX_PACKET_SIZE; ++i) {
@@ -1337,7 +1341,18 @@ public class Main extends JFrame implements KeyListener {
             } while (doResend);
         }
 
-        engraveFinished = send_endEngrave();
+        // finishing engrave
+        try {
+            for (int i = 0; i < 2; i++) {
+                Thread.sleep(200L);
+                this.send(new byte[]{36, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 1);
+            }
+            Thread.sleep(500L);
+        } catch (Exception e) {
+            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
+        }
+
+        engraveFinished = true;
         if (com != null) {
             com.terminateWith(3, 0);
         }
@@ -1506,19 +1521,5 @@ public class Main extends JFrame implements KeyListener {
     }
 
     public void keyTyped(KeyEvent e) {
-    }
-
-    boolean send_endEngrave() {
-        try {
-            for (int i = 0; i < 2; i++) {
-                Thread.sleep(200L);
-                this.send(new byte[]{36, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 1);
-            }
-            Thread.sleep(500L);
-        } catch (Exception e) {
-            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
-        }
-
-        return true;
     }
 }
