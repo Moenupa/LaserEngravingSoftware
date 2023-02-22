@@ -7,6 +7,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Board extends JPanel {
@@ -26,6 +27,9 @@ public class Board extends JPanel {
     public static int translateX2 = 0;
     public static int translateY2 = 0;
     public static double scale2 = 1.0D;
+
+    private static final double[] lookup_v37 = new double[]{0.064D, 0.08D, 0.096D};
+    private static final double[] lookup = new double[]{0.05D, 0.0625D, 0.075D};
 
     public static Rectangle bounds = new Rectangle();
     public static Rectangle vector = new Rectangle();
@@ -568,8 +572,8 @@ public class Board extends JPanel {
         Board.restore();
     }
 
-    public void version(byte[] bytes, int accuracy) {
-        switch (bytes[2]) {
+    public void version(int version, int accuracy) {
+        switch (version) {
             case 4:
             case 6:
                 BOARD_WIDTH = 80;
@@ -708,5 +712,17 @@ public class Board extends JPanel {
         e.path = new GeneralPath(path);
         Board.bElements.add(e);
         Board.selectLast();
+    }
+
+    public static double resolution_lookup(int firmware_version, int index) {
+        if (firmware_version == 37)
+            return lookup_v37[index];
+        return lookup[index];
+    }
+
+    public static int resolution_rev_lookup(int firmware_version) {
+        if (firmware_version == 37)
+            return List.of(lookup_v37).indexOf(RESOLUTION);
+        return List.of(lookup).indexOf(RESOLUTION);
     }
 }

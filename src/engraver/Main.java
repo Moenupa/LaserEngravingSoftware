@@ -1,7 +1,12 @@
 package engraver;
 
-import engraver.control.*;
-import engraver.model.*;
+import engraver.control.Com;
+import engraver.control.FileTransferHandler;
+import engraver.control.SerialPortUtil;
+import engraver.control.Wifi;
+import engraver.model.BElement;
+import engraver.model.BPoint;
+import engraver.model.Board;
 import engraver.view.FontDialog;
 import engraver.view.ImagePreviewPanel;
 import gnu.io.SerialPort;
@@ -13,14 +18,16 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.*;
 import java.util.logging.Level;
@@ -46,12 +53,12 @@ public class Main extends JFrame implements KeyListener {
     int sec = 0;
     private boolean selection = false;
     public Wifi wifi = null;
-    public byte[] driver_version = new byte[]{0, 0, 0, 0};
-    public static Com handler = null;
-    public static ResourceBundle bundle = null;
+    public static Com com = null;
+    public static ResourceBundle bundle = ResourceBundle.getBundle("engraver.ui");
     public static boolean engraveStarted = false;
     public static boolean engraveFinished = false;
     public static int timeout = 0;
+    public static int firmware_version = 0;
 
     Main window = null;
 
@@ -135,6 +142,7 @@ public class Main extends JFrame implements KeyListener {
 
     public Main() {
         this.initComponents();
+        this.updateBoard();
     }
 
     private void initComponents() {
@@ -182,7 +190,7 @@ public class Main extends JFrame implements KeyListener {
         this.btn_stop.addActionListener((e) -> {
             engraveStarted = false;
             new Thread(() -> {
-                Main.this.send(new byte[] {22, 0, 4, 0}, 2);
+                Main.this.send(new byte[]{22, 0, 4, 0}, 2);
             }).start();
         });
 
@@ -294,7 +302,13 @@ public class Main extends JFrame implements KeyListener {
         this.lb_wifi.setFont(new Font("宋体", Font.PLAIN, 14));
         this.lb_wifi.setText("WIFI：");
         this.lb_wifi.setToolTipText("");
-        this.opt_accuracy.addActionListener(Main.this::changeAccuracy);
+        this.opt_accuracy.addActionListener(evt1 -> {
+            if (this.comOpened || (this.wifi != null && this.wifi.connected)) {
+                Board.RESOLUTION = Board.resolution_lookup(firmware_version, opt_accuracy.getSelectedIndex());
+                this.board.boardSetup();
+                this.apply_settings_general();
+            }
+        });
         this.opt_accuracy.setModel(new DefaultComboBoxModel(new String[]{"高", "中", "低"}));
         this.opt_accuracy.setSelectedIndex(2);
         this.opt_num_times.setModel(new DefaultComboBoxModel(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}));
@@ -312,7 +326,17 @@ public class Main extends JFrame implements KeyListener {
             }
         });
         this.sd_carve_power.setValue(100);
-        this.sd_contrast.addChangeListener(Main.this::jSlider6StateChanged);
+        this.sd_contrast.addChangeListener(evt -> {
+            this.lb_contrast.setText(bundle.getString("contrast") + this.sd_contrast.getValue() + "%");
+            if (Board.bElements.size() >= 2) {
+                Board.bElements.stream().filter(e -> e.selected && e.type == 1)
+                    .forEach(e -> {
+                        e.threshold = this.sd_contrast.getValue();
+                        e.process();
+                    });
+                this.updateBoard();
+            }
+        });
         this.sd_cut_depth.addChangeListener(e -> this.lb_cut_depth.setText(bundle.getString("cut_depth") + this.sd_cut_depth.getValue() + "%"));
         this.sd_cut_depth.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
@@ -327,7 +351,11 @@ public class Main extends JFrame implements KeyListener {
             }
         });
         this.sd_cut_power.setValue(100);
-        this.sd_fill.addChangeListener(Main.this::jSlider7StateChanged);
+        this.sd_fill.addChangeListener(evt -> {
+            this.lb_fill.setText(bundle.getString("fill") + this.sd_fill.getValue());
+            Board.FILL_WIDTH = this.sd_fill.getValue();
+            this.updateBoard();
+        });
         this.sd_fill.setMaximum(10);
         this.sd_fill.setToolTipText("");
         this.sd_fill.setValue(5);
@@ -368,81 +396,81 @@ public class Main extends JFrame implements KeyListener {
         GroupLayout layout = new GroupLayout(this.getContentPane());
         this.getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(Alignment.LEADING).addGroup(
-                        layout.createSequentialGroup().addContainerGap().addGroup(
-                                layout.createParallelGroup(Alignment.LEADING).addGroup(
-                                        layout.createSequentialGroup()
-                                                .addComponent(this.btn_openpic, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_text, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_circle, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_square, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_heart, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_star, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_save, -2, 60, -2)
-                                                .addGap(7, 7, 7)
-                                                .addComponent(this.btn_convertbmp, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.UNRELATED)
-                                                .addComponent(this.btn_aux_positioning, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_preview, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_engrave, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_stop, -2, 60, -2)
-                                                .addGap(54, 54, 54)
-                                                .addComponent(this.btn_usbconnect, -2, 60, -2)
-                                                .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(this.btn_wificonnect, -2, 60, -2)
-                                                .addGap(0, 0, 32767)
-                                ).addGroup(Alignment.TRAILING, layout.createSequentialGroup().addGroup(
-                                                layout.createParallelGroup(Alignment.TRAILING)
-                                                        .addComponent(this.jdt, Alignment.LEADING, -1, -1, 32767)
-                                                        .addComponent(this.board, -1, -1, 32767))
-                                        .addPreferredGap(ComponentPlacement.UNRELATED)
-                                        .addGroup(
-                                                layout.createParallelGroup(Alignment.LEADING)
-                                                        .addComponent(this.pn_main_right, -2, -1, -2)
-                                                        .addComponent(this.lb_execution_time, Alignment.TRAILING, -2, 110, -2)
-                                        )
-                                )
-                        ).addContainerGap()
-                )
+            layout.createParallelGroup(Alignment.LEADING).addGroup(
+                layout.createSequentialGroup().addContainerGap().addGroup(
+                    layout.createParallelGroup(Alignment.LEADING).addGroup(
+                        layout.createSequentialGroup()
+                            .addComponent(this.btn_openpic, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_text, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_circle, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_square, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_heart, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_star, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_save, -2, 60, -2)
+                            .addGap(7, 7, 7)
+                            .addComponent(this.btn_convertbmp, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.UNRELATED)
+                            .addComponent(this.btn_aux_positioning, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_preview, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_engrave, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_stop, -2, 60, -2)
+                            .addGap(54, 54, 54)
+                            .addComponent(this.btn_usbconnect, -2, 60, -2)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(this.btn_wificonnect, -2, 60, -2)
+                            .addGap(0, 0, 32767)
+                    ).addGroup(Alignment.TRAILING, layout.createSequentialGroup().addGroup(
+                            layout.createParallelGroup(Alignment.TRAILING)
+                                .addComponent(this.jdt, Alignment.LEADING, -1, -1, 32767)
+                                .addComponent(this.board, -1, -1, 32767))
+                        .addPreferredGap(ComponentPlacement.UNRELATED)
+                        .addGroup(
+                            layout.createParallelGroup(Alignment.LEADING)
+                                .addComponent(this.pn_main_right, -2, -1, -2)
+                                .addComponent(this.lb_execution_time, Alignment.TRAILING, -2, 110, -2)
+                        )
+                    )
+                ).addContainerGap()
+            )
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(Alignment.LEADING).addGroup(
-                        layout.createSequentialGroup().addContainerGap().addGroup(
-                                        layout.createParallelGroup(Alignment.LEADING)
-                                                .addComponent(this.btn_openpic, -2, 60, -2)
-                                                .addComponent(this.btn_text, -2, 60, -2)
-                                                .addComponent(this.btn_circle, -2, 60, -2)
-                                                .addComponent(this.btn_square, -2, 60, -2)
-                                                .addComponent(this.btn_heart, -2, 60, -2)
-                                                .addComponent(this.btn_star, -2, 60, -2)
-                                                .addComponent(this.btn_preview, -2, 60, -2)
-                                                .addComponent(this.btn_engrave, -2, 60, -2)
-                                                .addComponent(this.btn_stop, -2, 60, -2)
-                                                .addComponent(this.btn_usbconnect, -2, 60, -2)
-                                                .addComponent(this.btn_wificonnect, -2, 60, -2)
-                                                .addComponent(this.btn_aux_positioning, -2, 60, -2)
-                                                .addComponent(this.btn_save, -2, 60, -2)
-                                                .addComponent(this.btn_convertbmp, -2, 60, -2)
-                                ).addPreferredGap(ComponentPlacement.RELATED).addGroup(
-                                        layout.createParallelGroup(Alignment.LEADING)
-                                                .addComponent(this.pn_main_right, -1, -1, 32767)
-                                                .addComponent(this.board, -1, 580, 32767)
-                                ).addPreferredGap(ComponentPlacement.RELATED)
-                                .addGroup(
-                                        layout.createParallelGroup(Alignment.BASELINE)
-                                                .addComponent(this.jdt, -2, -1, -2)
-                                                .addComponent(this.lb_execution_time)
-                                )
-                )
+            layout.createParallelGroup(Alignment.LEADING).addGroup(
+                layout.createSequentialGroup().addContainerGap().addGroup(
+                        layout.createParallelGroup(Alignment.LEADING)
+                            .addComponent(this.btn_openpic, -2, 60, -2)
+                            .addComponent(this.btn_text, -2, 60, -2)
+                            .addComponent(this.btn_circle, -2, 60, -2)
+                            .addComponent(this.btn_square, -2, 60, -2)
+                            .addComponent(this.btn_heart, -2, 60, -2)
+                            .addComponent(this.btn_star, -2, 60, -2)
+                            .addComponent(this.btn_preview, -2, 60, -2)
+                            .addComponent(this.btn_engrave, -2, 60, -2)
+                            .addComponent(this.btn_stop, -2, 60, -2)
+                            .addComponent(this.btn_usbconnect, -2, 60, -2)
+                            .addComponent(this.btn_wificonnect, -2, 60, -2)
+                            .addComponent(this.btn_aux_positioning, -2, 60, -2)
+                            .addComponent(this.btn_save, -2, 60, -2)
+                            .addComponent(this.btn_convertbmp, -2, 60, -2)
+                    ).addPreferredGap(ComponentPlacement.RELATED).addGroup(
+                        layout.createParallelGroup(Alignment.LEADING)
+                            .addComponent(this.pn_main_right, -1, -1, 32767)
+                            .addComponent(this.board, -1, 580, 32767)
+                    ).addPreferredGap(ComponentPlacement.RELATED)
+                    .addGroup(
+                        layout.createParallelGroup(Alignment.BASELINE)
+                            .addComponent(this.jdt, -2, -1, -2)
+                            .addComponent(this.lb_execution_time)
+                    )
+            )
         );
         this.pack();
     }
@@ -452,12 +480,7 @@ public class Main extends JFrame implements KeyListener {
     }
 
     void setLocale() {
-        Locale locale = Locale.getDefault();
-        if (locale == Locale.CHINA) {
-            bundle = ResourceBundle.getBundle("examples.ui_zh_CN");
-        } else {
-            bundle = ResourceBundle.getBundle("examples.ui_en_US");
-        }
+        bundle = ResourceBundle.getBundle("engraver.ui", Locale.getDefault());
 
         this.btn_openpic.setToolTipText(bundle.getString("open_pic"));
         this.btn_text.setToolTipText(bundle.getString("enter_text"));
@@ -510,7 +533,7 @@ public class Main extends JFrame implements KeyListener {
     private void formWindowOpened(WindowEvent evt) {
         try {
             this.btn_wificonnect.setVisible(false);
-            Update.update();
+            // Update.update();
             FileTransferHandler ft = new FileTransferHandler();
             FileTransferHandler.board = this.board;
             this.board.setTransferHandler(ft);
@@ -576,7 +599,7 @@ public class Main extends JFrame implements KeyListener {
                                     }
                                 }
                             }).start();
-                            this.qu_yu();
+                            this.updateRegion();
                             return;
                         }
                         ty.path.moveTo(i / Board.RESOLUTION * 10.0D, 0.0D);
@@ -598,6 +621,7 @@ public class Main extends JFrame implements KeyListener {
     public static boolean inRange(int origin, int range, int val) {
         return inRange(origin, range, range, val);
     }
+
     public static boolean inRange(int origin, int l, int r, int val) {
         return origin - l < val && val < origin + r;
     }
@@ -670,12 +694,12 @@ public class Main extends JFrame implements KeyListener {
                 case 8:
                 case 9:
                     Board.bElements.stream().filter(e -> e.selected && e.type == 1).findFirst().ifPresent(
-                            e -> {
-                                e.process_code = this.an - 5;
-                                e.process();
-                                this.updateBoard();
-                                Undo.add();
-                            }
+                        e -> {
+                            e.process_code = this.an - 5;
+                            e.process();
+                            this.updateBoard();
+                            Undo.add();
+                        }
                     );
                     return;
                 case 10:
@@ -698,7 +722,7 @@ public class Main extends JFrame implements KeyListener {
                     BElement element = BElement.create(0, null);
                     element.path = new GeneralPath();
                     BElement last = null;
-                    for (var e: Board.bElements) {
+                    for (var e : Board.bElements) {
                         if (e.selected && e.type == 0) {
                             GeneralPath path = new GeneralPath(e.path);
                             path.transform(e.Tx);
@@ -724,12 +748,12 @@ public class Main extends JFrame implements KeyListener {
                         this.selection = false;
                         this.updateBoard();
                     } else {
-                        for (var e: Board.bElements) {
+                        for (var e : Board.bElements) {
                             if (!e.selected) {
                                 Rectangle r = BElement.getBounds(e);
                                 if (
                                     inRange(r.x, 0, r.width, this.clickX)
-                                    && inRange(r.y, 0, r.height, this.clickY)
+                                        && inRange(r.y, 0, r.height, this.clickY)
                                 ) {
                                     Board.unselectAll();
                                     e.selected = true;
@@ -907,7 +931,7 @@ public class Main extends JFrame implements KeyListener {
 
         if (Board.inPreview) {
             new Thread(() -> {
-                this.send(new byte[] {33, 0, 4, 0}, 3);
+                this.send(new byte[]{33, 0, 4, 0}, 3);
                 Board.inPreview = false;
                 this.updateBoard();
             }).start();
@@ -931,7 +955,7 @@ public class Main extends JFrame implements KeyListener {
         byte y2 = (byte) (bound.y + bound.height / 2 >> 8);
         byte y1 = (byte) (bound.y + bound.height / 2);
         new Thread(() -> {
-            this.send(new byte[] {32, 0, 11, w2, w1, h2, h1, x2, x1, y2, y1}, 1);
+            this.send(new byte[]{32, 0, 11, w2, w1, h2, h1, x2, x1, y2, y1}, 1);
             Board.inPreview = true;
             this.updateBoard();
         }).start();
@@ -995,34 +1019,8 @@ public class Main extends JFrame implements KeyListener {
         new Thread(() -> {
             int weak_light = this.sd_weak_light.getValue() * 2;
             int accuracy = this.opt_accuracy.getSelectedIndex();
-            Main.this.send(new byte[] {40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 2);
+            this.send(new byte[]{40, 0, 11, (byte) weak_light, (byte) accuracy, 0, 0, 0, 0, 0, 0}, 2);
         }).start();
-    }
-
-    private void changeAccuracy(ActionEvent evt) {
-        if (this.wifi != null) {
-            if (this.comOpened || this.wifi.connected) {
-                if (this.driver_version[2] == 37) {
-                    if (this.opt_accuracy.getSelectedIndex() == 0) {
-                        Board.RESOLUTION = 0.064D;
-                    } else if (this.opt_accuracy.getSelectedIndex() == 1) {
-                        Board.RESOLUTION = 0.08D;
-                    } else if (this.opt_accuracy.getSelectedIndex() == 2) {
-                        Board.RESOLUTION = 0.096D;
-                    }
-                } else if (this.opt_accuracy.getSelectedIndex() == 0) {
-                    Board.RESOLUTION = 0.05D;
-                } else if (this.opt_accuracy.getSelectedIndex() == 1) {
-                    Board.RESOLUTION = 0.0625D;
-                } else if (this.opt_accuracy.getSelectedIndex() == 2) {
-                    Board.RESOLUTION = 0.075D;
-                }
-
-                this.board.boardSetup();
-                this.apply_settings_general();
-            }
-
-        }
     }
 
     private void evt_aux_positioning(ActionEvent evt) {
@@ -1050,12 +1048,12 @@ public class Main extends JFrame implements KeyListener {
                     e.bitMap2H = e.bitMapImg2.getHeight();
 
                     e.bitMapImg.getRGB(
-                            0, 0, e.bitMapW, e.bitMapH,
-                            new int[e.bitMapW * e.bitMapH], 0, e.bitMapW
+                        0, 0, e.bitMapW, e.bitMapH,
+                        new int[e.bitMapW * e.bitMapH], 0, e.bitMapW
                     );
                     e.bitMapImg2.getRGB(
-                            0, 0, e.bitMap2W, e.bitMap2H,
-                            new int[e.bitMap2W * e.bitMap2H], 0, e.bitMap2W
+                        0, 0, e.bitMap2W, e.bitMap2H,
+                        new int[e.bitMap2W * e.bitMap2H], 0, e.bitMap2W
                     );
                 }
             }
@@ -1115,62 +1113,24 @@ public class Main extends JFrame implements KeyListener {
 
     }
 
-    private void jSlider6StateChanged(ChangeEvent evt) {
-        this.lb_contrast.setText(bundle.getString("contrast") + this.sd_contrast.getValue() + "%");
-        if (Board.bElements.size() >= 2) {
-            Board.bElements.stream().filter(e -> e.selected && e.type == 1)
-                    .forEach(e -> {
-                        e.threshold = this.sd_contrast.getValue();
-                        e.process();
-                    });
-            this.updateBoard();
-        }
-    }
-
-    private void jSlider7StateChanged(ChangeEvent evt) {
-        this.lb_fill.setText(bundle.getString("fill") + this.sd_fill.getValue());
-        Board.FILL_WIDTH = this.sd_fill.getValue();
-        this.updateBoard();
-    }
-
-    void qu_yu() {
-        GeneralPath lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
-        lu_jing2.transform((Board.bElements.get(0)).Tx);
-        Rectangle rect = lu_jing2.getBounds();
-        System.out.print(rect);
-        AffineTransform fb;
+    void updateRegion() {
+        Rectangle rect = BElement.getBounds(Board.getBG());
         if (rect.width > this.board.getWidth() || rect.height > this.board.getHeight()) {
-            double b;
-            if (rect.width - this.board.getWidth() > rect.height - this.board.getHeight()) {
-                b = (double) this.board.getWidth() / (double) rect.width;
-            } else {
-                b = (double) this.board.getHeight() / (double) rect.height;
-            }
-
+            double b = Math.max(rect.width - this.board.getWidth(), rect.height - this.board.getHeight());
             Board.scale *= b;
-            AffineTransform sf = AffineTransform.getScaleInstance(b, b);
-
-            for (int i = 0; i < Board.bElements.size(); ++i) {
-                fb = new AffineTransform(sf);
-                fb.concatenate((Board.bElements.get(i)).Tx);
-                (Board.bElements.get(i)).Tx = fb;
-            }
+            Board.bElements.forEach((e) -> {
+                e.Tx.concatenate(AffineTransform.getScaleInstance(b, b));
+            });
         }
 
-        lu_jing2 = new GeneralPath((Board.bElements.get(0)).path);
-        lu_jing2.transform((Board.bElements.get(0)).Tx);
-        rect = lu_jing2.getBounds();
         int x1 = rect.x + rect.width / 2;
         int y1 = rect.y + rect.height / 2;
         int x2 = this.board.getWidth() / 2;
         int y2 = this.board.getHeight() / 2;
-        fb = AffineTransform.getTranslateInstance(x2 - x1, y2 - y1);
 
-        for (int i = 0; i < Board.bElements.size(); ++i) {
-            // AffineTransform fb = new AffineTransform(fb);
-            fb.concatenate((Board.bElements.get(i)).Tx);
-            (Board.bElements.get(i)).Tx = fb;
-        }
+        Board.bElements.forEach((e) -> {
+            e.Tx.concatenate(AffineTransform.getTranslateInstance(x2 - x1, y2 - y1));
+        });
 
         this.updateBoard();
     }
@@ -1197,43 +1157,43 @@ public class Main extends JFrame implements KeyListener {
      * @return true if successful
      */
     boolean engrave(
-            int length, int version,
-            int carveWidth, int carveHeight, int carvePosition, int carvePower, int carveDepth,
-            int cutWidth, int cutHeight, int cutPosition, int cutPower, int cutDepth,
-            int cutNumPts, int z, int s, int nTimes
+        int length, int version,
+        int carveWidth, int carveHeight, int carvePosition, int carvePower, int carveDepth,
+        int cutWidth, int cutHeight, int cutPosition, int cutPower, int cutDepth,
+        int cutNumPts, int z, int s, int nTimes
     ) {
-        byte[] data = new byte[] {
-                35, 0, 38,
-                (byte) (length >> 8), (byte) length,
-                (byte) version,
-                (byte) (carveWidth >> 8), (byte) carveWidth,
-                (byte) (carveHeight >> 8), (byte) carveHeight,
-                (byte) (carvePosition >> 8), (byte) carvePosition,
-                (byte) (carvePower >> 8), (byte) carvePower,
-                (byte) (carveDepth >> 8), (byte) carveDepth,
-                (byte) (cutWidth >> 8), (byte) cutWidth,
-                (byte) (cutHeight >> 8), (byte) cutHeight,
-                (byte) (cutPosition >> 24), (byte) (cutPosition >> 16), (byte) (cutPosition >> 8), (byte) cutPosition,
-                (byte) (cutPower >> 8), (byte) cutPower,
-                (byte) (cutDepth >> 8), (byte) cutDepth,
-                (byte) (cutNumPts >> 24), (byte) (cutNumPts >> 16), (byte) (cutNumPts >> 8), (byte) cutNumPts,
-                (byte) (z >> 8), (byte) z,
-                (byte) (s >> 8), (byte) s,
-                (byte) nTimes, 0
+        byte[] data = new byte[]{
+            35, 0, 38,
+            (byte) (length >> 8), (byte) length,
+            (byte) version,
+            (byte) (carveWidth >> 8), (byte) carveWidth,
+            (byte) (carveHeight >> 8), (byte) carveHeight,
+            (byte) (carvePosition >> 8), (byte) carvePosition,
+            (byte) (carvePower >> 8), (byte) carvePower,
+            (byte) (carveDepth >> 8), (byte) carveDepth,
+            (byte) (cutWidth >> 8), (byte) cutWidth,
+            (byte) (cutHeight >> 8), (byte) cutHeight,
+            (byte) (cutPosition >> 24), (byte) (cutPosition >> 16), (byte) (cutPosition >> 8), (byte) cutPosition,
+            (byte) (cutPower >> 8), (byte) cutPower,
+            (byte) (cutDepth >> 8), (byte) cutDepth,
+            (byte) (cutNumPts >> 24), (byte) (cutNumPts >> 16), (byte) (cutNumPts >> 8), (byte) cutNumPts,
+            (byte) (z >> 8), (byte) z,
+            (byte) (s >> 8), (byte) s,
+            (byte) nTimes, 0
         };
         if (this.comOpened) {
-            return handler.send_offline(data, 2);
+            return com.send_offline(data, 2);
         } else {
             return this.wifi.connected && this.wifi.kaishi(data, 22);
         }
     }
 
     boolean send(byte[] data, int timeout) {
-        return this.comOpened ? handler.send(data, timeout) : this.wifi.send(data, timeout * 100);
+        return this.comOpened ? com.send(data, timeout) : this.wifi.send(data, timeout * 100);
     }
 
     boolean send_offline(byte[] data, int timeout) {
-        return this.comOpened ? handler.send_offline(data, timeout) : this.wifi.send(data, timeout * 100);
+        return this.comOpened ? com.send_offline(data, timeout) : this.wifi.send(data, timeout * 100);
     }
 
     void engrave() {
@@ -1241,7 +1201,6 @@ public class Main extends JFrame implements KeyListener {
         int carveHeight = 0;
         boolean doCarving, doCutting;
         int cutPosition;
-        byte bl = 0;
         int carveWidthInByte = 0;
 
         Board.backup();
@@ -1276,19 +1235,19 @@ public class Main extends JFrame implements KeyListener {
         int packet_len = (33 + carve_bytes + bPoints.size() * 4) / 4094 + 1;
         this.engrave(
             packet_len,
-                1,
-                carveWidth, carveHeight, 33,
-                this.sd_carve_power.getValue() * 10,
-                this.sd_carve_depth.getValue(),
-                Board.bounds.width,
-                Board.bounds.height,
-                cutPosition,
-                this.sd_cut_power.getValue() * 10,
-                this.sd_cut_depth.getValue(),
-                bPoints.size(),
-                cutX2,
-                cutY2,
-                this.opt_num_times.getSelectedIndex() + 1
+            1,
+            carveWidth, carveHeight, 33,
+            this.sd_carve_power.getValue() * 10,
+            this.sd_carve_depth.getValue(),
+            Board.bounds.width,
+            Board.bounds.height,
+            cutPosition,
+            this.sd_cut_power.getValue() * 10,
+            this.sd_cut_depth.getValue(),
+            bPoints.size(),
+            cutX2,
+            cutY2,
+            this.opt_num_times.getSelectedIndex() + 1
         );
 
         try {
@@ -1298,7 +1257,7 @@ public class Main extends JFrame implements KeyListener {
         }
 
         for (int i = 0; i < 2; i++) {
-            this.send(new byte[] {10, 0, 4, 0}, 1);
+            this.send(new byte[]{10, 0, 4, 0}, 1);
             try {
                 Thread.sleep(500L);
             } catch (InterruptedException e) {
@@ -1306,14 +1265,12 @@ public class Main extends JFrame implements KeyListener {
             }
         }
 
-        byte[] bitVals = new byte[] {(byte) 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
-
         boolean doResend;
         int count = 0;
         if (doCarving) {
             int[] pixels = new int[carveWidth * carveHeight];
             image.getRGB(0, 0, carveWidth, carveHeight, pixels, 0, carveWidth);
-
+            byte block = 0;
             for (int i = 0; i < carveHeight; ++i) {
                 // do for each row
                 for (int j = 0; j < carveWidthInByte; ++j) {
@@ -1322,10 +1279,10 @@ public class Main extends JFrame implements KeyListener {
                         // 8 pixels into 1 byte
                         int p = i * carveWidth + j * 8 + bit;
                         if (p < pixels.length && (pixels[p] & 0xff0000) < 0x0a0000) {
-                            bl |= bitVals[bit] + 0x80 >> bit;
+                            block |= (0x80 >> bit);
                         }
                     }
-                    points_data[count++] = bl;
+                    points_data[count++] = block;
                 }
             }
         }
@@ -1339,57 +1296,50 @@ public class Main extends JFrame implements KeyListener {
             }
         }
 
+        // send all data with max packet size: 1904
+        // where 1900 is the original,
+        // and extra 4 for [instr_type, length, length, ..., checksum]
         int MAX_PACKET_SIZE = 1900;
-        byte[] engrave_data = new byte[MAX_PACKET_SIZE + 4];
+        byte[] packet = new byte[MAX_PACKET_SIZE + 4];
         for (int i = 0; i < points_data.length / MAX_PACKET_SIZE; ++i) {
             System.arraycopy(
                 points_data, i * MAX_PACKET_SIZE,
-                engrave_data, 3,
+                packet, 3,
                 MAX_PACKET_SIZE
             );
 
             do {
-                engrave_data[0] = 34;
-                engrave_data[1] = (byte) (engrave_data.length >> 8);
-                engrave_data[2] = (byte) engrave_data.length;
-                engrave_data[engrave_data.length - 1] = Utils.checksum(engrave_data);
-                doResend = !this.send(engrave_data, 2);
+                packet[0] = 34;
+                packet[1] = (byte) (packet.length >> 8);
+                packet[2] = (byte) packet.length;
+                packet[packet.length - 1] = Utils.checksum(packet);
+                doResend = !this.send(packet, 2);
             } while (doResend);
 
             this.jdt.setVisible(true);
             this.jdt.setValue((int) (i / points_data.length * MAX_PACKET_SIZE * 100.0F));
         }
 
-        engrave_data = new byte[points_data.length % MAX_PACKET_SIZE + 4];
+        packet = new byte[points_data.length % MAX_PACKET_SIZE + 4];
         if (points_data.length % MAX_PACKET_SIZE > 0) {
             System.arraycopy(
                 points_data, points_data.length / MAX_PACKET_SIZE * MAX_PACKET_SIZE,
-                engrave_data, 3,
+                packet, 3,
                 points_data.length % MAX_PACKET_SIZE
             );
 
             do {
-                engrave_data[0] = 34;
-                engrave_data[1] = (byte) (engrave_data.length >> 8);
-                engrave_data[2] = (byte) engrave_data.length;
-                engrave_data[engrave_data.length - 1] = Utils.checksum(engrave_data);
-                doResend = !this.send(engrave_data, 2);
+                packet[0] = 34;
+                packet[1] = (byte) (packet.length >> 8);
+                packet[2] = (byte) packet.length;
+                packet[packet.length - 1] = Utils.checksum(packet);
+                doResend = !this.send(packet, 2);
             } while (doResend);
         }
 
-        try {
-            for (int i = 0; i < 2; i++) {
-                Thread.sleep(200L);
-                this.send(new byte[]{36, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 1);
-            }
-            Thread.sleep(500L);
-        } catch (Exception e) {
-            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
-        }
-
-        engraveFinished = true;
-        if (handler != null) {
-            handler.terminateWith(3, 0);
+        engraveFinished = send_endEngrave();
+        if (com != null) {
+            com.terminateWith(3, 0);
         }
 
         this.jdt.setVisible(false);
@@ -1398,8 +1348,7 @@ public class Main extends JFrame implements KeyListener {
 
     void connect_viaUSB() {
         if (this.comOpened) {
-            handler.close();
-            handler = null;
+            com.close();
             toggle_connect_status(false);
         }
 
@@ -1412,33 +1361,19 @@ public class Main extends JFrame implements KeyListener {
 
             try {
                 this.port = SerialPortUtil.openSerialPort(port, 115200);
-                handler = new Com(this.port);
-                if (handler.send(new byte[]{10, 0, 4, 0}, 2)) {
-                    handler.jdt = this.jdt;
+                com = new Com(this.port);
+                if (com.send(new byte[]{10, 0, 4, 0}, 2)) {
+                    com.jdt = this.jdt;
                     toggle_connect_status(true);
-                    if (handler.read_version()) {
-                        this.driver_version = new byte[]{handler.ret_val[0], handler.ret_val[1], handler.ret_val[2]};
-                        this.board.version(this.driver_version, 2);
-                        if (this.driver_version[2] == 37) {
-                            if (Board.RESOLUTION == 0.096D) {
-                                this.opt_accuracy.setSelectedIndex(2);
-                            } else if (Board.RESOLUTION == 0.08D) {
-                                this.opt_accuracy.setSelectedIndex(1);
-                            } else if (Board.RESOLUTION == 0.064D) {
-                                this.opt_accuracy.setSelectedIndex(0);
-                            }
-                        } else if (Board.RESOLUTION == 0.075D) {
-                            this.opt_accuracy.setSelectedIndex(2);
-                        } else if (Board.RESOLUTION == 0.0625D) {
-                            this.opt_accuracy.setSelectedIndex(1);
-                        } else if (Board.RESOLUTION == 0.05D) {
-                            this.opt_accuracy.setSelectedIndex(0);
-                        }
-                        this.qu_yu();
+                    if (com.read_version()) {
+                        firmware_version = com.ret_val[2];
+                        this.board.version(firmware_version, 2);
+                        this.opt_accuracy.setSelectedIndex(2);
+                        this.updateRegion();
                     }
                     break;
                 }
-                handler.close();
+                com.close();
             } catch (Exception e) {
                 Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
             }
@@ -1449,19 +1384,19 @@ public class Main extends JFrame implements KeyListener {
         this.comOpened = connected;
         if (connected) {
             this.btn_usbconnect.setIcon(
-                    new ImageIcon(
-                            Objects.requireNonNull(
-                                    this.getClass().getResource("/res/usb.png")
-                            )
+                new ImageIcon(
+                    Objects.requireNonNull(
+                        this.getClass().getResource("/res/usb.png")
                     )
+                )
             );
         } else {
             this.btn_usbconnect.setIcon(
-                    new ImageIcon(
-                            Objects.requireNonNull(
-                                    this.getClass().getResource("/res/usb2.png")
-                            )
+                new ImageIcon(
+                    Objects.requireNonNull(
+                        this.getClass().getResource("/res/usb2.png")
                     )
+                )
             );
         }
     }
@@ -1487,16 +1422,16 @@ public class Main extends JFrame implements KeyListener {
     void set() {
         if (this.tf_inlay_x.getText().length() != 0) {
             double var_x = (Integer.parseInt(this.tf_inlay_x.getText()) - this.board.val_x)
-                    * Board.scale / Board.RESOLUTION;
+                * Board.scale / Board.RESOLUTION;
             Board.bElements.stream().filter(e -> e.selected)
-                    .forEach(e -> e.translate((int) var_x, e.path.getBounds().y));
+                .forEach(e -> e.translate((int) var_x, e.path.getBounds().y));
             this.updateBoard();
         }
         if (this.tf_inlay_y.getText().length() != 0) {
             double var_y = (Integer.parseInt(this.tf_inlay_y.getText()) - this.board.val_y)
-                    * Board.scale / Board.RESOLUTION;
+                * Board.scale / Board.RESOLUTION;
             Board.bElements.stream().filter(e -> e.selected)
-                    .forEach(e -> e.translate(e.path.getBounds().x, (int) var_y));
+                .forEach(e -> e.translate(e.path.getBounds().x, (int) var_y));
             this.updateBoard();
         }
         if (this.tf_inlay_w.getText().length() != 0) {
@@ -1532,7 +1467,7 @@ public class Main extends JFrame implements KeyListener {
                 case 67 -> {
                     this.bElementsCopy.clear();
                     Board.bElements.stream().filter(e -> e.selected)
-                            .forEach(e -> this.bElementsCopy.add(BElement.copy(e)));
+                        .forEach(e -> this.bElementsCopy.add(BElement.copy(e)));
                     this.copied = true;
                 }
                 case 86 -> {
@@ -1571,5 +1506,19 @@ public class Main extends JFrame implements KeyListener {
     }
 
     public void keyTyped(KeyEvent e) {
+    }
+
+    boolean send_endEngrave() {
+        try {
+            for (int i = 0; i < 2; i++) {
+                Thread.sleep(200L);
+                this.send(new byte[]{36, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 1);
+            }
+            Thread.sleep(500L);
+        } catch (Exception e) {
+            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
+        }
+
+        return true;
     }
 }

@@ -33,11 +33,11 @@ public class Com {
                 if (this.com == null) return;
                 byte[] data = SerialPortUtil.readData(this.com);
                 switch (this.terminate_type) {
-                    case 0:
+                    case 0 -> {
                         this.ret = true;
                         this.ret_val = data;
-                        return;
-                    case 2:
+                    }
+                    case 2 -> {
                         // add ret_val -> terminate buffer
                         this.terminate_count += data.length;
                         for (byte b : data) {
@@ -50,19 +50,18 @@ public class Com {
                             IntStream.range(0, 3).forEach(i -> this.ret_val[i] = this.terminate_buffer.get(i));
                             this.ret = true;
                         }
-                        return;
-                    case 3:
+                    }
+                    case 3 -> {
                         // add ret_val -> terminate buffer
                         for (byte b : data) {
                             this.terminate_buffer.add(b);
                         }
-
                         int size = this.terminate_buffer.size();
                         if (
-                                size > 3
-                                        && this.terminate_buffer.get(size - 4) == -1
-                                        && this.terminate_buffer.get(size - 3) == -1
-                                        && this.terminate_buffer.get(size - 2) == 0
+                            size > 3
+                                && this.terminate_buffer.get(size - 4) == -1
+                                && this.terminate_buffer.get(size - 3) == -1
+                                && this.terminate_buffer.get(size - 2) == 0
                         ) {
                             this.jdt.setValue(this.terminate_buffer.get(size - 1));
                             this.jdt.setVisible(true);
@@ -70,12 +69,9 @@ public class Com {
                             Main.engraveFinished = true;
                             this.terminate_buffer.clear();
                         }
-
                         System.out.println(data.length);
                         Main.timeout = 0;
-                        return;
-                    case 1:
-                    default:
+                    }
                 }
             } catch (Exception e) {
                 Logger.getLogger("COM").log(Level.SEVERE, null, e);

@@ -9,14 +9,21 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Update {
     private static String getURLContents(String urlStr) throws Exception {
-        URL url = new URL(urlStr);
-        try (InputStream in = url.openStream()) {
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        try {
+            URL url = new URL(urlStr);
+            Scanner s = new Scanner(url.openStream());
+            StringBuilder sb = new StringBuilder();
+
+            while (s.hasNext()) {
+                sb.append(s.next());
+            }
+            return sb.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }

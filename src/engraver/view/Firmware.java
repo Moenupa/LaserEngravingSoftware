@@ -106,9 +106,9 @@ public class Firmware extends JFrame {
 
     public static void toggleUpdateStatus(boolean start) {
         if (start)
-            Main.handler.send(new byte[]{-2, 0, 4, 0}, 1);
+            Main.com.send(new byte[]{-2, 0, 4, 0}, 1);
         else
-            Main.handler.send(new byte[]{4, 0, 4, 0}, 1);
+            Main.com.send(new byte[]{4, 0, 4, 0}, 1);
         try {
             Thread.sleep(600L);
         } catch (Exception e) {
@@ -156,7 +156,7 @@ public class Firmware extends JFrame {
 
     public void transferPkg() {
         byte[] bytesData = null;
-        Main.handler.send(new byte[]{2, 0, 5, 0, 115}, 1);
+        Main.com.send(new byte[]{2, 0, 5, 0, 115}, 1);
 
         try {
             Thread.sleep(6000L);
@@ -196,7 +196,7 @@ public class Firmware extends JFrame {
                     } catch (InterruptedException e) {
                         Logger.getLogger(Firmware.class.getName()).log(Level.SEVERE, null, e);
                     }
-                } while (!Main.handler.send(toBytes(packets), 1));
+                } while (!Main.com.send(toBytes(packets), 1));
 
                 packets.clear();
                 Dimension d = this.progressBar.getSize();

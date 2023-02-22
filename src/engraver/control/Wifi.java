@@ -192,7 +192,7 @@ public class Wifi {
 
                     byte[] ret = version(new byte[] {-1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0}, 100);
                     if (ret != null) {
-                        board.version(ret, 2);
+                        board.version(ret[2], 2);
                     }
 
                     Thread.sleep(500L);
