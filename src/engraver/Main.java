@@ -35,33 +35,12 @@ import java.util.logging.Logger;
 
 public class Main extends JFrame implements KeyListener {
     public final static String software_version = "v1.1.1";
-
-    List<BElement> bElementsCopy = new ArrayList<>();
-    SerialPort port = null;
-    boolean clicked = false;
-    boolean comOpened = false;
-    boolean copied = false;
-    boolean auxPositioning = false;
-    boolean dragging = false;
-    boolean paused = false;
-    int an = 0;
-    int btnActive = 0;
-    int clickX = 0;
-    int clickX1 = 0;
-    int clickY = 0;
-    int clickY1 = 0;
-    int sec = 0;
-    private boolean selection = false;
-    public Wifi wifi = null;
     public static Com com = null;
     public static ResourceBundle bundle = ResourceBundle.getBundle("engraver.ui");
     public static boolean engraveStarted = false;
     public static boolean engraveFinished = false;
     public static int timeout = 0;
     public static int firmware_version = 0;
-
-    Main window = null;
-
     public static String str_font = "";
     public static String str_typeface = "";
     public static String str_size = "";
@@ -77,12 +56,10 @@ public class Main extends JFrame implements KeyListener {
     public static String str_model = "";
     public static String str_update = "";
     public static String str_download_fail = "";
-
     private final Board board = new Board();
     private final JPanel pn_inlay_hint = new JPanel();
     private final JPanel pn_main_right = new JPanel();
     private final JDialog dialog = new JDialog();
-
     // buttons that draw shapes on board
     private final JButton btn_openpic = new JButton();
     private final JButton btn_text = new JButton();
@@ -90,7 +67,6 @@ public class Main extends JFrame implements KeyListener {
     private final JButton btn_square = new JButton();
     private final JButton btn_heart = new JButton();
     private final JButton btn_star = new JButton();
-
     // buttons resp for main functions
     private final JButton btn_convertbmp = new JButton();
     private final JButton btn_save = new JButton();
@@ -101,16 +77,13 @@ public class Main extends JFrame implements KeyListener {
     private final JButton btn_usbconnect = new JButton();
     private final JButton btn_wificonnect = new JButton();
     private final JButton btn_unknown = new JButton();
-
     private final JLabel lb_inlay_x = new JLabel();
     private final JLabel lb_inlay_y = new JLabel();
     private final JLabel lb_inlay_h = new JLabel();
     private final JLabel lb_inlay_w = new JLabel();
-
     private final JLabel lb_wifi = new JLabel();
     private final JLabel lb_pwd = new JLabel();
     private final JLabel lb_execution_time = new JLabel();
-
     // labels in right-panel settings
     private final JLabel lb_weak_light = new JLabel();
     private final JLabel lb_carve_power = new JLabel();
@@ -121,7 +94,6 @@ public class Main extends JFrame implements KeyListener {
     private final JLabel lb_fill = new JLabel();
     private final JLabel lb_num_times = new JLabel();
     private final JLabel lb_accuracy = new JLabel();
-
     // interactive controllers in right-panel settings
     private final JSlider sd_weak_light = new JSlider();
     private final JSlider sd_carve_power = new JSlider();
@@ -132,17 +104,55 @@ public class Main extends JFrame implements KeyListener {
     private final JSlider sd_fill = new JSlider();
     private final JComboBox<String> opt_num_times = new JComboBox<>();
     private final JComboBox<String> opt_accuracy = new JComboBox<>();
-
     private final JTextField tf_inlay_x = new JTextField();
     private final JTextField tf_inlay_y = new JTextField();
     private final JTextField tf_inlay_w = new JTextField();
     private final JTextField tf_inlay_h = new JTextField();
-
     private final JProgressBar jdt = new JProgressBar();
+    public Wifi wifi = null;
+    List<BElement> bElementsCopy = new ArrayList<>();
+    SerialPort port = null;
+    boolean clicked = false;
+    boolean comOpened = false;
+    boolean copied = false;
+    boolean auxPositioning = false;
+    boolean dragging = false;
+    boolean paused = false;
+    int an = 0;
+    int btnActive = 0;
+    int clickX = 0;
+    int clickX1 = 0;
+    int clickY = 0;
+    int clickY1 = 0;
+    int sec = 0;
+    Main window = null;
+    private boolean selection = false;
 
     public Main() {
         this.initComponents();
         this.updateBoard();
+    }
+
+    public static boolean inRange(int origin, int range, int val) {
+        return inRange(origin, range, range, val);
+    }
+
+    public static boolean inRange(int origin, int l, int r, int val) {
+        return origin - l < val && val < origin + r;
+    }
+
+    public static void main(String[] args) {
+        try {
+            for (var preset : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(preset.getName())) {
+                    UIManager.setLookAndFeel(preset.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
+        }
+        EventQueue.invokeLater(() -> (new Main()).setVisible(true));
     }
 
     private void initComponents() {
@@ -618,14 +628,6 @@ public class Main extends JFrame implements KeyListener {
         }
     }
 
-    public static boolean inRange(int origin, int range, int val) {
-        return inRange(origin, range, range, val);
-    }
-
-    public static boolean inRange(int origin, int l, int r, int val) {
-        return origin - l < val && val < origin + r;
-    }
-
     int qu_anniu(int x, int y) {
         Rectangle r = BElement.getBounds(Board.bElements);
         if (inRange(r.x, 15, x) && inRange(r.y, 15, y)) {
@@ -748,7 +750,7 @@ public class Main extends JFrame implements KeyListener {
                         this.selection = false;
                         this.updateBoard();
                     } else {
-                        for (var e : Board.bElements) {
+                        for (var e : Board.getElements()) {
                             if (!e.selected) {
                                 Rectangle r = BElement.getBounds(e);
                                 if (
@@ -1153,8 +1155,8 @@ public class Main extends JFrame implements KeyListener {
      * @param cutPower      cutting power
      * @param cutDepth      cutting depth
      * @param cutNumPts     number of points in cutting
-     * @param z
-     * @param s
+     * @param centerX       x of center point of bounds
+     * @param centerY       y of center point of bounds
      * @param nTimes        number of times
      * @return true if successful
      */
@@ -1162,7 +1164,7 @@ public class Main extends JFrame implements KeyListener {
         int length, int version,
         int carveWidth, int carveHeight, int carvePosition, int carvePower, int carveDepth,
         int cutWidth, int cutHeight, int cutPosition, int cutPower, int cutDepth,
-        int cutNumPts, int z, int s, int nTimes
+        int cutNumPts, int centerX, int centerY, int nTimes
     ) {
         byte[] data = new byte[]{
             35, 0, 38,
@@ -1179,8 +1181,8 @@ public class Main extends JFrame implements KeyListener {
             (byte) (cutPower >> 8), (byte) cutPower,
             (byte) (cutDepth >> 8), (byte) cutDepth,
             (byte) (cutNumPts >> 24), (byte) (cutNumPts >> 16), (byte) (cutNumPts >> 8), (byte) cutNumPts,
-            (byte) (z >> 8), (byte) z,
-            (byte) (s >> 8), (byte) s,
+            (byte) (centerX >> 8), (byte) centerX,
+            (byte) (centerY >> 8), (byte) centerY,
             (byte) nTimes, 0
         };
         if (this.comOpened) {
@@ -1191,11 +1193,11 @@ public class Main extends JFrame implements KeyListener {
     }
 
     boolean send(byte[] data, int timeout) {
-        return this.comOpened ? com.send(data, timeout) : this.wifi.send(data, timeout * 100);
+        return this.comOpened ? com.send(data, timeout) : wifi.send(data, timeout * 100);
     }
 
     boolean send_offline(byte[] data, int timeout) {
-        return this.comOpened ? com.send_offline(data, timeout) : this.wifi.send(data, timeout * 100);
+        return this.comOpened ? com.send_offline(data, timeout) : wifi.send(data, timeout * 100);
     }
 
     void engrave() {
@@ -1229,8 +1231,8 @@ public class Main extends JFrame implements KeyListener {
             bPoints = new ArrayList<>();
         }
 
-        int cutX2 = Board.bounds.x + Board.bounds.width / 2 + 67;
-        int cutY2 = Board.bounds.y + Board.bounds.height / 2;
+        int centerX = Board.bounds.x + Board.bounds.width / 2;
+        int centerY = Board.bounds.y + Board.bounds.height / 2;
         byte[] points_data = new byte[carve_bytes + bPoints.size() * 4];
 
         engraveStarted = true;
@@ -1238,7 +1240,8 @@ public class Main extends JFrame implements KeyListener {
         this.engrave(
             packet_len,
             1,
-            carveWidth, carveHeight, 33,
+            carveWidth, carveHeight,
+            33,
             this.sd_carve_power.getValue() * 10,
             this.sd_carve_depth.getValue(),
             Board.bounds.width,
@@ -1247,8 +1250,8 @@ public class Main extends JFrame implements KeyListener {
             this.sd_cut_power.getValue() * 10,
             this.sd_cut_depth.getValue(),
             bPoints.size(),
-            cutX2,
-            cutY2,
+            centerX,
+            centerY,
             this.opt_num_times.getSelectedIndex() + 1
         );
 
@@ -1260,7 +1263,7 @@ public class Main extends JFrame implements KeyListener {
 
         // begin transmitting packets
         for (int i = 0; i < 2; i++) {
-            this.send(new byte[] {10, 0, 4, 0}, 1);
+            this.send(new byte[]{10, 0, 4, 0}, 1);
             try {
                 Thread.sleep(500L);
             } catch (InterruptedException e) {
@@ -1414,20 +1417,6 @@ public class Main extends JFrame implements KeyListener {
                 )
             );
         }
-    }
-
-    public static void main(String[] args) {
-        try {
-            for (var preset : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(preset.getName())) {
-                    UIManager.setLookAndFeel(preset.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            Logger.getLogger("MAIN").log(Level.SEVERE, null, e);
-        }
-        EventQueue.invokeLater(() -> (new Main()).setVisible(true));
     }
 
     /**
